@@ -1,7 +1,7 @@
 # Toss Passport Auth Layer — XRPL Credentials 기반 외국인 인증·금융 온보딩
 
 > **KFIP 2026 해커톤 / 토스 특별상 출품 계획서 (한국어)**
-> 최종 수정: 2026-04-24
+> 최종 수정: 2026-05-03
 
 ---
 
@@ -96,6 +96,8 @@
 │                                                                          │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
+
+구현 단위의 상세 아키텍처는 [아키텍처](architecture/README.md) 아래에 분리되어 있습니다. [식별자 파생](architecture/identifiers.ko.md), [자격증명 스키마](architecture/credentials.ko.md), [기록 및 접근 제어](architecture/records-access.ko.md)를 함께 확인하세요.
 
 ---
 
@@ -265,7 +267,7 @@
 
 **준거 규정**: 개인정보보호법 §29, 전자금융감독규정 §17, 특금법 §5-2③, 금융보안원 암호기술 활용안내서, FIPS 140-2 L3, NIST SP 800-88 Rev.1.
 
-→ 상세 설계는 **[`docs/encryption-architecture.ko.md`](docs/encryption-architecture.ko.md)** 참조.
+→ 상세 설계는 **[암호화 아키텍처](security/encryption-architecture.ko.md)** 참조.
 
 ### 9-4. 여신전문금융업법 (여전법)
 - **본 프로젝트 스코프에선 적용 없음** (신원·지갑·송금만).
@@ -337,13 +339,20 @@
 
 ```
 XRPL hackathon/
-├── plan.ko.md                 # 본 문서
-├── plan.en.md                 # 영문판
+├── README.md
 ├── docs/
-│   ├── architecture.md        # 다이어그램 상세
-│   ├── zk-circuit.md          # 회로 설계
-│   ├── legal-notes.md         # 법령 조항 원문 인용
-│   └── pitch-deck.md          # 발표 구조
+│   ├── README.md
+│   ├── chain-structure.md     # 호환용 진입점
+│   ├── en/
+│   │   ├── README.md
+│   │   ├── plan.en.md
+│   │   ├── architecture/
+│   │   └── security/
+│   └── ko/
+│       ├── README.md
+│       ├── plan.ko.md
+│       ├── architecture/
+│       └── security/
 ├── apps/
 │   ├── mobile-ios/            # Swift, NFC + Face Pay
 │   └── mobile-android/        # Kotlin, jmrtd

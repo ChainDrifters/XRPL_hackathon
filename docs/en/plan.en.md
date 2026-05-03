@@ -1,7 +1,7 @@
 # Toss Passport Auth Layer — XRPL Credentials-Based Identity & Financial Onboarding for Foreign Residents
 
 > **KFIP 2026 Hackathon / Toss Special Award Submission Plan (English)**
-> Last updated: 2026-04-24
+> Last updated: 2026-05-03
 
 ---
 
@@ -98,6 +98,8 @@
 │                                                                       │
 └───────────────────────────────────────────────────────────────────────┘
 ```
+
+Detailed build-level architecture is split under [Architecture](architecture/README.md), including [identifier derivation](architecture/identifiers.en.md), [credential schemas](architecture/credentials.en.md), and [records/access control](architecture/records-access.en.md).
 
 ---
 
@@ -268,7 +270,7 @@ Disposal   : after 5 years → crypto-shredding (DEK physically destroyed in HSM
 
 **Regulatory anchors**: PIPA §29, Electronic Finance Supervisory Regs §17, AML/CFT Act §5-2③, KFSI Cryptographic Technology Guide, FIPS 140-2 L3, NIST SP 800-88 Rev.1.
 
-→ Full design: see **[`docs/encryption-architecture.en.md`](docs/encryption-architecture.en.md)**.
+→ Full design: see **[Encryption Architecture](security/encryption-architecture.en.md)**.
 
 ### 9-4. Specialized Credit Finance Act (여전법)
 - **Not applicable in current scope** (identity, wallet, remittance only).
@@ -340,13 +342,20 @@ Disposal   : after 5 years → crypto-shredding (DEK physically destroyed in HSM
 
 ```
 XRPL hackathon/
-├── plan.ko.md                 # Korean plan
-├── plan.en.md                 # this file
+├── README.md
 ├── docs/
-│   ├── architecture.md        # detailed diagrams
-│   ├── zk-circuit.md          # circuit design
-│   ├── legal-notes.md         # statute quotes / interpretations
-│   └── pitch-deck.md          # presentation structure
+│   ├── README.md
+│   ├── chain-structure.md     # compatibility entry point
+│   ├── en/
+│   │   ├── README.md
+│   │   ├── plan.en.md
+│   │   ├── architecture/
+│   │   └── security/
+│   └── ko/
+│       ├── README.md
+│       ├── plan.ko.md
+│       ├── architecture/
+│       └── security/
 ├── apps/
 │   ├── mobile-ios/            # Swift, NFC + Face Pay
 │   └── mobile-android/        # Kotlin, jmrtd

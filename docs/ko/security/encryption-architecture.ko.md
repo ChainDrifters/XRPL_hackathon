@@ -1,7 +1,7 @@
 # 암호화 아키텍처 (Encryption Architecture)
 
 > Toss Passport Auth Layer — 여권 원본·CDD 증거 데이터 보호 설계
-> `plan.ko.md §9-3`에서 참조
+> [`plan.ko.md §9-3`](../plan.ko.md)에서 참조
 
 ---
 
@@ -130,7 +130,7 @@ HSM 내부에만 존재, 반출 불가
 ```
 
 - **4-eyes principle**: 2명 이상 동시 승인
-- **Quorum 승인**: 관리자 N명 중 M명 (예: 5-of-3)
+- **Quorum 승인**: 관리자 N명 중 M명 (예: 3-of-5)
 - **Hardware Security Officer Card**: 물리 스마트카드로 HSM 활성화
 - 금융보안원 「암호기술 활용안내서」 §5.3 준수
 
