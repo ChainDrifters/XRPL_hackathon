@@ -110,8 +110,13 @@ credentialTypes:
     holderStores: true
     publicOnChain: false
 
-  TaxRefundEligibilityCredential:
-    purpose: Proves holder is eligible for a tax refund flow.
+  TaxRefundReadinessCredential:
+    purpose: Proves required passport proof, refund slip/QR, and holder consent are ready for a refund workflow. It is not legal refund approval.
+    holderStores: true
+    publicOnChain: false
+
+  TaxRefundEventReceiptCredential:
+    purpose: Status receipt for purchase registered, pre-refunded, export confirmed, payout completed, or failed/cancelled states.
     holderStores: true
     publicOnChain: false
 
@@ -158,13 +163,13 @@ Base structure:
   "id": "urn:vc:01J8TAXAMPLE",
   "type": [
     "VerifiableCredential",
-    "TaxRefundEligibilityCredential"
+    "TaxRefundReadinessCredential"
   ],
-  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND",
+  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
   "validFrom": "2026-05-01T00:00:00Z",
   "validUntil": "2026-12-31T23:59:59Z",
   "credentialSubject": {
-    "id": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
+    "id": "did:peer:2.taxPairwiseExample",
     "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
     "claims": {}
   },
@@ -176,7 +181,7 @@ Base structure:
     "statusListCredential": "https://issuer.example.com/status-lists/tax-refund-2026"
   },
   "credentialSchema": {
-    "id": "https://schemas.example.com/korea-foreigner-finance/tax-refund-eligibility-v1.json",
+    "id": "https://schemas.example.com/korea-foreigner-finance/tax-refund-readiness-v1.json",
     "type": "JsonSchema"
   },
   "evidence": {
@@ -189,7 +194,7 @@ Base structure:
     "type": "DataIntegrityProof",
     "cryptosuite": "ecdsa-rdfc-2019",
     "created": "2026-05-01T09:00:00Z",
-    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND#key-1",
+    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR#key-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "z..."
   }
@@ -219,7 +224,7 @@ This is the base credential other services can rely on.
   "validFrom": "2026-05-01T00:00:00Z",
   "validUntil": "2027-05-01T00:00:00Z",
   "credentialSubject": {
-    "id": "did:xrpl:1:rHOLDER_CORE_OR_PAIRWISE",
+    "id": "did:key:zHOLDER_CORE_OR_PEER",
     "relationshipId": "rel_core_8Zcn1vQ9",
     "claims": {
       "identityAssuranceLevel": "IAL2",
@@ -250,7 +255,9 @@ This is the base credential other services can rely on.
 }
 ```
 
-### B. Tax refund eligibility credential
+### B. Tax refund readiness credential
+
+This credential means the wallet has the proof, slip reference, and consent needed to proceed with an existing refund-operator flow. It does **not** mean Toss approved a tax refund.
 
 ```json
 {
@@ -258,30 +265,29 @@ This is the base credential other services can rely on.
     "https://www.w3.org/ns/credentials/v2",
     "https://schemas.example.com/korea-foreigner-finance/v1"
   ],
-  "id": "urn:vc:tax-refund-eligibility:01J8TAX123",
+  "id": "urn:vc:tax-refund-readiness:01J8TAX123",
   "type": [
     "VerifiableCredential",
-    "TaxRefundEligibilityCredential"
+    "TaxRefundReadinessCredential"
   ],
-  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND",
+  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
   "validFrom": "2026-05-01T00:00:00Z",
   "validUntil": "2026-12-31T23:59:59Z",
   "credentialSubject": {
-    "id": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
+    "id": "did:peer:2.taxPairwiseExample",
     "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
     "claims": {
-      "taxRefundEligible": true,
-      "eligibilityJurisdiction": "KR",
-      "eligibleUseCases": [
-        "retail_tax_refund",
-        "tourism_tax_refund"
-      ],
-      "minDisclosureMode": "eligible_only"
+      "passportProofVerified": true,
+      "refundSlipPresent": true,
+      "holderConsentCaptured": true,
+      "jurisdiction": "KR",
+      "sourceOfFinalDecision": "designated_refund_operator_or_customs",
+      "minDisclosureMode": "readiness_only"
     }
   },
   "evidence": {
     "type": "IssuerInternalEvidence",
-    "evidenceRef": "offrec_tax_eligibility_01J8...",
+    "evidenceRef": "offrec_tax_readiness_01J8...",
     "evidenceHash": "sha256:c40e0f...",
     "accessPolicy": "issuer-only-unless-holder-grants"
   },
@@ -293,7 +299,7 @@ This is the base credential other services can rely on.
   },
   "proof": {
     "type": "DataIntegrityProof",
-    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND#key-1",
+    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR#key-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "z..."
   }
@@ -302,7 +308,7 @@ This is the base credential other services can rely on.
 
 ### C. Tax refund event receipt credential
 
-This links a specific tax refund event to the user’s tax-refund relationship ID.
+This links a specific tax refund state update to the user’s tax-refund relationship ID. It records status received from existing actors such as a merchant POS, refund operator, or Customs feed.
 
 ```json
 {
@@ -314,17 +320,18 @@ This links a specific tax refund event to the user’s tax-refund relationship I
   "type": [
     "VerifiableCredential",
     "ServiceEventReceiptCredential",
-    "TaxRefundEventCredential"
+    "TaxRefundEventReceiptCredential"
   ],
-  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR",
+  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
   "validFrom": "2026-05-02T05:00:00Z",
   "credentialSubject": {
-    "id": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
+    "id": "did:peer:2.taxPairwiseExample",
     "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
     "event": {
       "eventId": "evt_taxrefund_01J8TXA",
-      "eventType": "tax_refund_claim",
-      "status": "submitted",
+      "eventType": "tax_refund_state_update",
+      "status": "export_confirmed",
+      "sourceActor": "refund_operator_or_customs_feed",
       "merchantCategory": "retail",
       "currency": "KRW",
       "amountHash": "sha256:amount-not-public",
@@ -334,7 +341,7 @@ This links a specific tax refund event to the user’s tax-refund relationship I
   },
   "proof": {
     "type": "DataIntegrityProof",
-    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR#key-1",
+    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR#key-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "z..."
   }
@@ -358,7 +365,7 @@ This links a specific tax refund event to the user’s tax-refund relationship I
   "validFrom": "2026-05-02T00:00:00Z",
   "validUntil": "2026-05-05T12:00:00Z",
   "credentialSubject": {
-    "id": "did:xrpl:1:rHOLDER_PAIRWISE_HOTEL",
+    "id": "did:peer:2.hotelPairwiseExample",
     "relationshipId": "rel_hotel_93vDk2",
     "claims": {
       "hotelBookingVerified": true,
@@ -399,7 +406,7 @@ This links a specific tax refund event to the user’s tax-refund relationship I
   "validFrom": "2026-05-02T00:00:00Z",
   "validUntil": "2026-08-02T00:00:00Z",
   "credentialSubject": {
-    "id": "did:xrpl:1:rHOLDER_PAIRWISE_RENTAL",
+    "id": "did:peer:2.rentalPairwiseExample",
     "relationshipId": "rel_rental_X8mw21",
     "claims": {
       "rentalEligible": true,
@@ -440,7 +447,7 @@ XRPL escrows can hold funds until conditions are met; XRPL documents the escrow 
   "issuer": "did:xrpl:1:rISSUER_ESCROW_SERVICE",
   "validFrom": "2026-05-02T03:00:00Z",
   "credentialSubject": {
-    "id": "did:xrpl:1:rHOLDER_PAIRWISE_ESCROW",
+    "id": "did:peer:2.escrowPairwiseExample",
     "relationshipId": "rel_escrow_z91Qw2",
     "linkedServiceRelationshipId": "rel_rental_X8mw21",
     "escrow": {
@@ -529,7 +536,7 @@ Status list example:
     "VerifiableCredential",
     "BitstringStatusListCredential"
   ],
-  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND",
+  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
   "validFrom": "2026-05-01T00:00:00Z",
   "credentialSubject": {
     "id": "https://issuer.example.com/status-lists/tax-refund-2026#list",
@@ -539,7 +546,7 @@ Status list example:
   },
   "proof": {
     "type": "DataIntegrityProof",
-    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND#key-1",
+    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR#key-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "z..."
   }
@@ -551,7 +558,7 @@ Optional XRPL anchor:
 ```json
 {
   "type": "StatusListAnchor",
-  "issuerDid": "did:xrpl:1:rISSUER_TAX_REFUND",
+  "issuerDid": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
   "statusListUrl": "https://issuer.example.com/status-lists/tax-refund-2026",
   "statusListHash": "sha256:a111...",
   "merkleRoot": "0xabc123...",

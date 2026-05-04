@@ -1,0 +1,61 @@
+flowchart TD
+    subgraph WALLET["Toss Foreigner Flow Wallet"]
+        E0["E0 passport_verified<br/>ForeignerKycCredential<br/>stored once"]
+
+        subgraph TAXA["Tax refund case A"]
+            TA1["E1a item_purchased"]
+            TA2["E2a tax_free_status_verified"]
+            TA3["E3a payout_or_settlement_done"]
+        end
+
+        subgraph TAXB["Tax refund case B"]
+            TB1["E1b item_purchased"]
+            TB2["E2b kiosk_or_operator_accepted"]
+            TB3["E3b customs_or_settlement_done"]
+        end
+
+        subgraph HOTEL["Hotel stay case"]
+            H1["E1_hotel booking_verified"]
+            H2["E2_hotel checked_in"]
+            H3["E3_hotel checked_out"]
+        end
+
+        subgraph RENTAL["Rental case"]
+            R1["E1_rental license_verified"]
+            R2["E2_rental deposit_authorized"]
+            R3["E3_rental vehicle_returned"]
+        end
+    end
+
+    subgraph PAIRWISE["Pairwise off-ledger relationships"]
+        P_TAX_A["did:peer tax A"]
+        P_TAX_B["did:peer tax B or same tax operator relation"]
+        P_HOTEL["did:peer hotel"]
+        P_RENTAL["did:peer rental"]
+    end
+
+    subgraph XRPL["XRPL public ledger"]
+        ORG_DIDS["Organization did:xrpl entries"]
+        ROOTS["Opaque proof roots / status roots"]
+    end
+
+    E0 --> TA1 --> TA2 --> TA3
+    E0 --> TB1 --> TB2 --> TB3
+    E0 --> H1 --> H2 --> H3
+    E0 --> R1 --> R2 --> R3
+
+    P_TAX_A -. "scopes case A" .-> TA1
+    P_TAX_B -. "scopes case B" .-> TB1
+    P_HOTEL -. "scopes hotel only" .-> H1
+    P_RENTAL -. "scopes rental only" .-> R1
+
+    TA3 -. "optional proofChainRoot" .-> ROOTS
+    TB3 -. "optional proofChainRoot" .-> ROOTS
+    H3 -. "optional proofChainRoot" .-> ROOTS
+    R3 -. "optional proofChainRoot" .-> ROOTS
+
+    ORG_DIDS -. "resolve signer keys" .-> WALLET
+
+    %% Privacy rule:
+    %% E0 is reused privately inside the wallet. XRPL does not learn that
+    %% tax, hotel, and rental branches belong to the same holder.

@@ -1,7 +1,7 @@
 # 암호화 아키텍처 (Encryption Architecture)
 
-> Toss Passport Auth Layer — 여권 원본·CDD 증거 데이터 보호 설계
-> [`plan.ko.md §9-3`](../plan.ko.md)에서 참조
+> Toss Foreigner Flow Layer / Passport Auth module — 여권 원본·CDD 증거 데이터 보호 설계
+> [`plan.ko.md §9`](../plan.ko.md)에서 참조
 
 ---
 

@@ -33,9 +33,9 @@ Holder DID
 ```yaml
 identifiers:
   holderDid:
-    example: "did:xrpl:1:rHOLDER..."
+    example: "did:key:zHOLDER_LOCAL_ROOT..."
     visibility: private_or_selectively_disclosed
-    purpose: Root identity controller for the user's identity wallet.
+    purpose: Local root identity controller for the user's identity wallet. Do not publish this on XRPL.
 
   issuerDid:
     example: "did:xrpl:1:rISSUER..."
@@ -74,6 +74,8 @@ identifiers:
 
 Use pairwise IDs so the same user cannot be trivially correlated across tax, hotel, rental, and escrow contexts.
 
+For holder/verifier pairwise relationships, use `did:peer` or another off-ledger DID method. Do **not** create ledger-based user DIDs for every relationship. XRPL DIDs are for public issuers/connectors, not per-user service links.
+
 ```text
 relationshipSecret = HKDF(holderMasterSecret, verifierDid || serviceDomain)
 
@@ -89,7 +91,7 @@ Example:
 
 ```json
 {
-  "holderDid": "did:xrpl:1:rHOLDER123",
+  "holderDid": "did:key:zHOLDER123",
   "verifierDid": "did:xrpl:1:rTAXREFUNDOPERATOR456",
   "serviceDomain": "tax_refund",
   "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT"
@@ -119,7 +121,7 @@ This is the key object that lets one identity connect to many service events wit
   "type": "PrivateIdentityGraph",
   "version": "1.0",
   "identityGraphId": "igr_01J8ROOT",
-  "holderDid": "did:xrpl:1:rHOLDER_CORE",
+  "holderDid": "did:key:zHOLDER_CORE",
   "walletAccountId": "toss_wallet_user_opaque_123",
   "createdAt": "2026-05-02T00:00:00Z",
   "serviceRelationships": [
@@ -127,9 +129,10 @@ This is the key object that lets one identity connect to many service events wit
       "serviceDomain": "tax_refund",
       "verifierDid": "did:xrpl:1:rTAX_OPERATOR",
       "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
-      "pairwiseHolderDid": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
+      "pairwiseHolderDid": "did:peer:2.taxPairwiseExample",
       "credentials": [
-        "urn:vc:tax-refund-eligibility:01J8TAX123"
+        "urn:vc:tax-refund-readiness:01J8TAX123",
+        "urn:vc:tax-refund-event:01J8TXEVENT"
       ],
       "events": [
         "evt_taxrefund_01J8TXA",
@@ -140,7 +143,7 @@ This is the key object that lets one identity connect to many service events wit
       "serviceDomain": "hotel",
       "verifierDid": "did:xrpl:1:rHOTEL_PLATFORM",
       "relationshipId": "rel_hotel_93vDk2",
-      "pairwiseHolderDid": "did:xrpl:1:rHOLDER_PAIRWISE_HOTEL",
+      "pairwiseHolderDid": "did:peer:2.hotelPairwiseExample",
       "credentials": [
         "urn:vc:hotel-status:01J8HOTEL"
       ],
@@ -153,7 +156,7 @@ This is the key object that lets one identity connect to many service events wit
       "serviceDomain": "rental",
       "verifierDid": "did:xrpl:1:rRENTAL_PLATFORM",
       "relationshipId": "rel_rental_X8mw21",
-      "pairwiseHolderDid": "did:xrpl:1:rHOLDER_PAIRWISE_RENTAL",
+      "pairwiseHolderDid": "did:peer:2.rentalPairwiseExample",
       "credentials": [
         "urn:vc:rental-eligibility:01J8RENT"
       ],
@@ -166,7 +169,7 @@ This is the key object that lets one identity connect to many service events wit
       "serviceDomain": "escrow",
       "verifierDid": "did:xrpl:1:rESCROW_SERVICE",
       "relationshipId": "rel_escrow_z91Qw2",
-      "pairwiseHolderDid": "did:xrpl:1:rHOLDER_PAIRWISE_ESCROW",
+      "pairwiseHolderDid": "did:peer:2.escrowPairwiseExample",
       "linkedServiceRelationshipIds": [
         "rel_rental_X8mw21"
       ],

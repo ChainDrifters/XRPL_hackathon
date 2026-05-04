@@ -1,0 +1,91 @@
+flowchart TD
+    START([외국인 고객<br/>Foreign customer wants tax-free purchase/refund])
+
+    START --> TYPE{구매 유형 / Purchase type}
+
+    %% Duty-free / bonded store
+    TYPE -->|보세판매장 / Duty-free store| DF1[고객<br/>여권 제시]
+    DF1 --> DF2[보세판매장<br/>면세 자격 확인]
+    DF2 --> DF3[세금이 부과되지 않은 가격으로 판매]
+    DF3 --> DF_END([완료<br/>No post-purchase refund flow])
+
+    %% Tax-refund store
+    TYPE -->|사후면세점 / Tax-refund store| G0[Eligibility guard<br/>외국인관광객 / non-resident visitor<br/>지정 면세판매장<br/>eligible goods<br/>purchase amount KRW 15,000+<br/>goods exported within 3 months]
+    G0 --> G1{Eligible?}
+
+    G1 -->|No| NE[일반 과세 판매<br/>No tax refund]
+    NE --> END0([완료])
+
+    G1 -->|Yes| S1[가맹점 / 지정 면세판매장<br/>여권 확인<br/>면세 자격 확인<br/>구매정보 생성]
+
+    S1 --> METHOD{환급 방식 선택 / Refund branch}
+
+    %% Immediate refund
+    METHOD -->|즉시환급 / Immediate refund| I0{즉시환급 조건 충족?<br/>single transaction under KRW 1,000,000<br/>trip total immediate-refund value KRW 5,000,000 or less<br/>store/POS supports immediate refund}
+    I0 -->|No| R0
+    I0 -->|Yes| I1[가맹점 POS<br/>세액 차감 가격으로 결제 처리]
+    I1 --> I2[가맹점 POS<br/>즉시환급 전자판매확인서 생성/전송]
+    I2 --> IO[환급창구운영사업자 / eTRS<br/>거래 수신·검증·기록]
+    IO --> IK[관세청<br/>거래기록 수신<br/>필요 시 사후 검증]
+    IO --> IN[국세청 / 세무서<br/>세무 증빙·정산 데이터 반영]
+    I1 --> IC[고객<br/>할인된 금액으로 구매 완료]
+    IC --> SETTLE_I[즉시환급 정산<br/>가맹점·환급사업자·세무당국 간 자료 반영]
+    SETTLE_I --> END_I([완료])
+
+    %% Regular refund
+    METHOD -->|일반환급 / General refund| R0[고객<br/>세금 포함 정상가로 결제]
+    R0 --> R1[가맹점<br/>물품판매확인서 / 환급전표 / 전자판매확인서 발급<br/>paper OR app QR/barcode/electronic record]
+    R1 --> R2[가맹점 또는 환급시스템<br/>판매기록을 환급창구운영사업자/eTRS에 등록]
+    R2 --> LOC{환급 요청 장소 / Refund location}
+
+    %% Downtown branch
+    LOC -->|시내 환급창구/키오스크| D1[고객<br/>여권 + 환급전표/QR 제시<br/>필요 시 물품/카드/계정 제시]
+    D1 --> D2[환급창구운영사업자<br/>구매기록 조회<br/>여권·면세자격·환급가능 여부 확인<br/>전자/선환급은 1회 거래 KRW 6,000,000 이하]
+    D2 --> D3{환급 수단 / Payout method}
+
+    D3 -->|현금| D4[환급창구운영사업자<br/>현금 선환급]
+    D3 -->|지급 파트너| D5[환급창구운영사업자<br/>지급 파트너에 송금 지시]
+    D5 --> P1[지급 파트너 / Payment rail<br/>Alipay / WeChat Pay / UnionPay 등<br/>고객 지갑·카드·계정으로 송금]
+
+    D4 --> D6[시내 환급 상태<br/>pre-refund / provisional<br/>담보·카드 authorization 가능]
+    P1 --> D6
+
+    D6 --> KD1[출국 시 고객<br/>여권 + 판매확인서/QR + 미개봉·미사용 물품 제시 또는 키오스크 스캔]
+    KD1 --> KD2[관세청 / 출국항 세관<br/>반출 확인<br/>선별 검사 가능]
+    KD2 --> KD3{반출 확인 완료?}
+
+    KD3 -->|No| D_FAIL[환급 취소 / 담보 청구 / 카드 승인 청구 가능]
+    D_FAIL --> END_D_FAIL([완료])
+
+    KD3 -->|Yes| K_NOTICE_D[관세청<br/>확인 결과를 환급창구운영사업자 및 국세청에 통보]
+    K_NOTICE_D --> D_FINAL[환급창구운영사업자<br/>시내 선환급 최종 확정]
+    K_NOTICE_D --> N1[국세청 / 세무서<br/>VAT/개별소비세 환급·영세율 증빙 반영]
+
+    %% Airport / port branch
+    LOC -->|공항/항만 환급창구/키오스크| A1[고객<br/>출국 전 여권 + 판매확인서/QR + 미개봉·미사용 물품 제시]
+    A1 --> A2[관세청 / 출국항 세관 또는 키오스크<br/>반출 확인<br/>선별 검사 가능]
+    A2 --> A3{반출 확인 완료?}
+
+    A3 -->|No| A_FAIL[환급 불가]
+    A_FAIL --> END_A_FAIL([완료])
+
+    A3 -->|Yes| K_NOTICE_A[관세청<br/>확인 결과를 환급창구운영사업자 및 국세청에 통보]
+    K_NOTICE_A --> A4[환급창구운영사업자<br/>환급 승인]
+    K_NOTICE_A --> N1
+
+    A4 --> A5{환급 수단 / Payout method}
+    A5 -->|현금| A6[환급창구운영사업자<br/>공항/항만 창구에서 현금 지급]
+    A5 -->|카드/지급 파트너| A7[환급창구운영사업자<br/>카드 환급 또는 지급 파트너 송금 지시]
+    A7 --> P2[지급 파트너 / Payment rail<br/>고객 카드·지갑·계정으로 송금]
+
+    A6 --> A_FINAL[공항/항만 환급 완료]
+    P2 --> A_FINAL
+
+    %% Common settlement
+    D_FINAL --> S_FINAL[환급창구운영사업자<br/>환급·송금증명서 생성]
+    A_FINAL --> S_FINAL
+
+    S_FINAL --> STORE_SETTLE[가맹점 / 면세판매자<br/>환급사업자와 정산<br/>면세매출·환급 증빙 반영]
+    STORE_SETTLE --> N2[국세청 / 세무서<br/>가맹점 세무 신고·증빙 반영]
+    N1 --> END_R([완료])
+    N2 --> END_R

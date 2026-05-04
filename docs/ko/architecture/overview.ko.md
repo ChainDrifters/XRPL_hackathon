@@ -2,16 +2,18 @@
 
 이 문서는 XRPL을 어떤 정보의 공개 신뢰 앵커로 쓰고, 어떤 정보는 사용자 지갑 또는 오프체인 보관소에 남겨야 하는지 정의합니다.
 
+개정된 제품 방향은 재한 외국인뿐 아니라 단기 방문자와 입국 직후 장기체류 예정자를 포함합니다. 세금환급, 호텔 체크인, 렌탈 신청, 보증금 처리처럼 이미 존재하는 절차를 Toss wallet에서 준비하고 추적하는 데 초점을 둡니다.
+
 ## 핵심 결정
 
 XRPL DID는 **Issuer의 공개 신뢰 앵커**로 사용합니다. 단, 한 사용자의 모든 활동을 하나의 영구 공개 DID에 직접 묶지 않습니다.
 
 ```text
 사용자-facing 레이어:
-  Toss Identity Wallet
+  Toss Foreigner Flow Wallet
 
 비공개 신원 레이어:
-  Holder DID
+  로컬 holder key / did:peer pairwise DID
   Private identity graph
   서비스별 relationship ID
   Verifiable Credentials
@@ -51,7 +53,7 @@ XRPL DID는 **Issuer의 공개 신뢰 앵커**로 사용합니다. 단, 한 사�
 |---|---:|---:|---:|---|
 | Issuer DID | 예 | 선택 | 아니오 | 공개 신뢰 앵커 |
 | Issuer 공개키 | 예 / DID 문서 | 선택 | 아니오 | VC 검증용 |
-| Holder DID | 선택 | 예 | 예 | 공개 재사용 지양 |
+| Holder DID | 아니오 | 예 | 예 | `did:peer` 또는 로컬 `did:key` 사용. 사용자 DID를 XRPL에 올리지 않음 |
 | 전체 VC | 보통 아니오 | 선택 암호화 백업 | 예 | 사용자 통제 |
 | 여권 / ARC / 비자 원본 | 아니오 | 예 | 아니오 또는 암호화 사본 | 민감정보 |
 | 세금 환급 상세 | 아니오 | 예 | 선택 receipt | 금융/상점 정보 |
@@ -83,7 +85,7 @@ XRPL DID는 **Issuer의 공개 신뢰 앵커**로 사용합니다. 단, 한 사�
 
 ## 설계 문장
 
-> XRPL은 Issuer identity, credential schema integrity, revocation/status commitment의 공개 신뢰 앵커다. 사용자의 Toss Identity Wallet은 VC와 pairwise relationship ID를 비공개로 저장하고, 민감 문서와 거래 기록은 사용자 동의 기반 접근 제어가 걸린 오프체인 저장소에 둔다.
+> XRPL은 Issuer identity, credential schema integrity, revocation/status commitment의 공개 신뢰 앵커다. 사용자의 Toss Foreigner Flow Wallet은 VC와 pairwise relationship ID를 비공개로 저장하고, 민감 문서와 거래 기록은 사용자 동의 기반 접근 제어가 걸린 오프체인 저장소에 둔다.
 
 ---
 

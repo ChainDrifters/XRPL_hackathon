@@ -13,12 +13,12 @@ This is a generic schema for tax refunds, hotel status, rental status, license c
   "eventId": "evt_taxrefund_01J8TXA",
   "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
   "serviceDomain": "tax_refund",
-  "eventType": "tax_refund_claim",
-  "status": "submitted",
+  "eventType": "tax_refund_state_update",
+  "status": "purchase_record_registered",
   "occurredAt": "2026-05-02T05:00:00Z",
   "actor": {
-    "holderDid": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
-    "issuerDid": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR",
+    "holderDid": "did:peer:2.taxPairwiseExample",
+    "issuerDid": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
     "verifierDid": "did:xrpl:1:rMERCHANT_OR_REFUND_COUNTER"
   },
   "references": {
@@ -32,7 +32,6 @@ This is a generic schema for tax refunds, hotel status, rental status, license c
     "containsPersonalData": true,
     "publiclyLinkable": false,
     "defaultDisclosure": [
-      "eventType",
       "status",
       "issuerDid",
       "validity"
@@ -104,14 +103,14 @@ When a verifier needs access to more than the minimum presentation, the holder s
   "type": "HolderAccessGrant",
   "version": "1.0",
   "grantId": "grant_01J8ACCESS",
-  "holderDid": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
-  "verifierDid": "did:xrpl:1:rTAX_REFUND_OPERATOR",
-  "issuerDid": "did:xrpl:1:rISSUER_TAX_REFUND",
+  "holderDid": "did:peer:2.taxPairwiseExample",
+  "verifierDid": "did:xrpl:1:rTAX_REFUND_OPERATOR_CONNECTOR",
+  "issuerDid": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
   "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
   "eventId": "evt_taxrefund_01J8TXA",
   "scope": [
     "read_status",
-    "read_tax_refund_claim_summary"
+    "read_tax_refund_status_summary"
   ],
   "deniedScope": [
     "read_passport_number",
@@ -123,7 +122,7 @@ When a verifier needs access to more than the minimum presentation, the holder s
   "nonce": "n_7e92...",
   "proof": {
     "type": "DataIntegrityProof",
-    "verificationMethod": "did:xrpl:1:rHOLDER_PAIRWISE_TAX#key-1",
+    "verificationMethod": "did:peer:2.taxPairwiseExample#key-1",
     "proofPurpose": "authentication",
     "proofValue": "z..."
   }
@@ -145,7 +144,60 @@ Verifier can read off-chain data only if:
 
 ---
 
-## 1.16 Verifiable presentation example
+## 1.16 Presentation request consent copy
+
+Before the holder signs a VP or access grant, the wallet renders a natural-language explanation from the signed presentation request.
+
+The renderer is rule-based:
+
+```text
+purpose + requesterDisplayName + requestedSummaryFields + retention
+  -> allowlisted template
+  -> natural-language consent sentence
+```
+
+Example request descriptor:
+
+```json
+{
+  "type": "ConsentDescriptor",
+  "templateId": "hotel_stay_history_v1",
+  "locale": "ko-KR",
+  "requesterDisplayName": "XXX 호텔",
+  "requestedSummaryFields": [
+    "숙박 기간",
+    "체크아웃 완료 여부"
+  ],
+  "withheldSummaryFields": [
+    "여권번호",
+    "카드 원문",
+    "다른 호텔 이용 내역"
+  ],
+  "variables": {
+    "hotelName": "XXX 호텔",
+    "nights": 5
+  },
+  "retention": "session_only"
+}
+```
+
+Rendered copy:
+
+```text
+XXX 호텔에서 5일 동안 머문 내역을 확인할게요
+```
+
+Rules:
+
+- Do not render arbitrary vendor-provided final sentences.
+- Only use allowlisted `templateId` values.
+- Verify the requester's DID and signature before showing the consent CTA.
+- Show exact disclosed fields and withheld fields in a details view.
+- Keep the generated sentence and signed descriptor in the local audit log.
+
+---
+
+## 1.17 Verifiable presentation example
 
 This is what the user sends to a hotel, merchant, rental provider, or escrow service.
 
@@ -159,7 +211,7 @@ This is what the user sends to a hotel, merchant, rental provider, or escrow ser
   "type": [
     "VerifiablePresentation"
   ],
-  "holder": "did:xrpl:1:rHOLDER_PAIRWISE_RENTAL",
+  "holder": "did:peer:2.rentalPairwiseExample",
   "verifiableCredential": [
     {
       "id": "urn:vc:rental-eligibility:01J8RENT",
@@ -170,7 +222,7 @@ This is what the user sends to a hotel, merchant, rental provider, or escrow ser
       ],
       "issuer": "did:xrpl:1:rISSUER_RENTAL_PLATFORM",
       "credentialSubject": {
-        "id": "did:xrpl:1:rHOLDER_PAIRWISE_RENTAL",
+        "id": "did:peer:2.rentalPairwiseExample",
         "relationshipId": "rel_rental_X8mw21",
         "claims": {
           "rentalEligible": true,
@@ -209,7 +261,7 @@ This is what the user sends to a hotel, merchant, rental provider, or escrow ser
   },
   "proof": {
     "type": "DataIntegrityProof",
-    "verificationMethod": "did:xrpl:1:rHOLDER_PAIRWISE_RENTAL#key-1",
+    "verificationMethod": "did:peer:2.rentalPairwiseExample#key-1",
     "proofPurpose": "authentication",
     "challenge": "verifier_nonce_abc123",
     "domain": "rental.example.com",

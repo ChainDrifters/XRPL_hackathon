@@ -1,61 +1,81 @@
-# Implementation Flow and Onboarding Graph
+# Implementation Flow and Service Graph
 
-This page turns the architecture into build phases, service responsibilities, onboarding graph, and pitch-safe wording.
+This page translates the revised product direction into build phases. The core rule is: **connect existing actors, do not replace them**. For tax refunds, designated tax-free merchants, refund operators/eTRS, Customs, and tax authorities keep their current roles while the Toss wallet organizes proof, slips, and status receipts.
 
-## 1.18 End-to-end implementation plan
+## 1.18 End-to-end Implementation Plan
 
-### Phase 1 — Issuer setup
+### Phase 1 - Trust Anchor / Connector Setup
 
 ```yaml
 tasks:
-  - create XRPL account for each issuer
-  - create issuer DID using DIDSet
-  - publish DID document
+  - create XRPL account for each issuer or connector
+  - create issuer/connector DID using DIDSet
+  - publish DID document URI
   - publish credential schemas
   - publish trust metadata
   - create status-list service
+  - create mock refund-operator/eTRS connector
 ```
 
-Minimum issuers:
+Actors:
 
 ```yaml
-issuers:
+actors:
   tossKycIssuer:
+    role: passport/face/residence proof issuer
     credentialTypes:
       - ForeignerKycCredential
 
-  taxRefundIssuer:
+  taxRefundOperatorConnector:
+    role: designated refund operator/eTRS integration or mock
     credentialTypes:
-      - TaxRefundEligibilityCredential
-      - TaxRefundEventCredential
+      - TaxRefundReadinessCredential
+      - TaxRefundEventReceiptCredential
+    doesNot:
+      - approve refunds independently
+      - replace customs export confirmation
+      - submit tax settlement as Toss
 
-  hotelIssuer:
+  hotelPlatformConnector:
+    role: hotel booking/check-in/deposit event integration
     credentialTypes:
       - HotelGuestStatusCredential
 
-  rentalIssuer:
+  rentalPlatformConnector:
+    role: rental application/license-check event integration
     credentialTypes:
       - RentalEligibilityCredential
       - LicenseVerificationCredential
 
-  escrowIssuer:
+  escrowServiceConnector:
+    role: hotel/rental deposit state or XRPL Testnet escrow demo
     credentialTypes:
       - EscrowStatusCredential
+
+  trustRegistry:
+    role: maps event types to authorized signer DIDs and licensed/partner status
+    anchors:
+      - trustPolicyHash
+    maySyncWith:
+      - registered tax-free merchant list
+      - refund operator partner list
+      - hotel/rental partner registry
 ```
 
 ---
 
-### Phase 2 — Wallet setup
+### Phase 2 - Wallet Setup
 
 ```yaml
 tasks:
   - create holder DID or holder keypair
   - create encrypted wallet store
   - create private identity graph
-  - create relationship ID derivation function
+  - implement service-specific relationship ID derivation
   - support VC import/export
   - support verifiable presentation generation
   - support holder consent UI
+  - support refund slip / QR / booking / license evidence import
 ```
 
 Wallet storage:
@@ -69,212 +89,300 @@ walletStorage:
       - VCs
       - relationship IDs
       - private identity graph
+      - reusable E0 passport/KYC anchor
+      - tax refund slip references
+      - hotel/rental/deposit receipt references
 
   cloudBackup:
     encrypted: true
     stores:
       - encrypted VCs
+      - encrypted service receipts
       - encrypted identity graph
     shouldNotStore:
       - plaintext private keys
       - plaintext passport data
-      - plaintext ARC data
+      - plaintext refund receipt detail
+      - plaintext hotel or rental contract detail
 ```
 
 ---
 
-### Phase 3 — Credential issuance
+### Phase 3 - Tax-Refund Streamlining
+
+Use the current flow in [tax-refund-flow.mmd](../../current-context/tax-refund-flow.mmd) and [tax-refund-sequence.mmd](../../current-context/tax-refund-sequence.mmd) as the implementation baseline.
+
+E0 is reusable. The wallet issues or imports `ForeignerKycCredential` once, then multiple purchase/refund chains branch from that same private anchor. Do not create one passport proof event per purchase.
+
+#### 3-1. Immediate Refund
 
 ```text
-1. User completes KYC / eligibility check.
-2. Issuer verifies sensitive documents off-chain.
-3. Issuer creates off-chain evidence record.
-4. Issuer issues VC to user wallet.
-5. Issuer updates credential status list.
-6. Optional: issuer anchors status-list hash on XRPL.
-7. Optional: issuer creates coarse XRPL Credential.
+1. Customer presents passport proof at a designated tax-free merchant.
+2. Merchant POS checks immediate-refund conditions and limits.
+3. POS/refund operator processes the tax-deducted purchase.
+4. Toss wallet receives electronic sales confirmation or transaction receipt.
+5. Wallet stores TaxRefundEventReceiptCredential(status=immediate_refund_completed).
 ```
 
-API sketch:
+Toss does not handle:
 
-```http
-POST /issuance/request
+```yaml
+doesNot:
+  - POS approval
+  - tax amount calculation
+  - refund operator settlement
+  - NTS reporting
 ```
+
+#### 3-2. General Refund
+
+```text
+1. Customer pays the tax-included normal price.
+2. Merchant issues sales confirmation / refund slip / QR.
+3. Toss wallet imports the slip and creates purchase_record_registered event.
+4. For downtown refund, user submits wallet presentation to refund operator.
+5. Refund operator returns pre-refund/provisional state.
+6. At departure, customer completes export confirmation at Customs/kiosk.
+7. Refund operator receives export_confirmed or export_failed status.
+8. Wallet stores payout_completed or refund_cancelled receipt.
+```
+
+Status enum:
+
+```yaml
+taxRefundStatuses:
+  - purchase_record_registered
+  - immediate_refund_completed
+  - downtown_prerefunded
+  - card_authorization_verified
+  - refund_operator_accepted
+  - airport_refund_ready
+  - export_confirmation_required
+  - export_confirmed
+  - export_failed
+  - payout_pending
+  - payout_completed
+  - refund_cancelled
+```
+
+#### 3-3. Tax-Refund Proof Chain
+
+This is the best place to use the "chain" part. The public chain should not store the full refund trail, including `eventType`. Instead, each actor signs a private status event receipt, receipts are hash-linked off-chain, and XRPL anchors issuer/connector DIDs plus status/proof roots.
+
+```text
+passport_verified / tax_refund_readiness
+  -> item_purchased
+  -> tax_free_status_verified
+  -> kiosk_refund_requested
+  -> card_authorization_verified
+  -> refund_operator_accepted
+  -> export_confirmation_required
+  -> customs_export_confirmed
+  -> card_settlement_completed
+```
+
+Each event receipt has this shape:
 
 ```json
 {
-  "holderDid": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
-  "credentialType": "TaxRefundEligibilityCredential",
-  "serviceDomain": "tax_refund",
+  "eventId": "evt_taxrefund_01J8TXA_004",
   "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
-  "documents": {
-    "passportEvidenceToken": "upload_token_abc",
-    "residenceEvidenceToken": "upload_token_def"
+  "eventType": "refund_operator_accepted",
+  "sourceActor": "refund_operator",
+  "sourceActorDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+  "occurredAt": "2026-05-02T05:30:00Z",
+  "previousEventHash": "sha256:prev-event",
+  "eventPayloadHash": "sha256:canonical-private-payload",
+  "offchainRecordRef": "offrec_tax_claim_01J8TXA",
+  "statusListIndex": "39201",
+  "proof": {
+    "type": "DataIntegrityProof",
+    "verificationMethod": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z..."
   }
 }
 ```
 
-Response:
-
-```json
-{
-  "status": "issued",
-  "credentialId": "urn:vc:tax-refund-eligibility:01J8TAX123",
-  "credential": {
-    "...": "VC payload here"
-  },
-  "statusListIndex": "39201"
-}
-```
-
----
-
-### Phase 4 — Presentation / verification
+A verifier checks only:
 
 ```text
-1. Verifier sends proof request.
-2. Wallet checks verifier DID and requested scope.
-3. User consents.
-4. Wallet creates VP.
-5. Verifier resolves issuer DID.
-6. Verifier checks issuer signature.
-7. Verifier checks holder signature.
-8. Verifier checks expiration/status list.
-9. Verifier approves or rejects service action.
+1. Each event signer DID belongs to a trusted actor.
+2. previousEventHash proves the sequence is unbroken.
+3. eventPayloadHash matches the private off-chain record when access is granted.
+4. Status list / Merkle root matches the root anchored on XRPL.
+5. Detailed evidence is exposed only within holder consent and access-grant scope.
 ```
 
-Proof request:
+Implementation scope:
 
-```json
-{
-  "type": "PresentationRequest",
-  "verifierDid": "did:xrpl:1:rRENTAL_PLATFORM",
-  "purpose": "rental_application",
-  "requestedCredentialTypes": [
-    "ForeignerKycCredential",
-    "RentalEligibilityCredential",
-    "LicenseVerificationCredential"
-  ],
-  "requestedClaims": [
-    "rentalEligible",
-    "residenceStatusChecked",
-    "licenseVerified"
-  ],
-  "forbiddenClaims": [
-    "passportNumber",
-    "arcNumber",
-    "visaType",
-    "licenseNumber"
-  ],
-  "challenge": "verifier_nonce_abc123",
-  "domain": "rental.example.com"
-}
+```yaml
+mvp:
+  onChain:
+    - issuer/connector DID
+    - schema hash
+    - status-list Merkle root
+    - optional final proof-chain root
+    - never eventType, receipt detail, user DID, or per-event timestamp
+  offChain:
+    - passport evidence
+    - item/receipt detail
+    - kiosk number
+    - card authorization token
+    - refund operator payload
+    - customs confirmation payload
+    - settlement detail
+  wallet:
+    - ordered TaxRefundEventReceiptCredential list
+    - proof-chain progress UI
+    - shareable VP for selected events
 ```
 
-Verification result:
+Legal friction appears if this is marketed as the official legal refund ledger. For the hackathon/PoC, it is much more plausible as a tamper-evident receipt chain of results produced by existing actors.
 
-```json
-{
-  "verified": true,
-  "holderAuthenticated": true,
-  "issuerTrusted": true,
-  "credentialStatus": "valid",
-  "disclosedClaims": {
-    "rentalEligible": true,
-    "residenceStatusChecked": true,
-    "licenseVerified": true
-  },
-  "relationshipId": "rel_rental_X8mw21",
-  "serviceDecision": "allow_rental_application"
-}
-```
+Diagram: [privacy-preserving-proof-chain.mmd](../../privacy-preserving-proof-chain.mmd).
 
----
-
-### Phase 5 — Service event linking
-
-Each service creates a signed event receipt credential.
-
-```text
-Tax refund submitted
-  -> TaxRefundEventCredential
-
-Hotel checked in
-  -> HotelGuestStatusCredential update or event receipt
-
-Rental approved
-  -> RentalEligibilityCredential update or event receipt
-
-License checked
-  -> LicenseVerificationCredential
-
-Escrow funded
-  -> EscrowStatusCredential
-```
-
-Event creation API:
+Slip import API sketch:
 
 ```http
-POST /service-events
+POST /tax-refund/slips/import
 ```
 
 ```json
 {
-  "relationshipId": "rel_rental_X8mw21",
-  "serviceDomain": "rental",
-  "eventType": "rental_application_approved",
-  "status": "approved",
-  "offchainRecordRef": "offrec_rental_01J8RENT",
-  "offchainRecordHash": "sha256:10f7bd...",
+  "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
+  "source": "merchant_qr",
+  "merchantRef": "merchant_oliveyoung_myeongdong",
+  "refundOperatorRef": "operator_mock_globaltaxfree",
+  "slipPayloadToken": "upload_token_slip_abc",
+  "holderConsent": true
+}
+```
+
+Event receipt API sketch:
+
+```http
+POST /service-events/tax-refund
+```
+
+```json
+{
+  "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
+  "eventType": "tax_refund_state_update",
+  "status": "downtown_prerefunded",
+  "sourceActor": "refund_operator",
+  "offchainRecordRef": "offrec_tax_claim_01J8TXA",
+  "offchainRecordHash": "sha256:3bc4c1...",
   "issueReceiptCredential": true
 }
 ```
 
 ---
 
-### Phase 6 — Escrow linkage
-
-For rental deposits or hotel deposits:
+### Phase 4 - Presentation / Verification
 
 ```text
-1. User proves rental/hotel eligibility.
-2. Escrow service creates escrow case.
-3. Escrow case links to relationshipId.
-4. XRPL EscrowCreate locks funds.
-5. EscrowStatusCredential issued to user.
-6. When conditions are met, EscrowFinish releases funds.
-7. EscrowStatusCredential updated to released.
+1. Verifier or connector sends proof request.
+2. Wallet checks verifier DID and requested scope.
+3. Wallet renders a natural-language consent summary from an allowlisted template.
+4. User consents.
+5. Wallet creates VP.
+6. Verifier resolves issuer DID.
+7. Verifier checks issuer signature.
+8. Verifier checks holder signature.
+9. Verifier checks expiration/status list.
+10. Connector calls the existing system or records a status event.
 ```
 
-Escrow case record:
+Tax-refund proof request:
 
 ```json
 {
-  "type": "EscrowCaseRecord",
-  "escrowCaseId": "escrow_case_01J8ESC",
-  "relationshipId": "rel_escrow_z91Qw2",
-  "linkedServiceRelationshipId": "rel_rental_X8mw21",
-  "purpose": "rental_deposit",
-  "status": "funded",
-  "xrpl": {
-    "escrowCreateTxHash": "A1B2C3...",
-    "owner": "rTENANT",
-    "destination": "rLANDLORD_OR_PLATFORM",
-    "offerSequence": 8142,
-    "finishAfter": null,
-    "cancelAfter": "2026-06-01T00:00:00Z",
-    "conditionHash": "sha256:condition-hidden"
+  "type": "PresentationRequest",
+  "verifierDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+  "purpose": "tax_refund_processing",
+  "requestedCredentialTypes": [
+    "ForeignerKycCredential",
+    "TaxRefundReadinessCredential"
+  ],
+  "requestedClaims": [
+    "passportProofVerified",
+    "refundSlipPresent",
+    "holderConsent"
+  ],
+  "consentDescriptor": {
+    "templateId": "tax_refund_kiosk_verify_v1",
+    "locale": "ko-KR",
+    "requesterDisplayName": "인천공항 환급 키오스크",
+    "requestedSummaryFields": [
+      "여권 확인 여부",
+      "면세 구매 증명"
+    ],
+    "withheldSummaryFields": [
+      "여권 원본 정보",
+      "카드 인증 원문",
+      "다른 서비스 이용 내역"
+    ],
+    "retention": "session_only"
   },
-  "offchain": {
-    "contractRef": "offrec_rental_contract_01J8",
-    "contractHash": "sha256:5ab87d..."
-  }
+  "forbiddenClaims": [
+    "passportNumber",
+    "nationality",
+    "arcNumber",
+    "fullReceiptDetail"
+  ],
+  "challenge": "verifier_nonce_tax_abc123",
+  "domain": "tax-refund.toss.example"
 }
+```
+
+The UI renders the sentence locally from `templateId` and structured fields, for example `환급을 위해 여권 확인 여부와 면세 구매 증명을 확인할게요`. The request signature covers the descriptor, but the verifier cannot supply arbitrary final copy.
+
+---
+
+### Phase 5 - Hotel / Rental Modules
+
+Hotel:
+
+```text
+1. Wallet creates hotel relationship ID.
+2. Hotel connector verifies booking number or booking token.
+3. User selectively discloses passport proof + booking proof.
+4. Hotel connector issues check_in_pending / checked_in / checked_out event.
+5. Wallet stores HotelGuestStatusCredential or receipt.
+```
+
+Rental:
+
+```text
+1. Wallet creates rental relationship ID.
+2. Rental connector requests KYC, residence-validity, and license-check proofs.
+3. Wallet discloses only required yes/no claims.
+4. Connector stores rental_application_submitted / approved / rejected event.
+5. Wallet stores LicenseVerificationCredential and RentalEligibilityCredential.
 ```
 
 ---
 
-## 1.19 Agent-readable implementation checklist
+### Phase 6 - Deposit / Escrow Linkage
+
+For hotel or rental deposits:
+
+```text
+1. User presents hotel/rental eligibility proof.
+2. Escrow connector creates deposit case.
+3. Deposit case links to relationshipId.
+4. MVP uses XRPL Testnet EscrowCreate as conditional lock demo.
+5. EscrowStatusCredential issued to user.
+6. When conditions are met, EscrowFinish or off-chain release event is stored.
+7. EscrowStatusCredential updated to released/cancelled.
+```
+
+In production, real deposit collection or return can touch electronic finance, payment agency, credit, or rental regulations, so licensed partner rails are assumed.
+
+---
+
+## 1.19 Agent-readable Implementation Checklist
 
 ```yaml
 implementation:
@@ -283,27 +391,53 @@ implementation:
       responsibilities:
         - submit DIDSet
         - fetch DID ledger entry
-        - fetch Credential ledger entry if used
-        - submit optional escrow transactions
+        - fetch native Credential only for coarse authorization
         - anchor status-list hashes
-
-    issuerService:
-      responsibilities:
-        - verify documents off-chain
-        - issue VCs
-        - manage credential schemas
-        - manage status lists
-        - revoke credentials
-        - store evidence records
+        - submit optional testnet escrow transactions
 
     walletService:
       responsibilities:
         - manage holder keys
-        - store encrypted credentials
+        - store encrypted credentials and receipts
         - derive relationship IDs
         - maintain private identity graph
         - generate verifiable presentations
         - collect holder consent
+        - import tax slips / booking refs / license evidence
+
+    connectorGateway:
+      responsibilities:
+        - authenticate merchant/refund/hotel/rental connectors
+        - map connector events into service event records
+        - avoid claiming regulated operator authority
+
+    taxRefundWorkflowService:
+      responsibilities:
+        - reuse E0 passport/KYC anchor across multiple refund cases
+        - model immediate/general/downtown/airport branches
+        - store refund slip envelopes off-chain
+        - issue TaxRefundReadinessCredential
+        - issue TaxRefundEventReceiptCredential
+        - track provisional/final/failure status
+
+    presentationExchangeService:
+      responsibilities:
+        - receive scoped presentation requests from operators/vendors
+        - prevent unrelated chain disclosure
+        - generate selective presentations from wallet-held VCs/events
+
+    trustRegistryService:
+      responsibilities:
+        - maintain authorized signer DIDs per event type
+        - publish trust-policy hash
+        - check merchant/operator/vendor authorization before accepting signatures
+        - reject valid signatures from unauthorized DIDs
+
+    backupService:
+      responsibilities:
+        - encrypt private proof-chain database for backup
+        - support device recovery without exposing plaintext to Toss
+        - preserve E0 and branch event history across device changes
 
     verifierService:
       responsibilities:
@@ -312,7 +446,7 @@ implementation:
         - verify VC proof
         - verify VP proof
         - check credential status
-        - make service decision
+        - make service decision or connector call
 
     accessControlService:
       responsibilities:
@@ -331,12 +465,13 @@ implementation:
     - passport number
     - ARC number
     - visa type
-    - nationality unless strictly necessary
+    - nationality unless strictly reviewed
     - tax refund receipt detail
+    - refund amount
     - hotel stay details
     - rental contract details
     - license number
-    - full VC payload unless explicitly privacy-reviewed
+    - full VC payload
 
   safeOnChain:
     - issuer DID
@@ -346,175 +481,80 @@ implementation:
     - coarse credential type
     - escrow tx hash
     - payment settlement tx hash
-
-  requiredControls:
-    - pairwise relationship IDs
-    - selective disclosure
-    - holder consent
-    - verifier authentication
-    - encrypted off-chain storage
-    - short-lived access grants
-    - credential revocation
-    - audit logs
 ```
 
 ---
 
-## 2. Mermaid graph for onboarding
+## 2. Service Graph
 
 ```mermaid
 flowchart TD
-    %% =========================
-    %% Actors
-    %% =========================
-    U[Foreign Resident User]
-    W[Toss Identity Wallet]
+    U[Foreign user]
+    W[Toss Foreigner Flow Wallet]
     XRPL[(XRPL Public Ledger)]
-    ISSUER_KYC[KYC / Residence Issuer]
-    ISSUER_TAX[Tax Refund Issuer]
-    ISSUER_HOTEL[Hotel Platform Issuer]
-    ISSUER_RENTAL[Rental + License Issuer]
-    ISSUER_ESCROW[Escrow Service Issuer]
-    VERIFIER[Verifier<br/>Merchant / Hotel / Landlord / Toss Service]
-    OFFCHAIN[(Private Off-chain Record Store)]
+    KYC[Toss KYC Issuer]
+    TAXOP[Refund Operator / eTRS Connector]
+    STORE[Designated Tax-Free Merchant POS]
+    CUSTOMS[Customs / Departure Kiosk]
+    HOTEL[Hotel Connector]
+    RENTAL[Rental + License Connector]
+    ESCROW[Deposit / Escrow Connector]
+    OFFCHAIN[(Encrypted Off-chain Record Store)]
     STATUS[Credential Status List / Merkle Root]
-    ESCROW[XRPL Escrow / Payment Rail]
+    XESCROW[XRPL Testnet Escrow]
 
-    %% =========================
-    %% Setup
-    %% =========================
-    ISSUER_KYC -->|DIDSet: issuer DID + key URI| XRPL
-    ISSUER_TAX -->|DIDSet: issuer DID + key URI| XRPL
-    ISSUER_HOTEL -->|DIDSet: issuer DID + key URI| XRPL
-    ISSUER_RENTAL -->|DIDSet: issuer DID + key URI| XRPL
-    ISSUER_ESCROW -->|DIDSet: issuer DID + key URI| XRPL
+    KYC -->|DIDSet / schema URI| XRPL
+    TAXOP -->|DIDSet / connector metadata| XRPL
+    HOTEL -->|DIDSet| XRPL
+    RENTAL -->|DIDSet| XRPL
+    ESCROW -->|DIDSet| XRPL
 
-    ISSUER_KYC -->|Publishes schema + trust metadata| OFFCHAIN
-    ISSUER_TAX -->|Publishes schema + trust metadata| OFFCHAIN
-    ISSUER_HOTEL -->|Publishes schema + trust metadata| OFFCHAIN
-    ISSUER_RENTAL -->|Publishes schema + trust metadata| OFFCHAIN
-    ISSUER_ESCROW -->|Publishes schema + trust metadata| OFFCHAIN
+    U -->|opens Toss flow wallet| W
+    W -->|creates holder key + private graph| W
+    U -->|passport OCR/NFC + liveness| KYC
+    KYC -->|stores sensitive evidence| OFFCHAIN
+    KYC -->|issues ForeignerKycCredential| W
+    KYC -->|updates status list| STATUS
+    STATUS -->|optional root anchor| XRPL
 
-    %% =========================
-    %% User onboarding
-    %% =========================
-    U -->|Opens Toss identity wallet| W
-    W -->|Creates holder DID / keypair| W
-    W -->|Creates private identity graph| W
+    W -->|derive rel_tax / rel_hotel / rel_rental / rel_escrow| W
 
-    U -->|Submits passport / ARC / residence evidence| ISSUER_KYC
-    ISSUER_KYC -->|Stores sensitive evidence| OFFCHAIN
-    ISSUER_KYC -->|Issues ForeignerKycCredential| W
-    ISSUER_KYC -->|Updates status list| STATUS
-    STATUS -->|Optional status root anchor| XRPL
+    U -->|buys eligible goods| STORE
+    STORE -->|sales confirmation / QR| W
+    W -->|presentation + slip ref| TAXOP
+    TAXOP -->|pre-refund or refund-ready status| W
+    U -->|departure export confirmation| CUSTOMS
+    CUSTOMS -->|export confirmed / failed via operator feed| TAXOP
+    TAXOP -->|TaxRefundEventReceiptCredential| W
+    TAXOP -->|encrypted claim details| OFFCHAIN
+    TAXOP -->|status update| STATUS
 
-    %% =========================
-    %% Relationship IDs
-    %% =========================
-    W -->|Derives rel_tax_*| W
-    W -->|Derives rel_hotel_*| W
-    W -->|Derives rel_rental_*| W
-    W -->|Derives rel_escrow_*| W
+    U -->|hotel booking / check-in| HOTEL
+    W -->|passport proof + booking proof| HOTEL
+    HOTEL -->|HotelGuestStatusCredential| W
+    HOTEL -->|encrypted stay details| OFFCHAIN
 
-    %% =========================
-    %% Tax refund flow
-    %% =========================
-    U -->|Requests tax refund service| VERIFIER
-    VERIFIER -->|PresentationRequest: prove taxRefundEligible| W
-    W -->|User consent + selective disclosure VP| VERIFIER
-    VERIFIER -->|Resolve issuer DID + keys| XRPL
-    VERIFIER -->|Check VC status| STATUS
-    VERIFIER -->|Approve tax refund claim| ISSUER_TAX
-    ISSUER_TAX -->|Stores tax refund claim details| OFFCHAIN
-    ISSUER_TAX -->|Issues TaxRefundEventCredential| W
-    W -->|Links event to rel_tax_* in private graph| W
+    U -->|rental application| RENTAL
+    W -->|KYC + license/residence claims| RENTAL
+    RENTAL -->|RentalEligibilityCredential / LicenseVerificationCredential| W
+    RENTAL -->|encrypted rental evidence| OFFCHAIN
 
-    %% =========================
-    %% Hotel flow
-    %% =========================
-    U -->|Hotel booking / check-in| VERIFIER
-    VERIFIER -->|PresentationRequest: prove KYC or booking status| W
-    W -->|Selective disclosure VP| VERIFIER
-    VERIFIER -->|Resolve issuer DID + verify VC| XRPL
-    ISSUER_HOTEL -->|Stores hotel stay details| OFFCHAIN
-    ISSUER_HOTEL -->|Issues HotelGuestStatusCredential| W
-    W -->|Links event to rel_hotel_* in private graph| W
+    U -->|deposit case| ESCROW
+    W -->|hotel/rental proof| ESCROW
+    ESCROW -->|EscrowCreate testnet tx| XESCROW
+    XESCROW -->|tx hash| XRPL
+    ESCROW -->|EscrowStatusCredential| W
 
-    %% =========================
-    %% Rental + license flow
-    %% =========================
-    U -->|Rental application| VERIFIER
-    VERIFIER -->|PresentationRequest: prove residence + license verified| W
-    W -->|Selective disclosure VP| VERIFIER
-    VERIFIER -->|Resolve issuer DID + verify VC| XRPL
-    VERIFIER -->|Check revocation / expiration| STATUS
-    ISSUER_RENTAL -->|Stores rental + license evidence| OFFCHAIN
-    ISSUER_RENTAL -->|Issues RentalEligibilityCredential + LicenseVerificationCredential| W
-    W -->|Links events to rel_rental_* in private graph| W
-
-    %% =========================
-    %% Escrow flow
-    %% =========================
-    U -->|Starts rental / hotel deposit escrow| ISSUER_ESCROW
-    ISSUER_ESCROW -->|Requests proof: eligible renter or guest| W
-    W -->|VP with rel_rental_* or rel_hotel_* linkage, if consented| ISSUER_ESCROW
-    ISSUER_ESCROW -->|Creates escrow case record| OFFCHAIN
-    ISSUER_ESCROW -->|EscrowCreate / Payment tx| ESCROW
-    ESCROW -->|Escrow tx hash / offer sequence| XRPL
-    ISSUER_ESCROW -->|Issues EscrowStatusCredential| W
-    W -->|Links escrow event to rel_escrow_* and rel_rental_* or rel_hotel_*| W
-
-    %% =========================
-    %% Access control
-    %% =========================
-    VERIFIER -->|Needs additional evidence?| W
-    W -->|HolderAccessGrant: scoped + expiring| VERIFIER
-    VERIFIER -->|Presents access grant| OFFCHAIN
-    OFFCHAIN -->|Returns only authorized data| VERIFIER
-    OFFCHAIN -->|Writes audit log| OFFCHAIN
-
-    %% =========================
-    %% Revocation / updates
-    %% =========================
-    ISSUER_KYC -->|Revoke / suspend credential| STATUS
-    ISSUER_TAX -->|Revoke / suspend credential| STATUS
-    ISSUER_HOTEL -->|Update check-in / check-out status| STATUS
-    ISSUER_RENTAL -->|Update rental/license status| STATUS
-    ISSUER_ESCROW -->|Update escrow funded/released/cancelled| STATUS
-    STATUS -->|Optional updated root anchor| XRPL
-
-    %% =========================
-    %% Privacy boundary
-    %% =========================
-    XRPL -. public .-> VERIFIER
-    OFFCHAIN -. private / access-controlled .-> ISSUER_KYC
-    OFFCHAIN -. private / access-controlled .-> ISSUER_TAX
-    OFFCHAIN -. private / access-controlled .-> ISSUER_HOTEL
-    OFFCHAIN -. private / access-controlled .-> ISSUER_RENTAL
-    OFFCHAIN -. private / access-controlled .-> ISSUER_ESCROW
+    W -->|holder access grant if needed| OFFCHAIN
+    OFFCHAIN -->|authorized data only + audit log| TAXOP
 ```
 
-## Recommended pitch wording
+## Recommended Pitch Wording
 
 Use this phrasing:
 
-> “We use XRPL DID as the public trust anchor for issuer identity, credential schema integrity, and revocation/status commitments. The user’s Toss identity wallet stores verifiable credentials privately and links tax refund, hotel, rental, license, and escrow events through pairwise relationship IDs. Sensitive documents and transaction records stay off-chain under consent-based access control.”
+> "We use XRPL as the public trust anchor for issuer identity, credential schema integrity, and revocation/status commitments. The Toss wallet links tax-refund, hotel, rental, and deposit events through private relationship IDs, while sensitive slips, passport details, and contracts stay encrypted off-chain. Refund approval and export confirmation remain with existing refund operators and Customs."
 
 Avoid this phrasing:
 
-> “We store foreign resident tax, hotel, rental, and license status on the public chain.”
-
-The first version sounds production-grade. The second creates privacy, regulatory, and adoption concerns.
-
-
----
-
-[1]: https://xrpl.org/docs/concepts/decentralized-storage/decentralized-identifiers "Decentralized Identifiers"
-[2]: https://xrpl.org/docs/references/protocol/ledger-data/ledger-entry-types/credential "Credential"
-[3]: https://www.w3.org/TR/did-core/ "Decentralized Identifiers (DIDs) v1.0"
-[4]: https://xrpl.org/docs/references/protocol/transactions/types/didset "DIDSet"
-[5]: https://www.w3.org/TR/vc-data-model-2.0/ "Verifiable Credentials Data Model v2.0"
-[6]: https://xrpl.org/docs/concepts/payment-types/escrow "Escrow"
-[7]: https://xrpl.org/docs/concepts/decentralized-storage/credentials "Credentials"
-[8]: https://xrpl.org/docs/concepts/tokens/decentralized-exchange/permissioned-domains "Permissioned Domains"
-[9]: https://www.w3.org/TR/vc-bitstring-status-list/ "Bitstring Status List v1.0"
+> "Toss directly approves foreigner tax refunds and stores refund history on-chain."

@@ -1,404 +1,364 @@
-# Toss Passport Auth Layer — XRPL Credentials-Based Identity & Financial Onboarding for Foreign Residents
+# Toss Foreigner Flow Layer - XRPL Credentials for Foreigner Service Workflows in Korea
 
 > **KFIP 2026 Hackathon / Toss Special Award Submission Plan (English)**
-> Last updated: 2026-05-03
+> Last updated: 2026-05-04
 
 ---
 
 ## 0. One-Liner
 
-> **"A 60-second onboarding pipeline for foreign residents into Toss, powered by passport NFC tagging, Toss Face Pay, ZK proofs, and XRPL Credentials (XLS-70) — no Korean mobile number required."**
+> **"A Toss-native workflow wallet that uses passport verification, service-specific credentials, and XRPL trust anchors to streamline existing tax-refund, hotel, rental, and deposit processes for foreigners in Korea without replacing regulated operators."**
 
 ---
 
-## 1. Project Identity (What)
+## 1. What Changed In This Revision
 
-- **Working name**: Toss Passport Auth Layer
-- **Category**: A new identity-verification pipeline layered inside the Toss app
-- **What it replaces**: The current 2–3 week flow where foreigners must open a Korean mobile line first, then complete PASS telco-based identity verification
-- **New path**: Passport NFC tap + Toss Face Pay → 60-second onboarding
-- **Credential storage**: XRPL Credentials (XLS-70) — protocol-native attestation objects, **not** Soulbound NFTs
+The previous plan read like a direct Toss onboarding or PASS-replacement project. This revision lowers legal friction by making the product a **process-streamlining layer** for existing regulated and commercial workflows.
 
----
-
-## 2. Why We Build This (Why)
-
-### 2-1. Problem Definition
-- 2.5M+ foreign residents in Korea, growing steadily
-- Fintech onboarding (Toss and peers) effectively requires **Korean mobile line + PASS app**
-- Foreign residents must wait ~2–3 weeks (ARC issuance → telco subscription → PASS signup)
-- During that window, **card payments, remittance, and app-based daily life** are blocked
-- The Information & Communication Network Act (§23-3) grants identity-verification-agency status primarily to the three mobile carriers, structurally disadvantaging foreigners
-
-### 2-2. Solution Hypothesis
-- A passport's IC chip is an **ICAO 9303-compliant e-identity document signed by the issuing government (CSCA)**
-- Every modern smartphone can read it over NFC; its Level of Assurance exceeds that of typical private KYC
-- Toss Face Pay already provides production-grade liveness and face matching
-- Combining the two enables **telco-independent non-face-to-face identity verification** with a **reusable credential**
-- That credential lives on XRPL via Credentials, reusable for remittance, payments, and third-party verification
-
----
-
-## 3. Target Users
-
-| User | Scenario |
+| Previous framing | Revised framing |
 |---|---|
-| **Primary** | Foreign residents in Korea (students, expats, migrant workers, working-holidayers) |
-| **Secondary** | Short-stay foreigners (3+ months) with remittance needs |
-| **Operator** | Toss (Issuer) |
-| **Verifiers** | Toss's own services + partner merchants |
+| PASS replacement / new identity-verification pipeline | Helper path for foreigner workflows that PASS and Korean mobile flows do not serve well |
+| Toss leads identity, refund, and settlement | Existing merchants, refund operators, customs, and tax authorities keep their roles |
+| Product decides tax-refund eligibility | Product pre-checks readiness, stores slips/QRs, tracks status, and connects payout preferences |
+| Credentials are the product itself | Credentials reduce repeated submission and create a privacy-preserving audit trail |
+
+**Principle**: do not invent new legal authority; clean up the inputs, consent, evidence, and status trail around workflows that already exist.
 
 ---
 
-## 4. Design Philosophy
+## 2. Project Identity
 
-1. **Start without a telco.** Removing carrier dependency is the top-level principle.
-2. **Originals stay local; proofs go over the wire.** Privacy is default; passport originals are stored encrypted **only** where legally required.
-3. **Credentials, not tokens.** Identity is a *state being attested to*, not an *object held* → use XLS-70, **not** XLS-20 SBTs.
-4. **Protocol-level guarantees beat app-level checks.** Avoid any design where a smart-contract or app-logic bug can break identity guarantees.
-5. **Separate the three Korean legal layers.** Statutory identity verification ≠ internal app auth ≠ third-party voluntary KYC.
-6. **Soulbound by design.** A non-transferable credential is structurally aligned with preventing immigration-status laundering.
-7. **Reuse standards.** ICAO 9303, W3C VC, XLS-70, ISO 20022 — no bespoke formats.
-
----
-
-## 5. Architecture
-
-```
-┌────────────────────── User Device (iOS/Android) ──────────────────────┐
-│                                                                       │
-│  [1] Passport NFC tap      [2] Toss Face Pay         [3] ZK Prover   │
-│   │                         │                         │              │
-│   ├─ BAC/PACE session       ├─ Active liveness        ├─ Circom/Noir │
-│   ├─ DG1 (MRZ), DG2 (photo) ├─ DG2 ↔ selfie match     │   (WASM)     │
-│   └─ SOD (gov signature)    └─ FAR < 1e-6             │   (local)    │
-│                                                        │              │
-└───────────────┬────────────────────────────────────────┴──────────────┘
-                │  Only ZK proof π + public inputs leave the device
-                ▼
-┌──────────────────────── Toss Backend (Verifier) ──────────────────────┐
-│                                                                       │
-│  • Verifier.verify(π, pub) → compare against ICAO PKD Master List    │
-│  • Legal duty: store encrypted originals for 5 years                  │
-│    (per 특금법 §5-2③, Korean AML/CFT Act)                            │
-│  • As Issuer, submit CredentialCreate tx                              │
-│                                                                       │
-└───────────────┬───────────────────────────────────────────────────────┘
-                ▼
-┌────────────────────────── XRPL Mainnet ───────────────────────────────┐
-│                                                                       │
-│  ① User wallet (HD-derived, signing gated by Face Pay)               │
-│  ② Credential ledger entry (XLS-70):                                 │
-│     { Issuer: rToss, Subject: rUser,                                 │
-│       CredentialType: "TOSS_PASSPORT_KYC_L3",                        │
-│       Expiration: <passport expiry>, URI: ipfs://<VC>,               │
-│       Flags: lsfAccepted }                                           │
-│  ③ DepositPreauth-based merchant gating                              │
-│  ④ (Optional) Payment.CredentialIDs for Travel Rule metadata         │
-│                                                                       │
-└───────────────────────────────────────────────────────────────────────┘
-```
-
-Detailed build-level architecture is split under [Architecture](architecture/README.md), including [identifier derivation](architecture/identifiers.en.md), [credential schemas](architecture/credentials.en.md), and [records/access control](architecture/records-access.en.md).
+- **Working name**: Toss Foreigner Flow Layer
+- **Internal module**: Passport Auth Layer
+- **Category**: Foreigner service workflow wallet inside Toss
+- **Primary MVP**: Korean foreign-tourist tax-refund assistant
+- **Expansion services**: hotel check-in / stay proof, rental application / license verification, hotel or rental deposit escrow
+- **Why XRPL**: not to put personal data on-chain, but to provide issuer trust anchors, schema/status commitments, optional coarse credentials, and optional settlement/escrow references
 
 ---
 
-## 6. Authentication Flows
+## 3. Problem Definition
 
-### 6-1. Phase 1 — First-Time Enrollment (~60s, one-time)
+### 3-1. Current Tax-Refund Flow
 
-| # | Step | Tech | Time |
-|---|---|---|---|
-| 1 | OCR the MRZ lines on the passport's personal page | Vision Kit / ML Kit | 3s |
-| 2 | NFC tap → BAC/PACE session | `NFCPassportReader` (iOS) / `jmrtd` (Android) | 5s |
-| 3 | Extract DG1, DG2, SOD | ICAO 9303 | 5s |
-| 4 | Passive Authentication (SOD signature ↔ ICAO PKD) | BouncyCastle | 2s |
-| 5 | Chip Authentication (anti-cloning) | ECDH | 2s |
-| 6 | Selfie + Toss Face Pay liveness | Existing SDK | 5s |
-| 7 | DG2 ↔ selfie face match | ArcFace / FaceNet-lite | 2s |
-| 8 | ZK proof generated locally | Circom WASM | 15–30s |
-| 9 | Send π to Verifier → CredentialCreate | xrpl.js | 5s |
-| 10 | User submits CredentialAccept (Face Pay-gated signature) | — | 3s |
+The new [tax-refund-flow.mmd](../current-context/tax-refund-flow.mmd) and [tax-refund-sequence.mmd](../current-context/tax-refund-sequence.mmd) show the current process and its legal actors.
 
-**Invariant**: Raw passport bytes (MRZ text, face image) never cross the wire *except* once, as an encrypted blob to the regulated-storage bucket, to satisfy the Korean AML/CFT record-keeping rule (§9-3).
-
-### 6-2. Phase 2 — Recurring Authentication
-
-| Mode | Trigger | Mechanism |
+| Actor | Current responsibility | Product assist |
 |---|---|---|
-| **A. In-Toss re-auth** | Limit upgrades, etc. | Face Pay → local key signature → on-ledger Credential lookup |
-| **B. External third-party** | Real-estate leases, offline stores | DID over NFC/QR → verifier queries `account_objects` → checks validity |
-| **C. Cross-border (RLUSD)** | Remittance home | Auto-attach Travel Rule metadata via `CredentialIDs` |
-| **D. Renewal / revocation** | Passport expiry, withdrawal, KYC fraud found | Expiration auto-invalidates / either side calls `CredentialDelete` |
+| Customer / foreign tourist | Presents passport, buys goods, stores refund slips, confirms export at departure | Reusable passport proof, slip/QR wallet, checklist, status tracking |
+| Designated tax-free merchant | Checks passport/refund status, issues sales confirmation, registers purchase | Lower repeated data entry through Toss proof; sends electronic slip to wallet |
+| Refund counter operator / eTRS | Receives transactions, approves/pays refund, creates settlement evidence | Verifies wallet presentation, connects payout rail, issues status event |
+| Korea Customs / departure customs | Confirms outbound shipment/export, performs selective inspection | App prepares the user; receives export-confirmation status where available |
+| NTS / tax office | Reflects tax evidence and settlement data | Not replaced; merchant/refund-operator reporting flow stays intact |
+
+Core current constraints include non-resident foreign-tourist status, designated tax-free merchant, eligible goods, minimum purchase amount, outbound shipment within 3 months, and unopened/unused goods confirmation. The app can guide and pre-check these constraints, but the final decision remains with the existing actor.
+
+### 3-2. User Pain Points
+
+- Passport and refund slips are repeatedly shown at stores, downtown counters, airport/port counters, and kiosks.
+- Paper slips, QR codes, card authorizations, and payout partner accounts are fragmented.
+- Immediate refund, downtown pre-refund, and airport/port refund branches are hard to understand.
+- Downtown pre-refund may be reversed or charged if export confirmation fails, but users do not get a clear status trail.
+- Hotel check-in, rentals, license checks, and deposits repeat the same identity and eligibility evidence.
 
 ---
 
-## 7. XRPL Credentials (XLS-70) Design
+## 4. Solution Hypothesis
 
-### 7-1. Why Credentials (not SBT)
+**Toss Foreigner Flow Layer** lets a foreigner verify passport/face/residence-related facts once, then present service-specific proofs with minimum disclosure.
 
-| Concern | XLS-20 SBT | **XLS-70 Credentials** |
-|---|---|---|
-| User consent | Unilateral mint | **Create → Accept (2-phase)** |
-| Expiration | Manual burn | **Native `Expiration` field** |
-| Payment gating | App-level | **Native `DepositPreauth`** |
-| Metadata on payment | Not possible | **`Payment.CredentialIDs`** |
-| Transfer prevention | Flag setting | **Structurally impossible** |
-| W3C VC compatibility | Bespoke | **`URI` field links JSON-LD** |
+```text
+User device / Toss app
+  - Passport NFC or passport OCR
+  - Face Pay / liveness
+  - Service wallet: tax, hotel, rental, escrow
+  - did:peer per service relationship
+  - Refund slip / QR / booking / license evidence
 
-→ Identity is an attestation primitive, not a token. **SBT is explicitly rejected** for this layer.
+Toss / partner backend
+  - Proof verification
+  - Refund operator, hotel, rental connector
+  - Encrypted off-chain record store
+  - Consent and access grants
 
-### 7-2. Credential Object
-
-```typescript
-{
-  LedgerEntryType: "Credential",
-  Issuer:         "rTossIssuerAddress...",
-  Subject:        "rForeignUserAddress...",
-  CredentialType: "544F53535F50415353504F52545F4B59435F4C33", // hex("TOSS_PASSPORT_KYC_L3")
-  Expiration:     <passport expiry (Ripple Epoch)>,
-  URI:            "ipfs://<W3C VC JSON-LD>",
-  Flags:          lsfAccepted
-}
+XRPL
+  - Public issuer/connector DID
+  - Schema/trust-policy/status-list hash
+  - Optional proofChainRoot
+  - Optional coarse XRPL Credential
+  - Optional escrow/payment tx hash
 ```
 
-### 7-3. CredentialType Naming Convention
-- `TOSS_PASSPORT_KYC_L3` — Passport + Face Pay L3 KYC
-- `TOSS_VISA_D2` — Visa-status-linked (future Ministry of Justice integration)
-- `TOSS_AGE_19PLUS` — Derived credential (adult check)
-- `TOSS_KYC_INCOME_VERIFIED` — For limit upgrades
+The tax refund itself is not moved on-chain. Refund amounts, receipts, passport numbers, residence status, hotel stay history, and rental contracts remain off-chain and encrypted.
 
-### 7-4. DepositPreauth Demo
-```typescript
-{
-  TransactionType: "DepositPreauth",
-  Account: "rMerchantAddress...",
-  AuthorizeCredentials: [{
-    Credential: {
-      Issuer: "rTossIssuerAddress...",
-      CredentialType: "544F53535F50415353504F52545F4B59435F4C33"
-    }
-  }]
-}
-```
-→ **"Only foreigners with a valid Toss KYC credential can settle at this merchant"** becomes a protocol-level rule.
+### 4-1. Revised Identity / Ledger Boundary
 
----
+The user should not have one public XRPL DID that links tax, hotel, rental, and escrow activity. User-service relationships use off-ledger pairwise identifiers.
 
-## 8. Tech Stack
-
-### 8-1. Mobile (client)
-- **iOS**: Swift + CoreNFC + `NFCPassportReader` (OSS)
-- **Android**: Kotlin + `android.nfc` + `jmrtd`
-- **Face match**: ArcFace / FaceNet-lite, on-device
-- **ZK Prover**: Circom WASM (fork of zkPassport) or Noir (Aztec)
-- **XRPL signing**: xrpl.js (RN bridge) or native Swift/Kotlin XRPL SDKs
-
-### 8-2. Backend (Toss Verifier)
-- **Verifier**: Node.js / TypeScript, snarkjs or barretenberg
-- **ICAO PKD**: BouncyCastle + per-country CSCA master list
-- **Regulated-origin storage**: AWS KMS + S3 envelope encryption, 5-year retention
-- **XRPL tx submission**: xrpl.js, dedicated Issuer account
-
-### 8-3. On-chain (XRPL)
-- **Network**: Testnet for hackathon → Mainnet for production
-- **Standards**: XLS-70 Credentials, optional XLS-40 DID, RLUSD integration
-- **Payments**: Native XRP / RLUSD, gated by DepositPreauth
-
-### 8-4. Prior art / OSS to reuse
-- [zkPassport](https://zkpassport.id/) — Noir-based same concept
-- [AnonAadhaar](https://anon-aadhaar.pse.dev/) — Indian analogue, Circom
-- [NFCPassportReader](https://github.com/AndyQ/NFCPassportReader) — iOS passport reader
-- [JMRTD](https://jmrtd.org/) — Java/Android ICAO 9303
-
----
-
-## 9. Legal Framework (Korea)
-
-### 9-1. Three-Tier Identity-Verification System
-
-| Layer | Name | Legal basis | Enforcement | Replaceable by this project? |
-|---|---|---|---|---|
-| **L1** | Statutory identity verification | Info-Comm Network Act §23-3 | KCC-designated identity-verification agencies only (the 3 mobile carriers, a few others) | ❌ **No** |
-| **L2** | Financial real-name + CDD | Real-Name Financial Act §3; AML/CFT Act §5-2 | Financial institutions self-perform | ✅ **Yes** (with conditions) |
-| **L3** | Vendor-voluntary KYC | None | Not enforced | ✅ **Yes** (free hand) |
-
-→ **Coverage**: L2 + L3. **L1 is explicitly out of scope.**
-→ Positioning: **"Not a PASS replacement, but a new path for the foreign-resident segment PASS cannot serve."**
-
-### 9-2. Compliance Matrix
-
-| Feature | Governing law | Risk | Mitigation |
+| Layer | Identifier | Where it lives | Purpose |
 |---|---|---|---|
-| Passport NFC + Face Pay identity verification | Real-Name Financial Act (non-face-to-face 2-of-5 rule) | 🟢 None | Two-factor satisfied |
-| Toss-internal account opening | Real-Name Financial Act, E-Finance Act | 🟢 None | — |
-| **AML/CFT CDD 5-year retention** | AML/CFT Act §5-2③ | 🟡 **Caution** | **Encrypted-originals store, separate from ZK path** |
-| XRPL Credentials issuance & presentation | Private-autonomy | 🟢 None | — |
-| DepositPreauth gating | — | 🟢 None | — |
-| Payment.CredentialIDs (Travel Rule) | AML/CFT Act §5-3 | 🟡 Supplement with recognized protocol at launch | MVP is proof-of-concept |
-| RLUSD cross-border remittance | Foreign Exchange Transactions Act §3 | 🔴 | **Must route via Toss Bank (licensed FX bank)** |
-| VASP operations | AML/CFT Act §7 | 🟢 PoC exempt / 🔴 file upon commercialization | — |
-| Claiming "full PASS replacement" | Info-Comm Network Act §23-3 | 🟡 Phrasing risk | Use "new path for foreigners" |
-| Credit-card issuance | Specialized Credit Finance Act §14-2 | 🟢 None | Passport is a legal ID source |
-| **Lending / BNPL features** | Specialized Credit Finance Act §3, §50 | 🔴 **Forbidden** | **Not in MVP scope** |
-| Resident-number substitution | Resident Registration Act | 🔴 Forbidden | — |
+| User wallet root | local holder key / `did:key` | Device + encrypted backup | Controls wallet signatures and recovery |
+| User-service relationship | `did:peer` + `relationshipId` | Exchanged off-chain with one verifier | Prevents cross-service correlation |
+| Public organization trust | `did:xrpl` | XRPL | Resolves issuer/connector public keys |
+| Proof integrity | `proofChainRoot` / `statusRoot` | XRPL as opaque hashes | Proves private records were not rewritten |
 
-### 9-3. AML/CFT §5-2③ Mitigation — Dual-Store + 7-Layer Encryption
+XRPL is therefore used as public PKI and notary, not as a per-user event log. The ledger must not contain event types, user DIDs, case IDs, receipt details, kiosk IDs, card status, or per-event timestamps.
 
-Originals must be retained by Toss, but access is squeezed cryptographically to the narrowest possible path.
+### 4-2. Reusable E0 and Service DAG
 
-```
-Day-to-day : only ZK proof reaches the Verifier → no plaintext on Toss servers
-Enrollment : encrypted on-device in Secure Enclave (X25519 + AES-256-GCM)
-             ↓ TLS 1.3 / mTLS / cert pinning
-             ↓ Toss edge cannot decrypt (app-layer ciphertext survives past TLS)
-             ↓ Decryption only inside Regulated Enclave HSM (FIPS 140-2 L3)
-             ↓ Envelope encryption (per-record DEK, KEK lives in HSM)
-             ↓ Field-level keys: face / passport# / MRZ each have distinct DEK
-Access ctl : FSS/FIU subpoena + Compliance Officer + CISO = 3 approvals
-             HSM session ≤1h, audit log retained permanently
-Disposal   : after 5 years → crypto-shredding (DEK physically destroyed in HSM)
-             → ciphertext may remain, but is mathematically unrecoverable
-             (NIST SP 800-88 Rev.1)
+The passport/KYC event should not be recreated for every purchase or service. The wallet creates one reusable identity anchor:
+
+```text
+E0 = passport_verified / ForeignerKycCredential
 ```
 
-**Honest scope of zero-knowledge**:
-- ✅ From the chain (XRPL) — complete (only hashes, expiration, URI)
-- ✅ From third-party Verifiers — complete (only ZK proofs received)
-- ❌ From Toss itself — impossible (AML/CFT retention mandate)
-- 🟡 From Toss's own staff — minimized (HSM + dual control + field-level)
+Then service-specific proof chains branch from E0:
 
-**Regulatory anchors**: PIPA §29, Electronic Finance Supervisory Regs §17, AML/CFT Act §5-2③, KFSI Cryptographic Technology Guide, FIPS 140-2 L3, NIST SP 800-88 Rev.1.
+```text
+E0 passport_verified
+  ├── Tax refund chain A: E1_tax_purchase -> E2_tax_status -> E3_tax_payout
+  ├── Tax refund chain B: E1_tax_purchase -> E2_tax_status -> E3_tax_payout
+  ├── Hotel chain: E1_booking_verified -> E2_check_in -> E3_check_out
+  └── Rental chain: E1_license_verified -> E2_deposit_authorized -> E3_vehicle_returned
+```
 
-→ Full design: see **[Encryption Architecture](security/encryption-architecture.en.md)**.
+The structure is therefore a private service DAG, not one global public user chain. Each branch uses its own `did:peer` relationship and proof root.
 
-### 9-4. Specialized Credit Finance Act (여전법)
-- **Not applicable in current scope** (identity, wallet, remittance only).
-- **Warning**: Lending / BNPL would require §3 licensing; unlicensed operation → up to 5 years imprisonment under §50.
-- → **Do not include such features in the MVP.**
+### 4-3. Scoped Queries With Presentation Exchange
 
-### 9-5. Foreign Exchange Transactions Act
-- Cross-border remittance is legal only via licensed FX banks (e.g., Toss Bank).
-- Direct XRPL → overseas accounts is currently not permitted in Korea.
-- In demos, RLUSD must be clearly labeled as **Testnet simulation, not real funds**.
+Verified operators and vendors should not query raw wallet data directly. They send a presentation request describing the exact proof they need.
+
+```text
+refund operator asks for:
+  passport proof is valid
+  refund slip exists
+  card authorization status exists
+
+hotel asks for:
+  passport proof is valid
+  booking belongs to this holder
+
+rental asks for:
+  passport proof is valid
+  license proof is valid
+  deposit authorization exists
+```
+
+The wallet answers with a selective presentation. Unrelated chains stay hidden.
+
+The user-facing consent page should translate the scoped request into natural language. This should be deterministic and rule-based, not arbitrary vendor copy.
+
+```text
+signed presentation request
+  -> verifier trust check
+  -> allowlisted consent template
+  -> natural Korean sentence
+  -> selective presentation after approval
+```
+
+Examples:
+
+```text
+tax_refund_kiosk_verify:
+  "환급을 위해 여권 확인 여부와 면세 구매 증명을 확인할게요"
+
+hotel_stay_history:
+  "{hotelName}에서 {nights}일 동안 머문 내역을 확인할게요"
+
+rental_deposit_check:
+  "렌터카 보증금 처리를 위해 면허 확인 여부와 보증금 상태를 확인할게요"
+```
+
+The consent screen should still include a details view for exact disclosed fields, withheld fields, requester identity, retention window, and expiration.
+
+### 4-4. Trust Registry and Signing Operations
+
+Signatures alone are not enough. A rogue vendor can create a key and sign fake events. The verifier also checks a trust registry and event-type authorization policy.
+
+```text
+E1 item_purchased:
+  allowed signer = registered tax-free merchant/POS connector
+
+E4 card_authorization_verified:
+  allowed signer = registered card/PSP connector
+
+E6 customs_export_confirmed:
+  allowed signer = customs connector or approved mock for PoC
+```
+
+For production, merchant/POS private keys should not live directly on terminals. POS devices should request signatures from a merchant backend or HSM-backed signing service so only official transactions receive valid event signatures.
+
+### 4-5. Backup and Recovery
+
+The wallet needs two recovery layers:
+
+| Layer | Recovery mechanism |
+|---|---|
+| Wallet keys | Passkey/Secure Enclave/StrongBox with cloud account recovery or MPC recovery share |
+| Private proof chains | Encrypted cloud backup of the wallet event database |
+
+Backups are encrypted to the user-controlled wallet key or recovery key. Toss may store ciphertext, but should not be able to read private proof-chain contents without the user path or regulated access process.
 
 ---
 
-## 10. Hackathon MVP Scope
+## 5. Tax-Refund Streamlining Flow
 
-### 10-1. Must (Day 1–2)
-- [ ] iOS NFC passport reader (wrapping NFCPassportReader)
-- [ ] DG2 + selfie face match (lightweight ArcFace)
-- [ ] Submit CredentialCreate / CredentialAccept to XRPL Testnet
-- [ ] Stub Verifier (signatures only, ZK stubbed out)
+### 5-1. Immediate Refund Branch
 
-### 10-2. Should (Day 3)
-- [ ] Fork a zkPassport circuit → prove at minimum "expiration > today"
-- [ ] Integrate Face Pay liveness SDK (mock is fine)
-- [ ] DepositPreauth demo (fake merchant account)
+Immediate refund stays with the merchant POS and refund counter operator/eTRS. Toss handles only:
 
-### 10-3. Nice (Day 4 — storytelling impact)
-- [ ] RLUSD Testnet remittance demo (home-country scenario)
-- [ ] Passport-expiry → Credential auto-invalidation demo
-- [ ] "No identity laundering possible" narrative walkthrough
+1. Presenting passport proof or a passport-derived holder proof.
+2. Passing the minimum merchant/POS-required identity data with user consent.
+3. Saving the immediate-refund electronic sales confirmation or transaction event as a wallet receipt.
+4. Warning about per-transaction and trip-total limits as UX guidance while leaving final approval to POS/refund-operator systems.
 
-### 10-4. 🚫 Explicitly out of MVP
-- Lending / BNPL / any credit provision
-- Real-funds cross-border remittance bypassing Toss Bank
+### 5-2. General Refund Branch
+
+For normal tax-included purchases, the app organizes the regular flow:
+
+| Step | Current process | Product feature |
+|---|---|---|
+| After purchase | Sales confirmation, refund slip, QR/barcode issued | Scan/receive slip, create purchase event, prevent loss |
+| Downtown refund | Passport, slip/QR, goods/card/account presented | Wallet presentation, payout account linking, provisional status display |
+| Before departure | Customs/kiosk export confirmation | Checklist, selected-for-inspection notice, failure-risk warning |
+| After departure | Final approval/cancellation and settlement evidence | Status event receipt, payout completed/failed tracking |
+
+### 5-3. What The Product Does Not Do
+
+- It does not replace designated tax-free stores, refund counter operators, Customs, or the NTS.
+- It does not independently determine tax-refund approval.
+- It does not calculate, custody, or pay tax refunds by itself.
+- It does not bypass airport/port export confirmation.
+- It does not put full refund history on a public ledger.
+
+---
+
+## 6. Hotel, Rental, And Deposit Expansion
+
+The same tax-refund MVP structure can support hotel and rental workflows: verified facts are reused with minimum disclosure.
+
+| Service | Streamlined flow | Credential / event |
+|---|---|---|
+| Hotel check-in | Reduce passport resubmission, verify booking, track check-in/check-out receipt | `HotelGuestStatusCredential` |
+| Hotel deposit | Track card/account deposit state and return/cancellation events | `EscrowStatusCredential` or off-chain deposit receipt |
+| Rental application | Submit identity, residence validity, license, and deposit requirements together | `RentalEligibilityCredential`, `LicenseVerificationCredential` |
+| Rental deposit | Demo conditional lock/release with XRPL Testnet escrow | `EscrowStatusCredential` |
+
+Hotel-stay VAT refund or similar tax-special-case modules should be treated as future work until the active program, participating business type, and partner operator are verified. The MVP should focus on check-in, booking proof, and deposit streamlining.
+
+---
+
+## 7. Credential Model
+
+Service credentials are designed as receipts for verified facts and workflow state, not as legal final decisions.
+
+| Credential | Meaning | Store on public chain? |
+|---|---|---|
+| `ForeignerKycCredential` | Passport/face and optionally residence evidence verified | Usually no |
+| `TaxRefundReadinessCredential` | Required proof/slips for a refund workflow are ready | No |
+| `TaxRefundEventReceiptCredential` | Status receipt: purchase registered, pre-refunded, export confirmed, payout completed, etc. | No |
+| `HotelGuestStatusCredential` | Booking/check-in/check-out state | No |
+| `RentalEligibilityCredential` | Rental readiness, residence validity, risk tier | No |
+| `LicenseVerificationCredential` | Driver or other license checked | No |
+| `EscrowStatusCredential` | Deposit created/funded/released/cancelled | Optional |
+
+Native XRPL Credentials expose public metadata, so use them only for coarse authorization such as `ComplianceTierA`, not detailed public labels like `TaxRefundEligibleVisaD2`.
+
+---
+
+## 8. Hackathon MVP Scope
+
+### 8-1. Must
+
+- [ ] Tax-refund journey based on the current flow: immediate refund / downtown pre-refund / airport refund branch selection
+- [ ] Tax-refund proof-chain UI: passport check -> purchase -> tax-free status -> kiosk/card/operator/customs/settlement states
+- [ ] Passport OCR or NFC mock + Face Pay/liveness mock
+- [ ] `did:peer` pairwise relationship for the tax-refund connector, not an XRPL user DID
+- [ ] Refund slip / QR import mock
+- [ ] Issue and store `TaxRefundEventReceiptCredential`
+- [ ] Anchor issuer DID or status-list hash on XRPL Testnet
+- [ ] Encrypt receipt/passport/payout-account details off-chain; show only hash/commitment on public ledger
+
+### 8-2. Should
+
+- [ ] Mock refund-operator/eTRS connector
+- [ ] Downtown pre-refund provisional -> export confirmation -> final/failed status transition
+- [ ] Hotel check-in proof and rental application proof using the same wallet
+- [ ] Payout partner account selection UI mock
+
+### 8-3. Nice
+
+- [ ] Real passport NFC read
+- [ ] ZK proof for "valid passport" or "not expired" without revealing passport number/nationality
+- [ ] Hotel/rental deposit demo using XRPL Testnet escrow
+- [ ] RLUSD Testnet payment/settlement simulation
+
+### 8-4. Explicitly Out Of Scope
+
+- Claiming to operate tax refunds without designation or partnership
+- Replacing customs export confirmation or NTS settlement
+- Real-funds cross-border remittance outside licensed rails
+- Lending, BNPL, or credit provision
 - Resident-registration-number substitution
-- Marketing copy claiming "PASS replacement"
-- Claims of commercial VASP operation
+- Marketing copy claiming "full PASS replacement"
+- Public-chain storage of personal data or detailed transaction records
 
 ---
 
-## 11. Mapping to KFIP Toss Special Award Criteria
+## 9. Legal / Operating Positioning
 
-| Criterion | Our response |
+| Risk | Conservative position |
 |---|---|
-| ① Problem definition | Quantified 2.5M+ foreign residents, 2–3 week onboarding gap |
-| ② XRPL utilization | **XLS-70 native + DepositPreauth + RLUSD** — protocol-level, no smart contracts |
-| ③ Feasibility | Non-face-to-face real-name rule satisfied; AML/CFT dual-store design |
-| ④ Scale / impact | Passport is a global standard → generalizable to foreigners in other countries |
-| ⑤ Toss synergy | **Reuse Face Pay + Toss Bank FX rails + new identity pipeline** |
+| Tax-refund operator regulation | Assistant/connector for designated operators, merchants, and eTRS-style systems |
+| Customs export confirmation | Receives or mirrors current departure customs/kiosk status events |
+| Personal data | Passport number, nationality, receipt detail, hotel/rental records stay encrypted off-chain |
+| Financial movement | Real funds route through Toss Bank or licensed partner rails |
+| Credit regulation | Excluded from MVP |
+| Toss Special Track fit | Improves foreigner financial UX and can become an App in Toss PoC |
+
+Deployment language should stay conditional: Toss can sign refund-operator events only if Toss or its partner is operating under the required refund-operator authority. Otherwise Toss signs only wallet/orchestration events and routes operator events from licensed partners.
+
+Safe wording:
+
+> "Toss helps foreign users manage passport proof, refund slips, payout preferences, and departure checklists in one place, then records existing refund-operator and Customs results as wallet receipts."
+
+Avoid:
+
+> "Toss approves tax refunds and returns taxes directly."
 
 ---
 
-## 12. Open Decisions
+## 10. Mapping To KFIP / Toss Criteria
 
-1. **Verifier topology**: single centralized Toss Verifier vs federated pool
-   → Hackathon: centralized (realism).
-2. **Wallet custody**: custodial vs MPC (2-of-2) vs self-custody
-   → MPC (Face Pay ↔ Toss server) recommended.
-3. **ZK circuit surface**: minimum (expiration only) vs full (signature + face + age + nationality)
-   → MVP: minimum; roadmap for full in the pitch.
-4. **RLUSD inclusion**: high impact, higher effort
-   → Nice-to-have; Testnet sim only.
-5. **CredentialType taxonomy**: single vs tiered (L1–L4)
-   → MVP uses single `TOSS_PASSPORT_KYC_L3`; tiering covered in pitch.
-
----
-
-## 13. Planned Repository Layout
-
-```
-XRPL hackathon/
-├── README.md
-├── docs/
-│   ├── README.md
-│   ├── chain-structure.md     # compatibility entry point
-│   ├── en/
-│   │   ├── README.md
-│   │   ├── plan.en.md
-│   │   ├── architecture/
-│   │   └── security/
-│   └── ko/
-│       ├── README.md
-│       ├── plan.ko.md
-│       ├── architecture/
-│       └── security/
-├── apps/
-│   ├── mobile-ios/            # Swift, NFC + Face Pay
-│   └── mobile-android/        # Kotlin, jmrtd
-├── packages/
-│   ├── verifier/              # TypeScript Verifier
-│   ├── zk-circuit/            # Circom / Noir
-│   └── xrpl-client/           # xrpl.js wrapper
-└── scripts/
-    └── testnet/               # Credential issuance / query scripts
-```
-
----
-
-## 14. Positioning Statements (for the pitch)
-
-- **Technical**: "We chose XRPL Credentials over Soulbound NFTs — because this is an *attestation* layer, not a token."
-- **Legal**: "Encrypted originals for AML/CFT, zero-knowledge proofs for privacy — two layers, one design."
-- **Product**: "Not a PASS replacement. A new path into Toss for the 2.5M foreigners PASS cannot reach."
-- **Market**: "A 2–3 week onboarding delay, compressed into 60 seconds."
-
----
-
-## 15. Glossary
-
-| Term | Definition |
+| Criterion | Response |
 |---|---|
-| **ICAO 9303** | ICAO e-passport standard (DG1/MRZ, DG2/face, SOD/signature, etc.) |
-| **BAC / PACE** | NFC session-establishment protocols using MRZ as key material |
-| **Passive Authentication** | Verifying the SOD signature against the issuing country's CSCA |
-| **Chip Authentication** | Anti-cloning protocol for passport chips |
-| **ICAO PKD** | Public Key Directory — international repo of country signing certs |
-| **XLS-70** | XRPL Credentials standard (amendment activated 2024) |
-| **XLS-40** | XRPL DID standard |
-| **XLS-20** | XRPL NFT standard (could implement SBTs — **not used here**) |
-| **DepositPreauth** | Native XRPL allow-list for incoming payments |
-| **RLUSD** | USD stablecoin issued by Ripple (NYDFS-approved) |
-| **W3C VC** | Verifiable Credentials data model (JSON-LD) |
-| **CDD** | Customer Due Diligence (Korean AML/CFT Act §5-2) |
-| **Travel Rule** | FATF Recommendation 16 — info-sharing on virtual-asset transfers |
-| **LoA** | Level of Assurance (NIST 800-63) — passport IC chips clear LoA 3+ |
+| Problem clarity | Concrete workflow pain around repeated passport/slip/booking/license/deposit submission |
+| XRPL usage | DID, status commitments, coarse credentials, optional escrow as public trust anchors |
+| Feasibility | Starts as connector/assistant without replacing regulated actors |
+| Scale | Reuses the same wallet/proof layer from tax refund to hotel, rental, and deposits |
+| Toss synergy | Fits Toss app UX, Face Pay, Toss Bank/payment rails, and App in Toss PoC |
 
 ---
 
-## 16. Disclaimer
+## 11. Open Decisions
 
-This document is an engineering plan based on publicly available statutes, standards, and open-source artifacts. It is **not legal advice**. Before any production launch, formal opinions from counsel, the Financial Services Commission, and the FIU are required. For the hackathon PoC stage, this level of analysis is sufficient.
+1. **MVP persona**: short-stay tourist first, or incoming long-stay foreigner before ARC/PASS setup.
+2. **Refund-operator integration**: use a mock eTRS/refund-operator connector unless a real API is available.
+3. **Hotel scope**: check-in/deposit streamlining first; hotel VAT refund only as verified future module.
+4. **Rental scope**: vehicle rental vs housing rental. Vehicle rental is more demoable for the hackathon.
+5. **Native XRPL Credential depth**: MVP should emphasize DID/status-hash anchors; native Credentials are limited to coarse compliance tier demos.
+
+---
+
+## 12. Pitch Statements
+
+- **Product**: "We do not reinvent tax refund. We help foreigners prepare, submit, and track the process they already have to complete."
+- **Technical**: "XRPL is a public trust anchor, not a personal-data store."
+- **Legal**: "Refund operators, Customs, and tax authorities keep their current roles; Toss streamlines consent and evidence flow."
+- **Expansion**: "The same wallet proof extends to hotel check-in, rental applications, and deposit escrow."
+
+---
+
+## 13. Disclaimer
+
+This is a product and engineering plan for a hackathon PoC, not legal advice. Production launch requires separate review with refund operators, tax/customs counsel, and financial-regulatory counsel.

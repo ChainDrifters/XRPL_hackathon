@@ -2,7 +2,7 @@
 
 This page covers the core trust model, participant roles, and on-chain/off-chain boundary.
 
-This design is aligned with the Toss Special Track theme: XRPL-based services that improve financial access and UX for foreign residents in Korea, especially DID-based foreigner identity / residence verification and visa-status-linked financial automation.  It also fits the KFIP 2026 program direction around XRPL-based financial service prototypes. 
+This design is aligned with the Toss Special Track theme: XRPL-based services that improve financial access and UX for foreigners in Korea, including visitors and incoming residents. It focuses on practical workflow streamlining around tax refunds, hotel check-in, rental applications, and deposits, while still fitting the KFIP 2026 program direction around XRPL-based financial service prototypes.
 
 ## 1.1 Core architecture decision
 
@@ -12,10 +12,10 @@ Instead:
 
 ```text
 User-facing layer:
-  Toss Identity Wallet
+  Toss Foreigner Flow Wallet
 
 Private identity layer:
-  Holder DID
+  Local holder key / did:peer pairwise DID
   Identity graph
   Service-specific relationship IDs
   Verifiable Credentials
@@ -48,7 +48,7 @@ The system should support linking one user to many service events, but the linka
 ```yaml
 roles:
   holder:
-    description: Foreign resident user.
+    description: Foreign visitor, incoming resident, or resident user.
     controls:
       - identity wallet
       - holder DID key
@@ -113,10 +113,10 @@ roles:
 | ------------------------------ | -----------------------: | ------------------------: | --------------------: | ---------------------------------- |
 | Issuer DID                     |                      Yes |             Optional copy |                    No | Public trust anchor                |
 | Issuer public key              |            Yes / DID doc |             Optional copy |                    No | Used for VC verification           |
-| User holder DID                |                    Maybe |                       Yes |                   Yes | Avoid public reuse across services |
+| User holder DID                |                     No |                       Yes |                   Yes | Use `did:peer` or local `did:key`; avoid ledger-based user DIDs |
 | Full VC                        |              No, usually | Optional encrypted backup |                   Yes | User-controlled credential         |
 | Passport / ARC / visa evidence |                       No |                       Yes |  No or encrypted copy | Sensitive                          |
-| Tax refund eligibility VC      |              No, usually |   Optional encrypted copy |                   Yes | Present selectively                |
+| Tax refund readiness/status VC |              No, usually |   Optional encrypted copy |                   Yes | Present selectively; not final legal approval |
 | Tax refund transaction detail  |                       No |                       Yes |      Optional receipt | Sensitive financial/merchant data  |
 | Hotel status                   |                       No |                       Yes |     Yes as VC/receipt | Sensitive travel data              |
 | Rental status                  |                       No |                       Yes |     Yes as VC/receipt | Sensitive housing data             |

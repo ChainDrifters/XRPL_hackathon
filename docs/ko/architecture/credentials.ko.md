@@ -86,7 +86,8 @@ XRPL `DIDSet`은 DID entry를 생성 또는 갱신합니다. `Data`, `DIDDocumen
 | Credential | 목적 | 공개 체인 저장 |
 |---|---|---|
 | `ForeignerKycCredential` | 신원 및 외국인/체류 상태 검증 | 보통 아니오 |
-| `TaxRefundEligibilityCredential` | 세금 환급 가능성 증명 | 보통 아니오 |
+| `TaxRefundReadinessCredential` | 환급 절차에 필요한 여권 proof, 전표/QR, 사용자 동의가 준비됐다는 증명. 법적 환급 승인 아님 | 아니오 |
+| `TaxRefundEventReceiptCredential` | purchase registered, pre-refunded, export confirmed, payout completed 등 상태 receipt | 아니오 |
 | `HotelGuestStatusCredential` | 예약/체크인/체크아웃 상태 증명 | 보통 아니오 |
 | `RentalEligibilityCredential` | 렌탈 신청 가능성, 체류 유효성 증명 | 보통 아니오 |
 | `LicenseVerificationCredential` | 운전면허 등 자격 검증 | 보통 아니오 |
@@ -101,18 +102,21 @@ XRPL `DIDSet`은 DID entry를 생성 또는 갱신합니다. `Data`, `DIDDocumen
     "https://www.w3.org/ns/credentials/v2",
     "https://schemas.example.com/korea-foreigner-finance/v1"
   ],
-  "id": "urn:vc:tax-refund-eligibility:01J8TAX123",
-  "type": ["VerifiableCredential", "TaxRefundEligibilityCredential"],
-  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND",
+  "id": "urn:vc:tax-refund-readiness:01J8TAX123",
+  "type": ["VerifiableCredential", "TaxRefundReadinessCredential"],
+  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
   "validFrom": "2026-05-01T00:00:00Z",
   "validUntil": "2026-12-31T23:59:59Z",
   "credentialSubject": {
-    "id": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
+    "id": "did:peer:2.taxPairwiseExample",
     "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
     "claims": {
-      "taxRefundEligible": true,
-      "eligibilityJurisdiction": "KR",
-      "minDisclosureMode": "eligible_only"
+      "passportProofVerified": true,
+      "refundSlipPresent": true,
+      "holderConsentCaptured": true,
+      "jurisdiction": "KR",
+      "sourceOfFinalDecision": "designated_refund_operator_or_customs",
+      "minDisclosureMode": "readiness_only"
     }
   },
   "credentialStatus": {
@@ -123,13 +127,53 @@ XRPL `DIDSet`은 DID entry를 생성 또는 갱신합니다. `Data`, `DIDDocumen
   },
   "evidence": {
     "type": "IssuerInternalEvidence",
-    "evidenceRef": "offrec_tax_eligibility_01J8...",
+    "evidenceRef": "offrec_tax_readiness_01J8...",
     "evidenceHash": "sha256:c40e0f...",
     "accessPolicy": "issuer-only-unless-holder-grants"
   },
   "proof": {
     "type": "DataIntegrityProof",
-    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND#key-1",
+    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z..."
+  }
+}
+```
+
+## 세금환급 상태 receipt 예시
+
+`TaxRefundEventReceiptCredential`은 환급 승인권을 표현하지 않습니다. 지정 환급사업자, 세관/kiosk, 가맹점 POS 등 기존 actor에서 받은 상태를 wallet에 보관하기 위한 receipt입니다.
+
+```json
+{
+  "@context": [
+    "https://www.w3.org/ns/credentials/v2",
+    "https://schemas.example.com/korea-foreigner-finance/v1"
+  ],
+  "id": "urn:vc:tax-refund-event:01J8TXEVENT",
+  "type": [
+    "VerifiableCredential",
+    "ServiceEventReceiptCredential",
+    "TaxRefundEventReceiptCredential"
+  ],
+  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
+  "validFrom": "2026-05-02T05:00:00Z",
+  "credentialSubject": {
+    "id": "did:peer:2.taxPairwiseExample",
+    "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
+    "event": {
+      "eventId": "evt_taxrefund_01J8TXA",
+      "eventType": "tax_refund_state_update",
+      "status": "export_confirmed",
+      "sourceActor": "refund_operator_or_customs_feed",
+      "amountHash": "sha256:amount-not-public",
+      "offchainRecordRef": "offrec_tax_claim_01J8TXA",
+      "offchainRecordHash": "sha256:3bc4c1..."
+    }
+  },
+  "proof": {
+    "type": "DataIntegrityProof",
+    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR#key-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "z..."
   }
@@ -175,7 +219,7 @@ Revocation은 공개적으로 individual user를 노출하지 않도록 status l
   ],
   "id": "https://issuer.example.com/status-lists/tax-refund-2026",
   "type": ["VerifiableCredential", "BitstringStatusListCredential"],
-  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND",
+  "issuer": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR",
   "credentialSubject": {
     "id": "https://issuer.example.com/status-lists/tax-refund-2026#list",
     "type": "BitstringStatusList",
@@ -184,7 +228,7 @@ Revocation은 공개적으로 individual user를 노출하지 않도록 status l
   },
   "proof": {
     "type": "DataIntegrityProof",
-    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND#key-1",
+    "verificationMethod": "did:xrpl:1:rISSUER_TAX_REFUND_OPERATOR_CONNECTOR#key-1",
     "proofPurpose": "assertionMethod",
     "proofValue": "z..."
   }

@@ -11,6 +11,9 @@ The docs are split by language first, then by topic.
 
 ```text
 docs/
+├── revised-plan-summary.md
+├── mvp-video-demo-plan.md
+├── privacy-preserving-proof-chain.mmd
 ├── en/
 │   ├── plan.en.md
 │   ├── architecture/
@@ -22,3 +25,10 @@ docs/
 ```
 
 Use the plan documents for the hackathon narrative and the architecture documents for build-level schema, identity, access-control, and flow details.
+
+## Revised Plan
+
+- [Revised plan summary](revised-plan-summary.md)
+- [MVP video demo plan](mvp-video-demo-plan.md)
+- [Privacy-preserving proof-chain diagram](privacy-preserving-proof-chain.mmd)
+- [Multi-service E0 DAG diagram](multi-service-e0-dag.mmd)

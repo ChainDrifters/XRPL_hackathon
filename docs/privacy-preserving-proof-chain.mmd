@@ -1,0 +1,72 @@
+flowchart TD
+    %% Public XRPL layer: organization identity and opaque commitments only.
+    subgraph XRPL["XRPL public ledger"]
+        TOSS_DID["did:xrpl: Toss KYC issuer"]
+        REFUND_DID["did:xrpl: Refund operator connector"]
+        POS_DID["did:xrpl: Merchant/POS connector"]
+        PSP_DID["did:xrpl: Card/PSP connector"]
+        CUSTOMS_DID["did:xrpl: Customs connector or mock"]
+        SCHEMA["schemaHash"]
+        TRUST["trustPolicyHash"]
+        PROOF_ROOT["proofChainRoot<br/>opaque hash"]
+        STATUS_ROOT["statusRoot<br/>optional Merkle root"]
+    end
+
+    %% Private relationship layer: no public ledger registration.
+    subgraph REL["Private wallet relationship"]
+        WALLET["Toss Foreigner Flow Wallet"]
+        PEER_TAX["did:peer for tax-refund relationship"]
+        REL_ID["relationshipId<br/>rel_tax_*"]
+    end
+
+    %% Private proof chain: event details stay off-chain.
+    subgraph CHAIN["Private TaxRefundProofChain"]
+        E0["E0 passport_verified"]
+        E1["E1 item_purchased"]
+        E2["E2 tax_free_status_verified"]
+        E3["E3 kiosk_refund_requested"]
+        E4["E4 card_authorization_verified"]
+        E5["E5 refund_operator_accepted"]
+        E6["E6 customs_export_confirmed"]
+        E7["E7 card_settlement_completed"]
+        PRIV["Encrypted private records<br/>passport evidence, receipt, kiosk no., card token, customs payload"]
+        STATUS_TREE["Private status list / Merkle tree"]
+    end
+
+    WALLET --> PEER_TAX
+    PEER_TAX --> REL_ID
+    REL_ID --> E0
+
+    TOSS_DID -. "attestorDid resolves key" .-> E0
+    POS_DID -. "attestorDid resolves key" .-> E1
+    REFUND_DID -. "attestorDid resolves key" .-> E2
+    REFUND_DID -. "attestorDid resolves key" .-> E3
+    PSP_DID -. "attestorDid resolves key" .-> E4
+    REFUND_DID -. "attestorDid resolves key" .-> E5
+    CUSTOMS_DID -. "attestorDid resolves key" .-> E6
+    PSP_DID -. "attestorDid resolves key" .-> E7
+
+    E0 -->|"previousEventHash"| E1
+    E1 -->|"previousEventHash"| E2
+    E2 -->|"previousEventHash"| E3
+    E3 -->|"previousEventHash"| E4
+    E4 -->|"previousEventHash"| E5
+    E5 -->|"previousEventHash"| E6
+    E6 -->|"previousEventHash"| E7
+
+    E0 -. "eventPayloadHash" .-> PRIV
+    E1 -. "eventPayloadHash" .-> PRIV
+    E3 -. "eventPayloadHash" .-> PRIV
+    E4 -. "eventPayloadHash" .-> PRIV
+    E6 -. "eventPayloadHash" .-> PRIV
+    E7 -. "eventPayloadHash" .-> PRIV
+
+    E7 -->|"latest eventHash"| PROOF_ROOT
+    STATUS_TREE -->|"statusRoot"| STATUS_ROOT
+
+    TRUST -. "allows signer per event type" .-> E5
+    SCHEMA -. "defines private event shape" .-> E0
+
+    %% Privacy rule:
+    %% XRPL never stores eventType, user DID, relationshipId, case ID, receipt detail,
+    %% card status, kiosk number, customs payload, or per-event timestamp.

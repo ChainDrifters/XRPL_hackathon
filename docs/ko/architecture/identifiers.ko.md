@@ -28,7 +28,7 @@ Holder DID
 
 | 식별자 | 예시 | 공개 범위 | 목적 |
 |---|---|---|---|
-| `holderDid` | `did:xrpl:1:rHOLDER...` | 비공개 또는 선택 공개 | 사용자 지갑의 root identity controller |
+| `holderDid` | `did:key:zHOLDER_LOCAL_ROOT...` | 비공개 또는 선택 공개 | 사용자 지갑의 로컬 root identity controller. XRPL에 공개하지 않음 |
 | `issuerDid` | `did:xrpl:1:rISSUER...` | 공개 | Verifier가 발급자 키와 신뢰 정보를 검증 |
 | `verifierDid` | `did:xrpl:1:rHOTEL...` | 공개 또는 partner registry | 증명을 요청하는 서비스 식별 |
 | `relationshipId` | `rel_tax_01J8...` | 비공개 또는 pairwise | 한 서비스 도메인 안에서 여러 이벤트 연결 |
@@ -39,6 +39,8 @@ Holder DID
 ## Relationship ID 파생
 
 동일 사용자가 세금, 호텔, 렌탈, 에스크로에서 자동 상관분석되지 않도록 pairwise ID를 사용합니다.
+
+사용자와 verifier 사이의 pairwise 관계에는 `did:peer` 같은 off-ledger DID를 사용합니다. 관계마다 XRPL 계정/DID를 만들지 않습니다. XRPL DID는 공개 issuer/connector용이고, 사용자 서비스 연결용이 아닙니다.
 
 ```text
 relationshipSecret = HKDF(holderMasterSecret, verifierDid || serviceDomain)
@@ -72,22 +74,25 @@ relationshipId = base64url(
   "type": "PrivateIdentityGraph",
   "version": "1.0",
   "identityGraphId": "igr_01J8ROOT",
-  "holderDid": "did:xrpl:1:rHOLDER_CORE",
+  "holderDid": "did:key:zHOLDER_CORE",
   "walletAccountId": "toss_wallet_user_opaque_123",
   "serviceRelationships": [
     {
       "serviceDomain": "tax_refund",
       "verifierDid": "did:xrpl:1:rTAX_OPERATOR",
       "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
-      "pairwiseHolderDid": "did:xrpl:1:rHOLDER_PAIRWISE_TAX",
-      "credentials": ["urn:vc:tax-refund-eligibility:01J8TAX123"],
+      "pairwiseHolderDid": "did:peer:2.taxPairwiseExample",
+      "credentials": [
+        "urn:vc:tax-refund-readiness:01J8TAX123",
+        "urn:vc:tax-refund-event:01J8TXEVENT"
+      ],
       "events": ["evt_taxrefund_01J8TXA", "evt_taxrefund_01J8TXB"]
     },
     {
       "serviceDomain": "rental",
       "verifierDid": "did:xrpl:1:rRENTAL_PLATFORM",
       "relationshipId": "rel_rental_X8mw21",
-      "pairwiseHolderDid": "did:xrpl:1:rHOLDER_PAIRWISE_RENTAL",
+      "pairwiseHolderDid": "did:peer:2.rentalPairwiseExample",
       "credentials": ["urn:vc:rental-eligibility:01J8RENT"],
       "events": ["evt_rental_application_01J8R1", "evt_license_check_01J8L1"]
     }

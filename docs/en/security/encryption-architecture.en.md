@@ -1,7 +1,7 @@
 # Encryption Architecture
 
-> Toss Passport Auth Layer — protecting passport originals and CDD evidence
-> Referenced from [`plan.en.md §9-3`](../plan.en.md)
+> Toss Foreigner Flow Layer / Passport Auth module — protecting passport originals and CDD evidence
+> Referenced from [`plan.en.md §9`](../plan.en.md)
 
 ---
 
