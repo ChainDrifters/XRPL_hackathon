@@ -14,6 +14,7 @@ The project combines passport verification, Toss Face Pay, verifiable credential
 - [English docs](docs/en/README.md)
 - [Korean docs](docs/ko/README.md)
 
+
 ## Current Scope
 
 - XRPL DID as the public issuer trust anchor

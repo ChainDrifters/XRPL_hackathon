@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>외국인 환급 — 홈 화면 Mockup</title>
+  <style>
+    /* ============================================================
+       Toss Design System (TDS) — color, type, spacing
+       ============================================================ */
+    :root {
+      --toss-blue: #3182F6;
+      --toss-blue-light: #E8F3FF;
+      --toss-blue-dark: #1B64DA;
+      --text-primary: #191F28;
+      --text-secondary: #4E5968;
+      --text-tertiary: #6B7684;
+      --text-quaternary: #8B95A1;
+      --bg-page: #F2F4F6;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F9FAFB;
+      --border: #E5E8EB;
+      --divider: #F2F4F6;
+      --success: #00C896;
+      --warning: #FF9500;
+      --danger: #F04452;
+      --radius-card: 16px;
+      --radius-button: 12px;
+      --radius-pill: 999px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: 'Toss Product Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Apple SD Gothic Neo', 'Pretendard', Roboto, sans-serif;
+      background: #DADDE2;
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+
+    /* ============================================================
+       Phone frame (iPhone 15 Pro size mockup)
+       ============================================================ */
+    .phone {
+      width: 390px;
+      height: 844px;
+      background: var(--bg-page);
+      border-radius: 48px;
+      box-shadow:
+        0 0 0 12px #1A1A1C,
+        0 0 0 14px #2A2A2C,
+        0 24px 60px rgba(0,0,0,0.25);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Notch */
+    .notch {
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 32px;
+      background: #1A1A1C;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    /* Status bar */
+    .status-bar {
+      height: 54px;
+      padding: 18px 32px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+    .status-bar .right { display: flex; gap: 6px; align-items: center; }
+
+    /* App header */
+    .app-header {
+      padding: 8px 20px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-page);
+      flex-shrink: 0;
+    }
+    .app-header .title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .app-header .icons {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .app-header .icon {
+      width: 24px;
+      height: 24px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+
+    /* Scrollable content */
+    .scroll-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 20px 100px;
+    }
+    .scroll-area::-webkit-scrollbar { width: 0; }
+
+    /* ============================================================
+       Hero card — passport status + refundable amount
+       ============================================================ */
+    .hero {
+      background: linear-gradient(135deg, #3182F6 0%, #1B64DA 100%);
+      border-radius: var(--radius-card);
+      padding: 20px;
+      color: white;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 160px;
+      height: 160px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 50%;
+    }
+    .hero .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .hero .label {
+      font-size: 13px;
+      opacity: 0.85;
+      margin-bottom: 4px;
+    }
+    .hero .amount {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+    }
+    .hero .amount .currency {
+      font-size: 20px;
+      font-weight: 700;
+      margin-left: 2px;
+    }
+    .hero .meta {
+      font-size: 12px;
+      opacity: 0.85;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .hero-cta {
+      width: 100%;
+      background: white;
+      color: var(--toss-blue);
+      border: none;
+      padding: 14px;
+      border-radius: var(--radius-button);
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 16px;
+      cursor: pointer;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================================================
+       Quick actions row (3 columns)
+       ============================================================ */
+    .quick-actions {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 18px 8px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      margin-bottom: 12px;
+    }
+    .quick-action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    .quick-action .icon-bg {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--toss-blue-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--toss-blue);
+      font-size: 22px;
+    }
+    .quick-action .label {
+      font-size: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* ============================================================
+       Section heading
+       ============================================================ */
+    .section-heading {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 4px 12px;
+    }
+    .section-heading h3 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .section-heading .more {
+      font-size: 13px;
+      color: var(--text-tertiary);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    /* ============================================================
+       In-progress refund card (timeline)
+       ============================================================ */
+    .progress-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    .progress-card .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 14px;
+    }
+    .progress-card .merchant {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .progress-card .date {
+      font-size: 12px;
+      color: var(--text-quaternary);
+      margin-top: 2px;
+    }
+    .progress-card .amount-pill {
+      background: var(--toss-blue-light);
+      color: var(--toss-blue);
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .progress-steps {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 6px;
+      position: relative;
+    }
+    .progress-steps::before {
+      content: '';
+      position: absolute;
+      top: 11px;
+      left: 12px;
+      right: 12px;
+      height: 2px;
+      background: var(--divider);
+      z-index: 0;
+    }
+    .progress-steps .progress-line {
+      position: absolute;
+      top: 11px;
+      left: 12px;
+      width: 60%;
+      height: 2px;
+      background: var(--toss-blue);
+      z-index: 1;
+    }
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      position: relative;
+      z-index: 2;
+    }
+    .step .dot {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 2px solid var(--divider);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--text-quaternary);
+      font-weight: 700;
+    }
+    .step.done .dot {
+      background: var(--toss-blue);
+      border-color: var(--toss-blue);
+      color: white;
+    }
+    .step.current .dot {
+      background: white;
+      border-color: var(--toss-blue);
+      color: var(--toss-blue);
+      box-shadow: 0 0 0 4px var(--toss-blue-light);
+    }
+    .step .label {
+      font-size: 10px;
+      color: var(--text-tertiary);
+      text-align: center;
+      max-width: 60px;
+      line-height: 1.3;
+    }
+    .step.done .label, .step.current .label {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
+    /* ============================================================
+       Recent purchases
+       ============================================================ */
+    .purchase-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .purchase-row {
+      padding: 16px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--divider);
+      cursor: pointer;
+    }
+    .purchase-row:last-child { border-bottom: none; }
+    .purchase-row .merchant-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: var(--bg-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .purchase-row .info {
+      flex: 1;
+      min-width: 0;
+    }
+    .purchase-row .merchant-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .purchase-row .meta-text {
+      font-size: 12px;
+      color: var(--text-tertiary);
+    }
+    .purchase-row .right {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .purchase-row .amount {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .purchase-row .refund-text {
+      font-size: 12px;
+      color: var(--toss-blue);
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* ============================================================
+       Trip alert / future flow preview
+       ============================================================ */
+    .alert-card {
+      background: #FFF8E1;
+      border: 1px solid #FFE08A;
+      border-radius: var(--radius-card);
+      padding: 14px 16px;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .alert-card .icon {
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .alert-card .title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #6B5300;
+      margin-bottom: 2px;
+    }
+    .alert-card .desc {
+      font-size: 12px;
+      color: #8A6F00;
+      line-height: 1.4;
+    }
+
+    .future-card {
+      background: var(--bg-card);
+      border-radius: var(--radius-card);
+      padding: 16px 18px;
+      margin-bottom: 12px;
+    }
+    .future-card .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .future-card .header h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .future-card .header .badge {
+      font-size: 10px;
+      background: var(--bg-subtle);
+      color: var(--text-tertiary);
+      padding: 2px 8px;
+      border-radius: var(--radius-pill);
+      font-weight: 600;
+    }
+    .future-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      cursor: pointer;
+    }
+    .future-row .emoji {
+      font-size: 22px;
+    }
+    .future-row .text {
+      flex: 1;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+    .future-row .arrow {
+      color: var(--text-quaternary);
+    }
+
+    /* ============================================================
+       Bottom navigation
+       ============================================================ */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding: 8px 0 24px;
+    }
+    .nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      color: var(--text-quaternary);
+    }
+    .nav-item.active { color: var(--toss-blue); }
+    .nav-item .icon { font-size: 20px; }
+    .nav-item .label { font-size: 10px; font-weight: 700; }
+
+    /* ============================================================
+       Annotation panel (right side)
+       ============================================================ */
+    .annotations {
+      width: 360px;
+      max-width: 100%;
+      background: white;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+      align-self: flex-start;
+      max-height: 844px;
+      overflow-y: auto;
+    }
+    .annotations h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: var(--text-primary);
+    }
+    .annotations .item {
+      padding: 12px 0;
+      border-bottom: 1px solid var(--divider);
+    }
+    .annotations .item:last-child { border-bottom: none; }
+    .annotations .num {
+      display: inline-block;
+      background: var(--toss-blue);
+      color: white;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 22px;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 8px;
+    }
+    .annotations .heading {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .annotations .body {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      margin-left: 30px;
+    }
+    .annotations .body code {
+      background: var(--bg-subtle);
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- =================================================================
+       PHONE MOCKUP
+       ================================================================= -->
+  <div class="phone">
+    <div class="notch"></div>
+
+    <!-- Status bar -->
+    <div class="status-bar">
+      <span>9:41</span>
+      <span class="right">📶 🔋</span>
+    </div>
+
+    <!-- App header -->
+    <div class="app-header">
+      <span class="title">외국인 환급</span>
+      <div class="icons">
+        <span class="icon">🌐</span>
+        <span class="icon">🔔</span>
+      </div>
+    </div>
+
+    <!-- Scrollable content -->
+    <div class="scroll-area">
+
+      <!-- ============ HERO: passport status + refundable amount ============ -->
+      <div class="hero">
+        <div class="badge">✓ 여권 확인을 마쳤어요</div>
+        <div class="label">받을 수 있는 환급 금액</div>
+        <div class="amount">324,500<span class="currency">원</span></div>
+        <div class="meta">🛍️ 구매 4건 · 🛂 출국까지 5일 남음</div>
+        <button class="hero-cta">환급 받는 방법 보기</button>
+      </div>
+
+      <!-- ============ QUICK ACTIONS ============ -->
+      <div class="quick-actions">
+        <div class="quick-action">
+          <div class="icon-bg">📱</div>
+          <div class="label">키오스크에<br/>보여주기</div>
+        </div>
+        <div class="quick-action">
+          <div class="icon-bg">🧾</div>
+          <div class="label">전표 추가</div>
+        </div>
+        <div class="quick-action">
+          <div class="icon-bg">💳</div>
+          <div class="label">받을 방법<br/>설정</div>
+        </div>
+      </div>
+
+      <!-- ============ ALERT: trip reminder ============ -->
+      <div class="alert-card">
+        <div class="icon">⏰</div>
+        <div>
+          <div class="title">5월 10일 출국 예정이에요</div>
+          <div class="desc">공항에서 세관 키오스크에 들러 반출 확인을 받아주세요. 환급 2건이 진행 중이에요.</div>
+        </div>
+      </div>
+
+      <!-- ============ IN-PROGRESS REFUND ============ -->
+      <div class="section-heading">
+        <h3>진행 중인 환급</h3>
+        <span class="more">2건 ›</span>
+      </div>
+
+      <div class="progress-card">
+        <div class="top-row">
+          <div>
+            <div class="merchant">올리브영 명동본점</div>
+            <div class="date">2026.05.02 · 156,000원 구매</div>
+          </div>
+          <div class="amount-pill">+12,400원</div>
+        </div>
+        <div class="progress-steps">
+          <div class="progress-line"></div>
+          <div class="step done"><div class="dot">✓</div><div class="label">구매</div></div>
+          <div class="step done"><div class="dot">✓</div><div class="label">면세 확인</div></div>
+          <div class="step current"><div class="dot">3</div><div class="label">키오스크</div></div>
+          <div class="step"><div class="dot">4</div><div class="label">세관 확인</div></div>
+          <div class="step"><div class="dot">5</div><div class="label">환급 완료</div></div>
+        </div>
+      </div>
+
+      <!-- ============ RECENT PURCHASES ============ -->
+      <div class="section-heading">
+        <h3>최근 구매</h3>
+        <span class="more">전체보기 ›</span>
+      </div>
+
+      <div class="purchase-card">
+        <div class="purchase-row">
+          <div class="merchant-icon">🛍️</div>
+          <div class="info">
+            <div class="merchant-name">신세계 명동점</div>
+            <div class="meta-text">오늘 · 환급 가능</div>
+          </div>
+          <div class="right">
+            <div class="amount">85,000원</div>
+            <div class="refund-text">+6,800원</div>
+          </div>
+        </div>
+        <div class="purchase-row">
+          <div class="merchant-icon">💄</div>
+          <div class="info">
+            <div class="merchant-name">아모레퍼시픽 청담</div>
+            <div class="meta-text">어제 · 환급 가능</div>
+          </div>
+          <div class="right">
+            <div class="amount">120,000원</div>
+            <div class="refund-text">+9,600원</div>
+          </div>
+        </div>
+        <div class="purchase-row">
+          <div class="merchant-icon">👜</div>
+          <div class="info">
+            <div class="merchant-name">롯데면세점 본점</div>
+            <div class="meta-text">5월 1일 · 즉시환급 완료</div>
+          </div>
+          <div class="right">
+            <div class="amount">450,000원</div>
+            <div class="refund-text" style="color: var(--success);">완료</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============ FUTURE FLOWS PREVIEW ============ -->
+      <div class="future-card">
+        <div class="header">
+          <h3>같은 인증으로 더 쓸 수 있어요</h3>
+          <span class="badge">곧 출시</span>
+        </div>
+        <div class="future-row">
+          <span class="emoji">🏨</span>
+          <span class="text">호텔 체크인을 더 빠르게</span>
+          <span class="arrow">›</span>
+        </div>
+        <div class="future-row">
+          <span class="emoji">🚗</span>
+          <span class="text">렌터카 보증금 처리</span>
+          <span class="arrow">›</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom navigation -->
+    <div class="bottom-nav">
+      <div class="nav-item active">
+        <div class="icon">🏠</div>
+        <div class="label">홈</div>
+      </div>
+      <div class="nav-item">
+        <div class="icon">💸</div>
+        <div class="label">환급</div>
+      </div>
+      <div class="nav-item">
+        <div class="icon">📋</div>
+        <div class="label">활동</div>
+      </div>
+      <div class="nav-item">
+        <div class="icon">⚙️</div>
+        <div class="label">설정</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =================================================================
+       ANNOTATIONS PANEL — explains design decisions
+       ================================================================= -->
+  <div class="annotations">
+    <h2>홈 화면 설계 의도</h2>
+
+    <div class="item">
+      <div class="heading"><span class="num">1</span>여권 인증 + 환급 금액 (Hero)</div>
+      <div class="body">
+        가장 위에 두 가지를 함께 강조 — 사용자가 "내 신원이 준비되어 있고", "받을 돈이 얼마인지" 한 번에 인식.
+        <code>"여권 확인을 마쳤어요"</code> = identity wallet ready 신호를 비전공자도 이해 가능한 카피로.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">2</span>출국까지 D-day 표시</div>
+      <div class="body">
+        외국인 사용자의 가장 큰 stress는 "공항에서 시간 안에 환급 받기". 메인 hero에 "출국까지 N일" 명시 → 행동 유도.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">3</span>3개 quick action</div>
+      <div class="body">
+        "키오스크에 보여주기" / "전표 추가" / "받을 방법 설정" — 면세 환급의 3대 사용자 액션.
+        "지갑", "주소", "서명" 같은 web3 용어 0.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">4</span>출국 alert (노란색 카드)</div>
+      <div class="body">
+        반드시 해야 할 일을 강조 — 세관 키오스크 안 거치면 환급 취소되는 한국 제도의 핵심 위험 포인트.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">5</span>진행 중 환급 timeline</div>
+      <div class="body">
+        E0~E7 proof chain을 사용자 친화적으로 시각화 — "구매 → 면세 확인 → 키오스크 → 세관 → 환급 완료".
+        현재 단계 강조 + 다음 액션 명확.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">6</span>최근 구매 + 환급액 미리보기</div>
+      <div class="body">
+        매장별 환급 가능 금액 즉시 표시 → "내가 얼마 받을 수 있는지" 투명성. 즉시환급 vs 사후환급 구분.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">7</span>미래 확장 preview</div>
+      <div class="body">
+        "같은 인증으로 호텔/렌탈도" — DID 재사용 가치 어필. 토스 시너지 + 제품 vision 동시 표현.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">8</span>Bottom navigation 4탭</div>
+      <div class="body">
+        홈 / 환급 / 활동 / 설정 — 토스 standard. 환급 탭에서 detail, 활동 탭에서 audit log, 설정에 "받을 방법" + "고급" (BIP-39 export 등).
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">9</span>Web3 용어 완전 hide</div>
+      <div class="body">
+        XRPL, RLUSD, DID, VC, wallet, signing 모두 사용자 화면에서 안 보임. <code>설정 > 고급 > 개발자</code>에만 노출.
+      </div>
+    </div>
+
+    <div class="item">
+      <div class="heading"><span class="num">10</span>다국어 toggle (🌐 아이콘)</div>
+      <div class="body">
+        헤더 우측 🌐 → 한국어/English/中文/日本語/Tiếng Việt. 외국인 진입 장벽 1순위 해결.
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
