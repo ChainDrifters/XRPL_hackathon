@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tffl.example/schema/residence.schema.json",
+  "title": "MockResidence",
+  "description": "Phase 0 mock residence/visa record. isNonResident drives whether the persona is eligible for the foreign-tourist tax refund flow.",
+  "type": "object",
+  "required": [
+    "warning",
+    "visa",
+    "visaCategory",
+    "isNonResident",
+    "arrivalDate",
+    "stayLimit"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "warning": {
+      "type": "string",
+      "pattern": "SYNTHETIC TEST DATA"
+    },
+    "visa": {
+      "type": "string",
+      "examples": ["B-1", "B-2", "C-3-1", "D-2", "D-10"]
+    },
+    "visaCategory": {
+      "type": "string",
+      "enum": [
+        "tourist",
+        "short_term_visit",
+        "visa_waiver",
+        "study",
+        "job_seeker",
+        "other"
+      ]
+    },
+    "isNonResident": {
+      "type": "boolean",
+      "description": "true ⇒ 외국인관광객 환급 대상. false ⇒ 90일+ 거주자, 환급 대상 아님."
+    },
+    "nonResidentReason": { "type": "string" },
+    "arrivalDate": { "type": "string", "format": "date" },
+    "stayLimit": { "type": "string", "format": "date" },
+    "lodging": { "type": "string" },
+    "arcNumber": {
+      "type": ["string", "null"],
+      "pattern": "^MOCK-ARC-[0-9]+$"
+    },
+    "institution": { "type": "string" }
+  }
+}

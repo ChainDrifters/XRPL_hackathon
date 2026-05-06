@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/passport.schema.json",
+  "type": "MockPassport",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL PASSPORT",
+  "issuingCountry": "USA",
+  "passportNumber": "MOCK-US-A12345678",
+  "surname": "DOE",
+  "givenNames": "JANE MIRA",
+  "nationality": "USA",
+  "dateOfBirth": "1999-03-15",
+  "sex": "F",
+  "dateOfIssue": "2022-03-15",
+  "dateOfExpiry": "2032-03-14",
+  "placeOfBirth": "MOCK CITY, USA",
+  "mrz": [
+    "P<USADOE<<JANE<MIRA<<<<<<<<<<<<<<<<<<<<<<<<",
+    "MOCKUSA12345678USA9903154F3203148<<<<<<<<<<<<<<04"
+  ]
+}

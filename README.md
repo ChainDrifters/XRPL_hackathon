@@ -14,6 +14,16 @@ The project combines passport verification, Toss Face Pay, verifiable credential
 - [English docs](docs/en/README.md)
 - [Korean docs](docs/ko/README.md)
 
+## Phase Execution Plan
+
+8단계 실행 계획과 Phase 0의 mock 페르소나 dataset (Korean):
+
+- [Plan index](plan/README.md) — 8 phase 의존성 그래프 + 전체 표
+- [Architecture overview](plan/architecture.md) — 4-layer 분리
+- [Phase 0 — Personas](plan/phase-0.md) → [Phase 7 — Polish](plan/phase-7.md)
+- [Glossary](plan/glossary.md) — 69 핵심 용어
+- [Diagrams gallery](plan/diagrams.md) — 5 mermaid 다이어그램
+- [Mock personas (Phase 0 산출물)](plan/personas/README.md) — 5명 dataset
 
 ## Current Scope
 

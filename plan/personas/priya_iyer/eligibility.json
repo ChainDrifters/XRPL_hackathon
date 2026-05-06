@@ -1,0 +1,9 @@
+{
+  "$schema": "../schema/eligibility.schema.json",
+  "scenarios": ["hotel_check_in", "rental_car"],
+  "preferredPayoutPartner": "cash_krw_account_mock",
+  "shoppingBudgetKRW": 280000,
+  "rentalDepositKRW": 250000,
+  "taxRefundEligible": false,
+  "taxRefundIneligibleReason": "D-2 90일+ 거주자 외국인은 외국인관광객 환급 대상 아님 (negative-case demo)"
+}

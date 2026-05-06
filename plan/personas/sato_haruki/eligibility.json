@@ -1,0 +1,8 @@
+{
+  "$schema": "../schema/eligibility.schema.json",
+  "scenarios": ["airport_refund", "rental_car"],
+  "preferredPayoutPartner": "card_jcb_mock",
+  "shoppingBudgetKRW": 350000,
+  "expectedRefundKRW": 31818,
+  "rentalDepositKRW": 300000
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "../schema/eligibility.schema.json",
+  "scenarios": ["immediate_refund"],
+  "preferredPayoutPartner": "alipay_mock",
+  "shoppingBudgetKRW": 4200000,
+  "expectedRefundKRW": 381818
+}

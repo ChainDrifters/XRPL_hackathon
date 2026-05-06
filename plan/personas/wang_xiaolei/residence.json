@@ -1,0 +1,11 @@
+{
+  "$schema": "../schema/residence.schema.json",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL RECORD",
+  "visa": "C-3-1",
+  "visaCategory": "short_term_visit",
+  "isNonResident": true,
+  "arrivalDate": "2026-05-03",
+  "stayLimit": "2026-06-02",
+  "lodging": "Westin Josun Seoul (mock)",
+  "arcNumber": null
+}

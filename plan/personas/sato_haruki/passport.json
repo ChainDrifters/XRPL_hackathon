@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/passport.schema.json",
+  "type": "MockPassport",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL PASSPORT",
+  "issuingCountry": "JPN",
+  "passportNumber": "MOCK-JP-TZ7654321",
+  "surname": "SATO",
+  "givenNames": "HARUKI",
+  "nameLocal": "佐藤 春樹",
+  "nationality": "JPN",
+  "dateOfBirth": "1992-07-21",
+  "sex": "M",
+  "dateOfIssue": "2023-07-21",
+  "dateOfExpiry": "2028-07-20",
+  "placeOfBirth": "MOCK CITY, JPN",
+  "mrz": [
+    "P<JPNSATO<<HARUKI<<<<<<<<<<<<<<<<<<<<<<<<<<",
+    "MOCKJPTZ7654321JPN9207215M2807209<<<<<<<<<<<<<<06"
+  ]
+}

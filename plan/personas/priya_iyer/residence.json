@@ -1,0 +1,12 @@
+{
+  "$schema": "../schema/residence.schema.json",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL RECORD",
+  "visa": "D-2",
+  "visaCategory": "study",
+  "isNonResident": false,
+  "nonResidentReason": "체류기간 90일 초과 + 학업 목적의 거주자 → 외국인관광객 환급 자격 미달",
+  "arrivalDate": "2026-03-02",
+  "stayLimit": "2027-02-28",
+  "arcNumber": "MOCK-ARC-013579",
+  "institution": "서울대학교"
+}

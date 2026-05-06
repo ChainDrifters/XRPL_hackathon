@@ -1,0 +1,7 @@
+{
+  "$schema": "../schema/eligibility.schema.json",
+  "scenarios": ["downtown_pre_refund", "hotel_check_in"],
+  "preferredPayoutPartner": "wise_mock",
+  "shoppingBudgetKRW": 410000,
+  "expectedRefundKRW": 37272
+}

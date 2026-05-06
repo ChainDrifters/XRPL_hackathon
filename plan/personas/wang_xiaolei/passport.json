@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/passport.schema.json",
+  "type": "MockPassport",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL PASSPORT",
+  "issuingCountry": "CHN",
+  "passportNumber": "MOCK-CN-E98765432",
+  "surname": "WANG",
+  "givenNames": "XIAOLEI",
+  "nameLocal": "王小雷",
+  "nationality": "CHN",
+  "dateOfBirth": "1988-11-08",
+  "sex": "M",
+  "dateOfIssue": "2020-11-08",
+  "dateOfExpiry": "2030-11-07",
+  "placeOfBirth": "MOCK CITY, CHN",
+  "mrz": [
+    "P<CHNWANG<<XIAOLEI<<<<<<<<<<<<<<<<<<<<<<<<<",
+    "MOCKCNE9876543CHN8811085M3011077<<<<<<<<<<<<<<02"
+  ]
+}

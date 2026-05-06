@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tffl.example/schema/passport.schema.json",
+  "title": "MockPassport",
+  "description": "Phase 0 mock passport record. Every identifier MUST start with MOCK- so it cannot be confused with a real document.",
+  "type": "object",
+  "required": [
+    "type",
+    "warning",
+    "issuingCountry",
+    "passportNumber",
+    "surname",
+    "givenNames",
+    "nationality",
+    "dateOfBirth",
+    "sex",
+    "dateOfExpiry",
+    "mrz"
+  ],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "type": { "const": "MockPassport" },
+    "warning": {
+      "type": "string",
+      "pattern": "SYNTHETIC TEST DATA"
+    },
+    "issuingCountry": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "passportNumber": {
+      "type": "string",
+      "pattern": "^MOCK-[A-Z]{2}-[A-Z0-9]+$"
+    },
+    "surname": { "type": "string" },
+    "givenNames": { "type": "string" },
+    "nameLocal": { "type": "string" },
+    "nationality": {
+      "type": "string",
+      "pattern": "^[A-Z]{3}$"
+    },
+    "dateOfBirth": { "type": "string", "format": "date" },
+    "sex": { "type": "string", "enum": ["M", "F", "X"] },
+    "dateOfIssue": { "type": "string", "format": "date" },
+    "dateOfExpiry": { "type": "string", "format": "date" },
+    "placeOfBirth": { "type": "string" },
+    "mrz": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 2,
+      "maxItems": 2
+    }
+  }
+}

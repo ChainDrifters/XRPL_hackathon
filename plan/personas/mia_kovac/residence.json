@@ -1,0 +1,12 @@
+{
+  "$schema": "../schema/residence.schema.json",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL RECORD",
+  "visa": "D-10",
+  "visaCategory": "job_seeker",
+  "isNonResident": true,
+  "nonResidentReason": "입국 직후이며 90일 미만이라 비거주 외국인 자격 유지. 6개월 초과 시 거주자로 전환되어 환급 자격 잃을 예정 (시점 의존성).",
+  "arrivalDate": "2026-04-12",
+  "stayLimit": "2026-10-11",
+  "lodging": "GLAD Yeouido (mock)",
+  "arcNumber": null
+}

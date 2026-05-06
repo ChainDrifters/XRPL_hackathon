@@ -1,0 +1,11 @@
+{
+  "$schema": "../schema/residence.schema.json",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL RECORD",
+  "visa": "B-1",
+  "visaCategory": "visa_waiver",
+  "isNonResident": true,
+  "arrivalDate": "2026-04-30",
+  "stayLimit": "2026-05-29",
+  "lodging": "Lotte Hotel Busan (mock)",
+  "arcNumber": null
+}

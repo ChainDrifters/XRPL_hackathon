@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tffl.example/schema/eligibility.schema.json",
+  "title": "MockEligibility",
+  "description": "Phase 0 mock scenario mapping. scenarios uses the labels defined in plan/personas/README.md.",
+  "type": "object",
+  "required": ["scenarios"],
+  "additionalProperties": true,
+  "properties": {
+    "$schema": { "type": "string" },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "enum": [
+          "immediate_refund",
+          "downtown_pre_refund",
+          "airport_refund",
+          "hotel_check_in",
+          "rental_car"
+        ]
+      },
+      "minItems": 1,
+      "uniqueItems": true
+    },
+    "preferredPayoutPartner": {
+      "type": "string",
+      "enum": [
+        "card_visa_mock",
+        "card_jcb_mock",
+        "alipay_mock",
+        "wise_mock",
+        "cash_krw_account_mock"
+      ]
+    },
+    "shoppingBudgetKRW": { "type": "integer", "minimum": 0 },
+    "expectedRefundKRW": { "type": "integer", "minimum": 0 },
+    "rentalDepositKRW": { "type": "integer", "minimum": 0 },
+    "taxRefundEligible": { "type": "boolean" },
+    "taxRefundIneligibleReason": { "type": "string" }
+  }
+}

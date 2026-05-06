@@ -1,0 +1,19 @@
+{
+  "$schema": "../schema/passport.schema.json",
+  "type": "MockPassport",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL PASSPORT",
+  "issuingCountry": "IND",
+  "passportNumber": "MOCK-IN-N45678901",
+  "surname": "IYER",
+  "givenNames": "PRIYA",
+  "nationality": "IND",
+  "dateOfBirth": "2001-09-12",
+  "sex": "F",
+  "dateOfIssue": "2024-09-12",
+  "dateOfExpiry": "2031-09-11",
+  "placeOfBirth": "MOCK CITY, IND",
+  "mrz": [
+    "P<INDIYER<<PRIYA<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+    "MOCKINN4567890IND0109125F3109115<<<<<<<<<<<<<<08"
+  ]
+}

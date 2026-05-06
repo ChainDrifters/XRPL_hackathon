@@ -1,0 +1,20 @@
+{
+  "$schema": "../schema/passport.schema.json",
+  "type": "MockPassport",
+  "warning": "SYNTHETIC TEST DATA - NOT A REAL PASSPORT",
+  "issuingCountry": "HRV",
+  "passportNumber": "MOCK-HR-K11220033",
+  "surname": "KOVAC",
+  "givenNames": "MIA",
+  "nameLocal": "Mia Kovač",
+  "nationality": "HRV",
+  "dateOfBirth": "1995-12-04",
+  "sex": "F",
+  "dateOfIssue": "2024-12-04",
+  "dateOfExpiry": "2029-12-03",
+  "placeOfBirth": "MOCK CITY, HRV",
+  "mrz": [
+    "P<HRVKOVAC<<MIA<<<<<<<<<<<<<<<<<<<<<<<<<<<<",
+    "MOCKHRK1122003HRV9512045F2912039<<<<<<<<<<<<<<00"
+  ]
+}
