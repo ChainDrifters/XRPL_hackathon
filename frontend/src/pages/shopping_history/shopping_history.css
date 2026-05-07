@@ -1,0 +1,53 @@
+.today-total-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 18px;
+  margin-bottom: 12px;
+  border: 2px solid var(--toss-blue-light);
+}
+.today-total-card .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+}
+.today-total-card .label { font-size: 12px; color: var(--text-quaternary); font-weight: 600; margin-bottom: 4px; }
+.today-total-card .amount { font-size: 32px; font-weight: 900; color: var(--toss-blue); letter-spacing: -1px; }
+.today-total-card .badge {
+  background: var(--toss-blue-light);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--toss-blue);
+}
+.today-total-card .divider { height: 1px; background: var(--divider); margin-bottom: 14px; }
+.today-item-list { display: flex; flex-direction: column; gap: 10px; }
+.today-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;
+  background: var(--bg-subtle);
+  border-radius: 10px;
+}
+.today-item .left { display: flex; align-items: center; gap: 8px; }
+.today-item .ic { font-size: 18px; }
+.today-item .name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+.today-item .usd { font-size: 14px; font-weight: 800; color: var(--toss-blue); }
+
+.qr-issue-row {
+  background: linear-gradient(135deg, #191f28, #2d3748);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+}
+.qr-issue-row .ic { font-size: 32px; }
+.qr-issue-row .body { flex: 1; }
+.qr-issue-row .ttl { font-size: 14px; font-weight: 700; color: white; margin-bottom: 2px; }
+.qr-issue-row .sub { font-size: 11px; color: rgba(255,255,255,0.5); }
+.qr-issue-row .chevron { color: #3182f6; font-size: 20px; }

@@ -1,0 +1,71 @@
+.method-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+.method-card.selected {
+  border-color: var(--toss-blue);
+  background: var(--toss-blue-light);
+}
+.method-card .icon-wrap {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+}
+.method-card.selected .icon-wrap { background: white; }
+.method-card .info { flex: 1; min-width: 0; }
+.method-card .title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+.method-card .title .badge {
+  font-size: 10px;
+  background: var(--success-light);
+  color: var(--success);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 700;
+}
+.method-card .title .badge.adv {
+  background: var(--rlusd-purple-light);
+  color: var(--rlusd-purple);
+}
+.method-card .desc {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  line-height: 1.4;
+}
+.method-card .check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.method-card.selected .check {
+  background: var(--toss-blue);
+  border-color: var(--toss-blue);
+  color: white;
+  font-size: 12px;
+}

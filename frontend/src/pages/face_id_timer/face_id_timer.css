@@ -1,0 +1,68 @@
+.timer-phone {
+  background: #0a0f1e;
+}
+.timer-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  text-align: center;
+}
+.timer-ring {
+  position: relative;
+  width: 220px;
+  height: 220px;
+  margin-bottom: 28px;
+}
+.timer-ring svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+.timer-ring .timer-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.timer-value {
+  font-size: 52px;
+  font-weight: 900;
+  color: white;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -2px;
+}
+.timer-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.auth-status {
+  font-size: 11px;
+  font-weight: 700;
+  color: #3182f6;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.auth-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+.auth-desc { font-size: 13px; color: rgba(255,255,255,0.5); line-height: 1.6; }
+.timer-actions { margin-top: 48px; width: 100%; }
+.btn-cancel {
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.7);
+  border: none;
+  padding: 16px;
+  border-radius: var(--radius-button);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
