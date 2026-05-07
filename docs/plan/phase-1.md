@@ -66,6 +66,26 @@ XRPL에 올려놓아야" 합니다. 이게 Phase 1의 본질입니다.
 
 > 관련 용어: [eTRS](glossary.md#etrs) · [환급창구운영사업자](glossary.md#refund-operator) · [POS](glossary.md#pos) · [PSP](glossary.md#psp)
 
+## Mock connector는 어디에 사는가 (Phase 2와의 연결)
+
+위 5개 DID는 **공개 trust anchor**입니다 — XRPL ledger에 등록된 공개키. 그러나
+실제 서명을 만드는 mock actor (서명자)는 [Phase 2](phase-2.md)에서
+`frontend/src/mocks/connectors/` 안에 **in-app 모듈**로 구현됩니다.
+
+```text
+frontend/src/mocks/connectors/
+├── kyc-issuer.ts        ↔ did:xrpl:1:rTOSS_KYC_ISSUER
+├── merchant-pos.ts      ↔ did:xrpl:1:rMERCHANT_POS_CONNECTOR
+├── refund-operator.ts   ↔ did:xrpl:1:rREFUND_OPERATOR_CONNECTOR
+├── card-psp.ts          ↔ did:xrpl:1:rCARD_PSP_CONNECTOR
+├── customs.ts           ↔ did:xrpl:1:rCUSTOMS_CONNECTOR
+├── trust-policy.ts      # actor × eventType 권한 매트릭스
+└── keys/                # 각 connector의 mock keypair (build-time 생성)
+```
+
+별도 server 없음. 영상 reproducibility (`npm run dev` 한 번) 우선. 현실에서는
+별도 server로 분리되지만, demo는 같은 frontend process 안에서 함수 호출로 충분.
+
 ## DIDSet 트랜잭션이란
 
 XRPL의 DIDSet 트랜잭션은 한 계정에 DID entry를 만들거나 갱신합니다. URI /

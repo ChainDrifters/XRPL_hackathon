@@ -41,9 +41,11 @@ flowchart TB
 
 | | |
 |---|---|
+| **위치** | `frontend/src/wallet/` (frontend-only PoC, 별도 backend 없음) |
 | **포함되는 것** | holder keypair (`did:key`) · 암호화 store + private identity graph · 서비스별 `relationshipId` · Toss-style mini-app UI |
+| **내부 구조** | 4-layer (crypto / storage / identity / state) — 자세히는 [Phase 2 § Wallet 4-layer 구조](phase-2.md#wallet-4-layer-구조) |
 | **어디서 등장** | [Phase 2](phase-2.md), [Phase 3](phase-3.md), [Phase 5](phase-5.md) |
-| **규칙** | 사용자 통제. 모든 PII는 여기서 사용자 키로 암호화돼 있다가 vault로 백업된다. |
+| **규칙** | 사용자 통제. 모든 PII는 여기서 사용자 키로 암호화돼 있다가 vault로 백업된다. 페이지는 Layer 4 (Zustand `useWallet`)만 import — Layer 1~3 직접 호출 금지. |
 
 ### 2. Private Identity Layer (Off-chain, holder-controlled)
 
@@ -68,6 +70,31 @@ flowchart TB
 | **포함되는 것** | 여권 · [ARC](glossary.md#arc) · 비자 원본 · 면세 영수증 · 환급 case file · 호텔 예약 · 렌탈 계약 · 면허 검증 로그 · 에스크로 case file · audit log |
 | **어디서 등장** | [Phase 3 KYC vault 진입](phase-3.md), [Phase 7 crypto-shredding 시연](phase-7.md) |
 | **규칙** | 특금법 §5-2 ③ 5년 보존 의무. [envelope encryption](glossary.md#envelope-encryption) + [HSM](glossary.md#hsm) + dual control. 사용자 grant 없이 verifier가 못 본다. |
+
+## Frontend 안에서의 위치 매핑
+
+이 PoC는 frontend-only입니다. 위 4-layer가 `frontend/src/` 안에서 어떻게
+배치되는지:
+
+```text
+frontend/src/
+├── pages/           # 기존 20개 mockup — Layer 1 (Wallet UI 화면)
+├── wallet/          # Layer 1 (사용자 wallet) + Layer 2 (private identity)
+│   ├── crypto/      # 키·서명·해시 (pure TS)
+│   ├── storage/     # IndexedDB + AES-GCM (Layer 1의 암호화 store)
+│   ├── identity/    # PrivateIdentityGraph + proof-chain (Layer 2)
+│   ├── personas/    # Phase 0 JSON 어댑터
+│   └── state/       # Zustand store (페이지 ↔ wallet 연결)
+└── mocks/           # Layer 3 (XRPL trust)의 mock + 검증자
+    ├── connectors/  # 5개 actor mock (Phase 1 DID와 짝)
+    └── kiosk/       # 키오스크 검증자 mock
+```
+
+> Layer 3 (Public XRPL)는 실제 Testnet 또는 in-app mock 둘 다 가능. 영상
+> reproducibility를 위해 default는 `frontend/src/mocks/`의 in-app mock.
+>
+> Layer 4 (Regulated Vault)는 PoC scope 외 — Phase 7에서 "Toss는 ciphertext만
+> 보관 가능"을 IndexedDB export로 시연.
 
 ## On-chain / Off-chain 경계
 

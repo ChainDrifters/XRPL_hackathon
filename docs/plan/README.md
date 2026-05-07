@@ -7,6 +7,8 @@
 
 ## 폴더 구조
 
+### Plan 문서 (이 폴더)
+
 ```text
 plan/
 ├── README.md             ← 이 파일 (인덱스 + 의존성 그래프)
@@ -30,6 +32,28 @@ plan/
     ├── priya_iyer/       ← IND · D-2 · 환급 외 호텔/렌탈
     └── mia_kovac/        ← HRV · D-10 · 입국 직후 시내 환급
 ```
+
+### Frontend 코드 구조 (Phase 2부터 빌드)
+
+이 PoC는 frontend-only입니다. wallet/mocks 모두 `frontend/src/` 안에 위치합니다.
+
+```text
+frontend/src/
+├── App.tsx                  # router (기존 유지)
+├── main.tsx                 # wallet 초기화 (Phase 2에서 한 줄 추가)
+├── pages/                   # 기존 20개 mockup — Phase 2~6 retrofit 대상
+├── wallet/                  # Phase 2 산출물: 4-layer wallet 골격
+│   ├── crypto/              # Layer 1: Ed25519, SHA-256, HKDF, canonical JSON
+│   ├── storage/             # Layer 2: IndexedDB + AES-GCM
+│   ├── identity/            # Layer 3: PrivateIdentityGraph + proof-chain
+│   ├── personas/            # Phase 0 JSON 어댑터 (Vite alias @personas)
+│   └── state/               # Layer 4: Zustand store + useWallet hook
+└── mocks/                   # Phase 1 DID와 짝을 이루는 in-app mock actor
+    ├── connectors/          # 5개 actor (kyc-issuer, merchant-pos, refund-operator, card-psp, customs) + trust-policy
+    └── kiosk/               # 키오스크 검증자
+```
+
+> 자세한 layer 책임/import 규칙은 [phase-2.md § Wallet 4-layer 구조](phase-2.md#wallet-4-layer-구조) 참고.
 
 ## docs/ 와의 차이
 
