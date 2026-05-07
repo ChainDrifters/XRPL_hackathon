@@ -1,0 +1,65 @@
+.complete-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  text-align: center;
+}
+
+.success-ring {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin-bottom: 28px;
+}
+.success-ring .bg { position: absolute; inset: 0; border-radius: 50%; background: var(--success-light); }
+.success-ring .check {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+  color: white;
+  font-weight: 900;
+}
+.success-ring .outer-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 3px solid var(--success);
+  opacity: 0.3;
+}
+
+.complete-title {
+  font-size: 26px;
+  font-weight: 900;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+.complete-sub {
+  font-size: 14px;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.chip-list { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-bottom: 32px; }
+.chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-subtle);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+.chip .ic { font-size: 18px; }
+.chip .body { text-align: left; flex: 1; }
+.chip .body .ttl { font-size: 12px; font-weight: 700; color: var(--text-primary); }
+.chip .body .sub { font-size: 11px; color: var(--text-quaternary); }
+.chip .badge { font-size: 11px; font-weight: 700; color: var(--success); }

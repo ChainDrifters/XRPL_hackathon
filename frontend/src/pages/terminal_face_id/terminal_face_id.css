@@ -1,0 +1,69 @@
+.terminal-phone {
+  width: 390px;
+  height: 844px;
+  background: #0d1117;
+  border-radius: 32px;
+  box-shadow: 0 0 0 12px #1a1a1c, 0 0 0 14px #2a2a2c, 0 24px 60px rgba(0,0,0,0.4);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.terminal-bar {
+  background: #161b22;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.terminal-bar .status-dot { width: 8px; height: 8px; border-radius: 50%; }
+.terminal-bar .status-dot.orange { background: #ff9500; }
+.terminal-bar .status-left { display: flex; align-items: center; gap: 8px; }
+.terminal-bar .label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6); letter-spacing: 1px; }
+.terminal-bar .time { font-size: 12px; color: rgba(255,255,255,0.4); }
+.terminal-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 28px;
+  text-align: center;
+}
+
+.face-ring {
+  position: relative;
+  width: 200px;
+  height: 200px;
+  margin-bottom: 28px;
+}
+.face-ring .r1 { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,149,0,0.2); }
+.face-ring .r2 { position: absolute; inset: 16px; border-radius: 50%; border: 2px solid rgba(255,149,0,0.4); }
+.face-ring .r3 { position: absolute; inset: 32px; border-radius: 50%; border: 2px solid rgba(255,149,0,0.7); background: rgba(255,149,0,0.05); }
+.face-ring .face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 72px; }
+
+.scanning-label { font-size: 11px; font-weight: 700; color: #ff9500; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+.terminal-title { font-size: 20px; font-weight: 800; color: white; margin-bottom: 8px; letter-spacing: -0.3px; }
+.terminal-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 32px; }
+
+.step-row {
+  width: 100%;
+  background: rgba(255,255,255,0.05);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.step-row.active {
+  background: rgba(255,149,0,0.1);
+  border: 1px solid rgba(255,149,0,0.2);
+}
+.step-row .step-label { font-size: 13px; color: rgba(255,255,255,0.5); }
+.step-row.active .step-label { color: rgba(255,255,255,0.8); font-weight: 600; }
+.step-row .step-status { font-size: 13px; font-weight: 700; }
+.step-row .done { color: #00c896; }
+.step-row .in-progress { color: #ff9500; }

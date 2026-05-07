@@ -1,0 +1,43 @@
+.passport-scan-area {
+  background: white;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 10px;
+  text-align: center;
+  border: 2px dashed var(--border);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.passport-scan-area .top-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #3182f6, #7b61ff);
+}
+.passport-scan-area .scan-icon { font-size: 48px; margin-bottom: 12px; }
+.passport-scan-area .scan-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.passport-scan-area .scan-sub { font-size: 12px; color: var(--text-quaternary); }
+.passport-scan-area .open-btn {
+  margin-top: 16px;
+  background: var(--toss-blue);
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.divider-text {
+  text-align: center;
+  padding: 8px 0;
+  color: var(--text-quaternary);
+  font-size: 12px;
+  font-weight: 600;
+}

@@ -1,0 +1,68 @@
+.qr-issue-card {
+  background: linear-gradient(135deg, #191f28 0%, #2d3748 100%);
+  border-radius: 16px;
+  padding: 24px 20px;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+.qr-issue-card .blob-1 {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  background: rgba(49,130,246,0.15);
+}
+.qr-issue-card .blob-2 {
+  position: absolute;
+  bottom: -20px;
+  left: -20px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: rgba(123,97,255,0.12);
+}
+.qr-issue-card .inner { position: relative; z-index: 1; }
+.qr-issue-card .sub-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+.qr-issue-card .main-title {
+  font-size: 28px;
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+.qr-issue-card .desc {
+  font-size: 13px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 20px;
+}
+.qr-issue-card .qr-row { display: flex; align-items: center; gap: 16px; }
+.qr-mini {
+  width: 70px;
+  height: 70px;
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+.qr-mini-inner {
+  width: 56px;
+  height: 56px;
+  background-image:
+    repeating-linear-gradient(0deg, #000 0, #000 3px, transparent 3px, transparent 8px),
+    repeating-linear-gradient(90deg, #000 0, #000 3px, transparent 3px, transparent 8px);
+  border-radius: 4px;
+}
+.qr-timer-label { font-size: 11px; color: rgba(255,255,255,0.5); margin-bottom: 4px; }
+.qr-timer { font-size: 22px; font-weight: 900; color: #3182f6; font-variant-numeric: tabular-nums; }
+.qr-timer-note { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }

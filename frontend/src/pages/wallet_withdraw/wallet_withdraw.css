@@ -1,0 +1,104 @@
+.toggle-group {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 4px;
+  display: flex;
+  margin-bottom: 12px;
+}
+.toggle-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  border-radius: 10px;
+  cursor: pointer;
+}
+.toggle-tab.active {
+  background: var(--text-primary);
+  color: white;
+}
+
+.qr-card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  padding: 24px 20px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+.qr-card .qr-box {
+  width: 180px;
+  height: 180px;
+  margin: 0 auto 16px;
+  background: white;
+  border: 1px solid var(--divider);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-image:
+    linear-gradient(45deg, #000 25%, transparent 25%),
+    linear-gradient(-45deg, #000 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #000 75%),
+    linear-gradient(-45deg, transparent 75%, #000 75%);
+  background-size: 12px 12px;
+  background-position: 0 0, 0 6px, 6px -6px, -6px 0px;
+  box-shadow: inset 0 0 0 24px white;
+}
+.qr-card .net-tag {
+  display: inline-block;
+  background: var(--rlusd-purple-light);
+  color: var(--rlusd-purple);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-pill);
+  margin-bottom: 10px;
+}
+.qr-card .addr-label {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-bottom: 6px;
+}
+.qr-card .addr {
+  font-size: 11px;
+  color: var(--text-primary);
+  font-family: 'SF Mono', Menlo, monospace;
+  word-break: break-all;
+  background: var(--bg-subtle);
+  padding: 10px 12px;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+.qr-card .copy-btn {
+  width: 100%;
+  background: var(--bg-deep);
+  color: var(--text-primary);
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  margin-top: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.asset-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.asset-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--rlusd-purple-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: var(--rlusd-purple);
+}
