@@ -20,7 +20,7 @@ flowchart TB
     subgraph C["공개 XRPL 레이어"]
         IDID["Issuer did:xrpl"]
         SCHEMA["schemaHash + trustPolicyHash"]
-        ROOT["proofChainRoot · statusRoot"]
+        ROOT["optional batch anchors"]
         ESC["Escrow tx hash"]
     end
     subgraph D["오프체인 규제 레이어"]
@@ -31,7 +31,8 @@ flowchart TB
     WALLET --> VC
     WALLET --> CHAIN
     VC -. issued by .-> IDID
-    CHAIN -. anchor root .-> ROOT
+    CHAIN -. signed local checkpoint .-> WALLET
+    CHAIN -. optional batch root .-> ROOT
     CHAIN -. eventPayloadHash .-> VAULT
     SCHEMA -. defines .-> VC
     IDID -. resolve keys .-> WALLET
@@ -51,7 +52,7 @@ flowchart TB
 
 | | |
 |---|---|
-| **포함되는 것** | [`did:peer`](glossary.md#did-peer) pairwise DID · W3C [Verifiable Credentials](glossary.md#vc) · private hash-linked event chain · consent / access-grant 기록 |
+| **포함되는 것** | [`did:peer`](glossary.md#did-peer) pairwise DID · W3C [Verifiable Credentials](glossary.md#vc) · private hash-linked event chain · signed `proofChainRoot` / `statusRoot` checkpoint · consent / access-grant 기록 |
 | **어디서 등장** | [Phase 4 proof chain E0~E7](phase-4.md), [Phase 5 VP](phase-5.md), [Phase 6 hotel/rental 분기](phase-6.md) |
 | **규칙** | 서비스 도메인별로 격리. 같은 사용자의 tax/hotel/rental chain이 자동으로 연결되지 않는다. |
 
@@ -59,8 +60,8 @@ flowchart TB
 
 | | |
 |---|---|
-| **포함되는 것** | Issuer/Connector [`did:xrpl`](glossary.md#did-xrpl) · `verificationMethod` 공개키 · schema hash · trust policy hash · optional [`proofChainRoot`](glossary.md#proof-chain-root) · `statusRoot` · optional [escrow tx hash](glossary.md#escrow-create) |
-| **어디서 등장** | [Phase 1 DIDSet 5개](phase-1.md), [Phase 4 final proofChainRoot anchor](phase-4.md), [Phase 6 EscrowCreate Testnet tx](phase-6.md) |
+| **포함되는 것** | Issuer/Connector [`did:xrpl`](glossary.md#did-xrpl) · `verificationMethod` 공개키 · schema hash · trust policy hash · optional batched [`proofChainRoot`](glossary.md#proof-chain-root) / `statusRoot` commitment · optional [escrow tx hash](glossary.md#escrow-create) |
+| **어디서 등장** | [Phase 1 DIDSet 5개](phase-1.md), [Phase 4 signed local root checkpoint](phase-4.md), [Phase 6 EscrowCreate Testnet tx](phase-6.md) |
 | **규칙** | opaque commitment만. event type, user DID, 영수증 detail, kiosk 번호, 카드 token, 어떤 timestamp도 절대 올리지 않는다. |
 
 ### 4. Regulated Encrypted Off-chain Vault
@@ -106,9 +107,9 @@ frontend/src/
 - Issuer / Connector DID
 - `verificationMethod` 공개키 (DID document)
 - schema hash 또는 URI
-- status-list hash 또는 Merkle root
+- batch-level status-list hash 또는 Merkle root (옵션)
 - coarse credential type (`ComplianceTierA` 같은 것)
-- 최종 `proofChainRoot` (옵션)
+- batch-level `proofChainRoot` commitment (옵션)
 - `EscrowCreate` / `EscrowFinish` tx hash
 - payment settlement tx hash
 
@@ -139,8 +140,39 @@ frontend/src/
 | [`did:xrpl`](glossary.md#did-xrpl) | **Yes** | Issuer / Connector 공개키 발견용 |
 | [`did:key`](glossary.md#did-key) | No | 지갑의 로컬 holder root, 단말 안에서만 |
 | [`did:peer`](glossary.md#did-peer) + [`relationshipId`](glossary.md#relationship-id) | No | 한 verifier 와의 비공개 관계 |
-| [`proofChainRoot`](glossary.md#proof-chain-root) | **Opaque only** | 비공개 chain의 무결성 증명용 |
-| `statusRoot` | **Opaque only** | validity / revocation Merkle root |
+| [`proofChainRoot`](glossary.md#proof-chain-root) | No by default · optional batch anchor | wallet에 저장되는 signed checkpoint. 필요한 경우 여러 사용자/케이스 root를 묶은 batch commitment만 XRPL에 anchor |
+| `statusRoot` | No by default · optional batch anchor | wallet에 저장되는 signed status checkpoint. 필요한 경우 issuer가 여러 status update를 묶은 batch Merkle root만 XRPL에 anchor |
+
+## Root checkpoint 규칙
+
+`proofChainRoot`와 `statusRoot`는 production에서 사용자별 XRPL write를 만들지 않습니다.
+기본 위치는 wallet의 encrypted store이며, issuer/operator/POS/Toss connector가 서명한
+checkpoint로 검증합니다.
+
+```json
+{
+  "type": "WalletRootCheckpoint",
+  "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
+  "serviceDomain": "tax_refund",
+  "treeRoot": "sha256:domain-tree-root",
+  "proofChainRoot": "sha256:case-tip",
+  "statusRoot": "sha256:status-list-root",
+  "checkpointSequence": 17,
+  "createdAt": "2026-05-02T05:40:00Z",
+  "validUntil": "2026-05-02T06:10:00Z",
+  "issuerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+  "proof": {
+    "verificationMethod": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR#key-1",
+    "proofValue": "z..."
+  }
+}
+```
+
+검증자는 `proof` 서명, `createdAt` / `validUntil`, 그리고 `checkpointSequence`가
+이전에 본 값보다 뒤인지 확인합니다. POS나 Toss 서버가 "이 relationship을 마지막으로
+본 checkpoint"를 저장할 때는 전역 wallet ID가 아니라 서비스별 `relationshipId` 또는
+pairwise DID 기준으로 저장해야 합니다. 그래야 rollback은 막으면서 tax/hotel/rental
+활동이 공개적으로 연결되지 않습니다.
 
 ## 원본 문서 참조
 

@@ -8,6 +8,7 @@ This directory contains the build-level architecture split from the original cha
 - [Identifiers](identifiers.en.md): holder DID, pairwise relationship IDs, event IDs, and private identity graph
 - [Credentials](credentials.en.md): DID documents, DIDSet, W3C VC schemas, native XRPL Credentials, and status lists
 - [Records and access](records-access.en.md): service event records, encrypted envelopes, holder access grants, and VPs
+- [Tax refund E0-E7 process](tax-refund-e0-e7-process.en.md): detailed request, data access, disclosure, and verification flow
 - [Implementation flow](implementation-flow.en.md): issuer/wallet/verification build phases, service checklist, Mermaid graph, and pitch wording
 
 ## Design Rule

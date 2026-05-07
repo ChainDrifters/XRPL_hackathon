@@ -84,7 +84,7 @@ Toss / partner backend
 XRPL
   - Public issuer/connector DID
   - Schema/trust-policy/status-list hash
-  - Optional proofChainRoot
+  - Optional batched proof/status root commitment
   - Optional coarse XRPL Credential
   - Optional escrow/payment tx hash
 ```
@@ -100,7 +100,7 @@ The user should not have one public XRPL DID that links tax, hotel, rental, and 
 | User wallet root | local holder key / `did:key` | Device + encrypted backup | Controls wallet signatures and recovery |
 | User-service relationship | `did:peer` + `relationshipId` | Exchanged off-chain with one verifier | Prevents cross-service correlation |
 | Public organization trust | `did:xrpl` | XRPL | Resolves issuer/connector public keys |
-| Proof integrity | `proofChainRoot` / `statusRoot` | XRPL as opaque hashes | Proves private records were not rewritten |
+| Proof integrity | `proofChainRoot` / `statusRoot` | Signed wallet checkpoint by default; optional XRPL batch anchor | Proves private records were not rewritten without per-user mainnet writes |
 
 XRPL is therefore used as public PKI and notary, not as a per-user event log. The ledger must not contain event types, user DIDs, case IDs, receipt details, kiosk IDs, card status, or per-event timestamps.
 

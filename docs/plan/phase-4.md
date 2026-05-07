@@ -35,14 +35,17 @@ flowchart TD
     E4 --> E5["E5 refund_op_accepted<br/>operator"]
     E5 --> E6["E6 customs_export_confirmed<br/>customs"]
     E6 --> E7["E7 card_settlement<br/>PSP"]
-    E7 -->|"latest eventHash"| ROOT["proofChainRoot"]
-    ROOT -. "anchor" .-> XRPL[(XRPL)]
+    E7 -->|"latest eventHash"| CASE_ROOT["proofChainRoot"]
+    CASE_ROOT --> TREE["treeRoot<br/>case branch registry"]
+    TREE --> CKPT["signed wallet checkpoint<br/>createdAt + sequence"]
+    CKPT -. "optional batch anchor" .-> XRPL[(XRPL)]
 
     POLICY["Trust Policy<br/>actor x eventType"] -. "must allow" .-> E1
     POLICY -. "must allow" .-> E6
 ```
 
-> *7개 event가 hash로 연결되고 마지막 root만 XRPL에 anchor.*
+> *7개 event가 hash로 연결되고 root checkpoint는 wallet에 저장된다. XRPL에는 production
+> per-user write를 만들지 않고, 필요할 때만 여러 root를 묶은 batch commitment를 anchor.*
 
 ## E1 ~ E7 — 누가 무엇을 서명하나
 
@@ -56,13 +59,15 @@ flowchart TD
 
 > 관련 용어: [POS](glossary.md#pos) · [환급창구운영사업자](glossary.md#refund-operator) · [PSP](glossary.md#psp)
 
-## 검증 5단계 (모든 event마다)
+## 검증 6단계 (모든 event마다)
 
 1. **signature**: `attestorDid`에서 공개키를 가져와 Ed25519 서명 검증
 2. **trust policy**: 이 actor가 이 eventType에 서명할 권한이 있나
 3. **previousEventHash**: 이전 event hash와 정확히 일치하나
 4. **eventPayloadHash**: 본문이 변조되지 않았나
-5. **proofChainRoot**: 마지막 event hash가 XRPL에 anchor된 값과 같나
+5. **proofChainRoot**: 마지막 event hash가 wallet의 signed checkpoint와 같나
+6. **treeRoot / freshness**: 공개한 branch가 domain tree에 포함되고 checkpoint가
+   `createdAt` / `validUntil` / `checkpointSequence` 기준으로 최신인가
 
 > 관련 용어: [Trust Policy](glossary.md#trust-policy) ·
 > [previousEventHash](glossary.md#previous-event-hash) ·
@@ -119,9 +124,50 @@ export function isAuthorized(eventType: string, signerDid: string): boolean {
 
 > 이 envelope을 canonical JSON으로 직렬화 → SHA-256 → Ed25519 서명.
 
+### signed root checkpoint
+
+`proofChainRoot` 하나만 검증하면 한 branch의 변조만 알 수 있습니다. branch 전체를
+삭제하거나, 별도 branch를 새로 만들어 숨기는 문제는 잡기 어렵습니다. 그래서 wallet은
+case별 `proofChainRoot`를 다시 domain-level tree에 넣고, 그 `treeRoot`를 서명된
+checkpoint로 저장합니다.
+
+```json
+{
+  "type": "WalletRootCheckpoint",
+  "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
+  "serviceDomain": "tax_refund",
+  "treeRoot": "sha256:domain-tree-root",
+  "branchId": "branch_taxrefund_01J8TXA",
+  "proofChainRoot": "sha256:event-e7",
+  "statusRoot": "sha256:status-list-root",
+  "checkpointSequence": 17,
+  "createdAt": "2026-05-02T05:40:00Z",
+  "validUntil": "2026-05-02T06:10:00Z",
+  "issuerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+  "proof": {
+    "type": "DataIntegrityProof",
+    "verificationMethod": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR#key-1",
+    "proofPurpose": "assertionMethod",
+    "proofValue": "z..."
+  }
+}
+```
+
+검증자는 `branchId`의 Merkle inclusion proof를 확인해 이 tax refund branch가
+`treeRoot`에 포함됐는지 봅니다. whole-tree 검증이 필요한 거래에서는 wallet이 공개한
+단일 branch만 믿지 않고, `treeRoot` + branch inclusion proof + signed checkpoint를
+함께 요구합니다.
+
+`createdAt`만으로는 rollback을 완전히 막지 못합니다. POS/Toss/refund operator는
+자기 서버 DB에 pairwise `relationshipId` 기준으로 마지막 `checkpointSequence`와
+`seenAt`을 저장하고, 더 오래된 checkpoint가 다시 오면 거부해야 합니다. 이 last-seen
+내역을 checkpoint 안에 넣어 모든 verifier에게 보여주면 활동 이력이 노출되므로 금지합니다.
+전역 wallet ID도 여러 서비스 활동을 연결할 수 있으므로 쓰지 않습니다.
+
 ## 검증 방법
 
-- [ ] 7개 event 모두 signature/trust/hash chain/anchor 4단 검증 통과
+- [ ] 7개 event 모두 signature/trust/hash chain/checkpoint/treeRoot 검증 통과
+- [ ] branch 삭제 또는 다른 branch로 swap 시도 → treeRoot / checkpointSequence reject
 - [ ] "잘못된 서명" 버튼 → trust policy reject UI 노출
 - [ ] 3-pane 동시 동기화 (phone 액션 → kiosk 갱신 → inspector 새 hash)
 - [ ] XRPL inspector에 user DID / event type / 영수증 detail 전혀 안 보임
@@ -131,6 +177,8 @@ export function isAuthorized(eventType: string, signerDid: string): boolean {
 
 - `JSON.stringify` 그대로 hash → 키 순서 다르면 hash 다름. canonical JSON 필수.
 - trust policy 검증 잊고 signature만 검증 → rogue vendor 통과
+- root checkpoint를 wallet에 unsigned로 저장 → wallet owner나 malware가 바꿔도 탐지 불가
+- `createdAt`만 믿고 `checkpointSequence` / last-seen 검증 생략 → 오래된 valid checkpoint rollback 가능
 - XRPL anchor에 user DID나 eventType 같이 올림 → privacy 무너짐
 
 ## 원본 문서 참조

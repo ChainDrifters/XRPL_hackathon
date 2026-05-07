@@ -167,7 +167,7 @@ taxRefundStatuses:
 
 #### 3-3. Tax-Refund Proof Chain
 
-This is the best place to use the "chain" part. The public chain should not store the full refund trail, including `eventType`. Instead, each actor signs a private status event receipt, receipts are hash-linked off-chain, and XRPL anchors issuer/connector DIDs plus status/proof roots.
+This is the best place to use the "chain" part. The public chain should not store the full refund trail, including `eventType`. Instead, each actor signs a private status event receipt, receipts are hash-linked off-chain, and the wallet stores signed proof/status root checkpoints. XRPL anchors issuer/connector DIDs, trust-policy hashes, and only optional batched root commitments.
 
 ```text
 passport_verified / tax_refund_readiness
@@ -210,8 +210,10 @@ A verifier checks only:
 1. Each event signer DID belongs to a trusted actor.
 2. previousEventHash proves the sequence is unbroken.
 3. eventPayloadHash matches the private off-chain record when access is granted.
-4. Status list / Merkle root matches the root anchored on XRPL.
-5. Detailed evidence is exposed only within holder consent and access-grant scope.
+4. Status list / Merkle root matches the signed wallet checkpoint or optional batch anchor.
+5. The presented branch is included in the disclosed domain treeRoot.
+6. The checkpoint is fresh: validUntil is not expired and checkpointSequence is newer than the verifier's last-seen value.
+7. Detailed evidence is exposed only within holder consent and access-grant scope.
 ```
 
 Implementation scope:
@@ -221,8 +223,8 @@ mvp:
   onChain:
     - issuer/connector DID
     - schema hash
-    - status-list Merkle root
-    - optional final proof-chain root
+    - optional batched status/proof root commitment
+    - no per-user root writes in production
     - never eventType, receipt detail, user DID, or per-event timestamp
   offChain:
     - passport evidence

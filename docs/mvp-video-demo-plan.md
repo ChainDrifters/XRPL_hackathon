@@ -155,18 +155,20 @@ Kiosk/operator UI:
 Behind the scenes:
 
 - PSP/card mock signs `E6 card_settlement_completed`.
-- Final `proofChainRoot` is computed.
+- Final `proofChainRoot` is computed and wrapped in a signed wallet checkpoint.
 
-### 7. XRPL Anchor
+### 7. Wallet Checkpoint / Optional XRPL Anchor
 
 Proof panel:
 
-- Display public anchor contents only:
+- Display signed checkpoint / optional public anchor contents only:
   - `proofChainRoot`
+  - `treeRoot`
   - `schemaHash`
   - `trustPolicyHash`
   - optional `statusRoot`
-  - mock or Testnet transaction hash
+  - `createdAt`, `validUntil`, `checkpointSequence`
+  - optional mock or Testnet transaction hash for batched anchors
 
 Do not display user DID, event type, merchant details, kiosk number, receipt detail, card payload, or customs payload as public ledger content.
 

@@ -28,8 +28,8 @@ Use different identifier types for different jobs.
 | Organization trust | `did:xrpl` | Yes | Public key discovery for Toss, refund operators, POS, PSP, hotel, rental, customs connectors |
 | User wallet root | local holder key / `did:key` | No | Wallet signing, recovery, and user consent |
 | User-service relationship | `did:peer` + `relationshipId` | No | Pairwise relationship with one verifier or service |
-| Proof integrity | `proofChainRoot` | Opaque only | Anchors one private proof chain without exposing its contents |
-| Status registry | `statusRoot` | Opaque only | Optional Merkle root for validity/revocation/status batches |
+| Proof integrity | `proofChainRoot` | Private by default | Signed wallet checkpoint for one private proof branch; optional batch anchor only |
+| Status registry | `statusRoot` | Private by default | Signed wallet checkpoint for validity/revocation status; optional batch anchor only |
 
 The user should not have a single public XRPL DID linking tax, hotel, rental, and escrow activity.
 
@@ -45,7 +45,7 @@ E0 passport_verified
   └── Rental chain
 ```
 
-This is a private DAG, not a public global chain. Each branch has its own `did:peer` relationship, proof events, and optional `proofChainRoot`.
+This is a private DAG, not a public global chain. Each branch has its own `did:peer` relationship and proof events. The wallet stores signed `proofChainRoot` / `statusRoot` checkpoints, while XRPL is reserved for issuer DIDs, trust-policy hashes, and optional batch commitments.
 
 ## Tax-Refund Proof Chain
 
@@ -71,7 +71,7 @@ Each private event contains:
 - actor signature
 - private/off-chain record reference
 
-XRPL does not store these event fields. XRPL stores only public connector DIDs and opaque roots.
+XRPL does not store these event fields. In production, the wallet stores signed root checkpoints locally; XRPL stores public connector DIDs and, only when needed, opaque batch commitments.
 
 ## What Goes On XRPL
 
@@ -79,8 +79,8 @@ XRPL does not store these event fields. XRPL stores only public connector DIDs a
 - Public keys or DID document references.
 - Schema hash.
 - Trust policy hash.
-- Optional `proofChainRoot`.
-- Optional `statusRoot`.
+- Optional batched `proofChainRoot` commitment.
+- Optional batched `statusRoot` commitment.
 - Optional escrow transaction hashes for testnet or licensed production flows.
 
 ## What Stays Off-Chain
@@ -107,7 +107,8 @@ To verify a private event:
 4. Verify actor signature.
 5. Check trust policy: is this actor allowed to sign this event type?
 6. Check previousEventHash links to prior event.
-7. Check final proofChainRoot matches the XRPL anchor.
+7. Check final proofChainRoot matches the signed wallet checkpoint.
+8. Check branch inclusion against the disclosed treeRoot and reject stale checkpointSequence / createdAt values.
 ```
 
 Trust policy is mandatory because signatures only prove possession of a key. The verifier must also check that the signer is allowed to sign that event type. Production POS/merchant signing should use backend or HSM-backed signing rather than storing merchant private keys on POS terminals.
