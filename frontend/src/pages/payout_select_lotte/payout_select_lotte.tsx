@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
-import './payout_select.css'
+import '../payout_select/payout_select.css'
 
 type Method = 'card' | 'bank' | 'toss' | 'cash'
 
@@ -11,7 +11,7 @@ const METHODS: { id: Method; icon: string; title: string; badge?: string; badgeT
   { id: 'cash', icon: '💵', title: '공항 현금 환급', desc: '출국 게이트 환급창구 · 즉시 · USD/CNY/JPY' },
 ]
 
-export default function PayoutSelect() {
+export default function PayoutSelectLotte() {
   const navigate = useNavigate()
   const [selected, setSelected] = useState<Method>('card')
 
@@ -30,7 +30,7 @@ export default function PayoutSelect() {
             어떻게 받으시겠어요?
           </div>
           <div style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
-            아모레퍼시픽 청담 · <strong style={{ color: 'var(--toss-blue)' }}>9,600원</strong>
+            롯데면세점 본점 · <strong style={{ color: 'var(--toss-blue)' }}>286,100원</strong>
           </div>
         </div>
 
@@ -49,9 +49,9 @@ export default function PayoutSelect() {
         ))}
 
         <div className="summary-info" style={{ marginTop: 16 }}>
-          <div className="row"><span className="k">환급 금액</span><span className="v">9,600원</span></div>
+          <div className="row"><span className="k">환급 금액</span><span className="v">286,100원</span></div>
           <div className="row"><span className="k">수수료</span><span className="v" style={{ color: 'var(--success)' }}>무료</span></div>
-          <div className="row total"><span className="k">받는 금액</span><span className="v">9,600원</span></div>
+          <div className="row total"><span className="k">받는 금액</span><span className="v">286,100원</span></div>
         </div>
       </div>
 

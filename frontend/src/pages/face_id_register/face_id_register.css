@@ -1,19 +1,10 @@
-.faceid-phone {
-  background: #0a0f1e;
-}
-.faceid-phone .notch { background: #0a0f1e; }
-.faceid-phone .status-bar { color: white; }
-.faceid-phone .nav-bar { background: #0a0f1e; }
-.faceid-phone .nav-bar .back { color: white; }
-.faceid-phone .nav-bar .nav-title { color: white; }
-
 .faceid-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 24px;
+  padding: 24px 20px;
   text-align: center;
 }
 
@@ -27,13 +18,13 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 2px solid rgba(49,130,246,0.3);
+  border: 2px solid rgba(49,130,246,0.2);
 }
 .face-scan-ring .ring-middle {
   position: absolute;
   inset: 12px;
   border-radius: 50%;
-  border: 2px solid rgba(49,130,246,0.5);
+  border: 2px solid rgba(49,130,246,0.35);
 }
 .face-scan-ring .ring-inner {
   position: absolute;
@@ -41,6 +32,13 @@
   border-radius: 50%;
   border: 2px solid #3182f6;
   overflow: hidden;
+}
+.face-scan-ring.scanning .ring-outer {
+  animation: pulseFade 1.5s ease-in-out infinite;
+}
+@keyframes pulseFade {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
 }
 .face-scan-ring .scan-line {
   position: absolute;
@@ -50,11 +48,11 @@
   background: linear-gradient(90deg, transparent, #3182f6, #7b61ff, transparent);
   top: 40%;
   box-shadow: 0 0 12px #3182f6;
-  animation: scanMove 2s ease-in-out infinite;
+  animation: scanMove 1.5s ease-in-out infinite;
 }
 @keyframes scanMove {
-  0%, 100% { top: 20%; }
-  50% { top: 70%; }
+  0%, 100% { top: 10%; }
+  50% { top: 80%; }
 }
 .face-scan-ring .face-icon {
   position: absolute;
@@ -73,30 +71,18 @@
 .faceid-title {
   font-size: 22px;
   font-weight: 800;
-  color: white;
+  color: var(--text-primary);
   margin-bottom: 8px;
   letter-spacing: -0.3px;
 }
 .faceid-sub {
   font-size: 13px;
-  color: rgba(255,255,255,0.6);
+  color: var(--text-tertiary);
   line-height: 1.6;
   max-width: 280px;
+  white-space: pre-line;
 }
 .faceid-actions {
   margin-top: 40px;
   width: 100%;
-}
-.btn-dark-secondary {
-  width: 100%;
-  background: rgba(255,255,255,0.1);
-  color: white;
-  border: none;
-  padding: 16px;
-  border-radius: var(--radius-button);
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  margin-top: 8px;
-  font-family: inherit;
 }
