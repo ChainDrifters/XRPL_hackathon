@@ -35,9 +35,9 @@ flowchart TD
     E4 --> E5["E5 refund_op_accepted<br/>operator"]
     E5 --> E6["E6 customs_export_confirmed<br/>customs"]
     E6 --> E7["E7 card_settlement<br/>PSP"]
-    E7 -->|"latest eventHash"| CASE_ROOT["proofChainRoot"]
-    CASE_ROOT --> TREE["treeRoot<br/>case branch registry"]
-    TREE --> CKPT["signed wallet checkpoint<br/>createdAt + sequence"]
+    E7 -->|"current latest eventHash"| CASE_ROOT["proofChainRoot"]
+    CASE_ROOT --> TREE["taxTreeRoot<br/>domain branch registry"]
+    TREE --> CKPT["domain-signed checkpoint<br/>createdAt + validUntil + sequence"]
     CKPT -. "optional batch anchor" .-> XRPL[(XRPL)]
 
     POLICY["Trust Policy<br/>actor x eventType"] -. "must allow" .-> E1
@@ -116,6 +116,7 @@ export function isAuthorized(eventType: string, signerDid: string): boolean {
   "eventType": "refund_operator_accepted",
   "attestorDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
   "occurredAt": "2026-05-02T05:30:00Z",
+  "signedAt": "2026-05-02T05:30:03Z",
   "previousEventHash": "sha256:abc123...",
   "eventPayloadHash": "sha256:def456...",
   "offchainRecordRef": "offrec_tax_claim_01J8TXA"
@@ -124,26 +125,44 @@ export function isAuthorized(eventType: string, signerDid: string): boolean {
 
 > 이 envelope을 canonical JSON으로 직렬화 → SHA-256 → Ed25519 서명.
 
-### signed root checkpoint
+### domain-signed root checkpoint
+
+`proofChainRoot`는 완료된 E7만 뜻하지 않습니다. 현재 공개/검증하려는 branch의
+latest event hash입니다. 예를 들어 E3까지만 진행된 거래라면
+`proofChainRoot = hash(E3)`이고, E7까지 끝난 거래라면 `proofChainRoot = hash(E7)`입니다.
+마지막 event를 바꾼 actor는 그 event envelope에 `signedAt`을 넣어 서명합니다.
+따라서 branch tip의 행위자 증명은 "root 서명"이 아니라 최신 event 서명으로 확인합니다.
 
 `proofChainRoot` 하나만 검증하면 한 branch의 변조만 알 수 있습니다. branch 전체를
 삭제하거나, 별도 branch를 새로 만들어 숨기는 문제는 잡기 어렵습니다. 그래서 wallet은
-case별 `proofChainRoot`를 다시 domain-level tree에 넣고, 그 `treeRoot`를 서명된
-checkpoint로 저장합니다.
+case별 `proofChainRoot`를 다시 service-domain tree에 넣고, 그 domain `treeRoot`를
+domain checkpoint signer가 서명한 checkpoint로 저장합니다. 이 signer는 보통 현재
+latest event signer가 됩니다. 다만 그 actor가 domain tree와 이전 checkpoint를 검증할 수
+있어야 하므로, flow에 따라 refund operator 같은 domain coordinator가 대신 서명할 수
+있습니다.
+
+Wallet holder key는 presentation/consent를 서명합니다. Holder signature만으로는 branch
+삭제나 swap을 막을 수 없으므로, tamper-resistant checkpoint에는 domain actor 서명,
+`previousCheckpointHash`, `checkpointSequence`, freshness window가 필요합니다. Wallet 내부에는
+여러 domain root를 묶은 private global root를 둘 수 있지만, verifier에게 기본 공개하지 않습니다.
 
 ```json
 {
-  "type": "WalletRootCheckpoint",
+  "type": "DomainRootCheckpoint",
   "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
   "serviceDomain": "tax_refund",
   "treeRoot": "sha256:domain-tree-root",
   "branchId": "branch_taxrefund_01J8TXA",
-  "proofChainRoot": "sha256:event-e7",
+  "currentEventHash": "sha256:event-e3",
+  "currentEventType": "kiosk_refund_requested",
+  "proofChainRoot": "sha256:event-e3",
   "statusRoot": "sha256:status-list-root",
+  "previousCheckpointHash": "sha256:checkpoint-16",
   "checkpointSequence": 17,
   "createdAt": "2026-05-02T05:40:00Z",
   "validUntil": "2026-05-02T06:10:00Z",
-  "issuerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+  "latestEventSignerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+  "checkpointSignerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
   "proof": {
     "type": "DataIntegrityProof",
     "verificationMethod": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR#key-1",
@@ -156,9 +175,10 @@ checkpoint로 저장합니다.
 검증자는 `branchId`의 Merkle inclusion proof를 확인해 이 tax refund branch가
 `treeRoot`에 포함됐는지 봅니다. whole-tree 검증이 필요한 거래에서는 wallet이 공개한
 단일 branch만 믿지 않고, `treeRoot` + branch inclusion proof + signed checkpoint를
-함께 요구합니다.
+함께 요구합니다. 여기서 "whole-tree"는 전체 wallet tree가 아니라 해당 service-domain
+tree입니다.
 
-`createdAt`만으로는 rollback을 완전히 막지 못합니다. POS/Toss/refund operator는
+`createdAt` / `signedAt`만으로는 rollback을 완전히 막지 못합니다. POS/Toss/refund operator는
 자기 서버 DB에 pairwise `relationshipId` 기준으로 마지막 `checkpointSequence`와
 `seenAt`을 저장하고, 더 오래된 checkpoint가 다시 오면 거부해야 합니다. 이 last-seen
 내역을 checkpoint 안에 넣어 모든 verifier에게 보여주면 활동 이력이 노출되므로 금지합니다.
@@ -167,7 +187,7 @@ checkpoint로 저장합니다.
 ## 검증 방법
 
 - [ ] 7개 event 모두 signature/trust/hash chain/checkpoint/treeRoot 검증 통과
-- [ ] branch 삭제 또는 다른 branch로 swap 시도 → treeRoot / checkpointSequence reject
+- [ ] branch 삭제 또는 다른 branch로 swap 시도 → domain-signed treeRoot / previousCheckpointHash / checkpointSequence reject
 - [ ] "잘못된 서명" 버튼 → trust policy reject UI 노출
 - [ ] 3-pane 동시 동기화 (phone 액션 → kiosk 갱신 → inspector 새 hash)
 - [ ] XRPL inspector에 user DID / event type / 영수증 detail 전혀 안 보임
@@ -177,8 +197,8 @@ checkpoint로 저장합니다.
 
 - `JSON.stringify` 그대로 hash → 키 순서 다르면 hash 다름. canonical JSON 필수.
 - trust policy 검증 잊고 signature만 검증 → rogue vendor 통과
-- root checkpoint를 wallet에 unsigned로 저장 → wallet owner나 malware가 바꿔도 탐지 불가
-- `createdAt`만 믿고 `checkpointSequence` / last-seen 검증 생략 → 오래된 valid checkpoint rollback 가능
+- root checkpoint를 domain actor 서명 없이 wallet holder 서명만으로 저장 → wallet owner가 branch 삭제/swap 가능
+- `createdAt` / `signedAt`만 믿고 `checkpointSequence` / last-seen 검증 생략 → 오래된 valid checkpoint rollback 가능
 - XRPL anchor에 user DID나 eventType 같이 올림 → privacy 무너짐
 
 ## 원본 문서 참조

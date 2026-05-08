@@ -191,6 +191,7 @@ Each event receipt has this shape:
   "sourceActor": "refund_operator",
   "sourceActorDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
   "occurredAt": "2026-05-02T05:30:00Z",
+  "signedAt": "2026-05-02T05:30:03Z",
   "previousEventHash": "sha256:prev-event",
   "eventPayloadHash": "sha256:canonical-private-payload",
   "offchainRecordRef": "offrec_tax_claim_01J8TXA",
@@ -210,10 +211,11 @@ A verifier checks only:
 1. Each event signer DID belongs to a trusted actor.
 2. previousEventHash proves the sequence is unbroken.
 3. eventPayloadHash matches the private off-chain record when access is granted.
-4. Status list / Merkle root matches the signed wallet checkpoint or optional batch anchor.
+4. Status list / Merkle root matches the domain-signed checkpoint or optional batch anchor.
 5. The presented branch is included in the disclosed domain treeRoot.
-6. The checkpoint is fresh: validUntil is not expired and checkpointSequence is newer than the verifier's last-seen value.
-7. Detailed evidence is exposed only within holder consent and access-grant scope.
+6. The checkpoint is fresh: `validUntil` is not expired, `createdAt` / event `signedAt` are within the accepted clock-skew window, and `previousCheckpointHash` / `checkpointSequence` match newer verifier last-seen state.
+7. The trust registry allows the checkpoint signer for that service domain.
+8. Detailed evidence is exposed only within holder consent and access-grant scope.
 ```
 
 Implementation scope:

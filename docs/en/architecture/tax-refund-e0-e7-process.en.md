@@ -111,7 +111,11 @@ The wallet's response is a selective presentation, not a database export.
     "checkpointSequence": 17,
     "createdAt": "2026-05-02T05:40:00Z",
     "validUntil": "2026-05-02T06:10:00Z",
-    "issuerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+    "currentEventHash": "sha256:event-e5",
+    "currentEventType": "refund_operator_accepted",
+    "latestEventSignerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+    "checkpointSignerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+    "previousCheckpointHash": "sha256:checkpoint-16",
     "proofValue": "z..."
   },
   "holderProof": {
@@ -137,6 +141,7 @@ Every event has a signed receipt. The sensitive payload is represented by a hash
   "eventType": "refund_operator_accepted",
   "attestorDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
   "occurredAt": "2026-05-02T05:30:00Z",
+  "signedAt": "2026-05-02T05:30:03Z",
   "previousEventHash": "sha256:prev-event",
   "eventPayloadHash": "sha256:canonical-private-payload",
   "offchainRecordRef": "offrec_tax_claim_01J8TXA",
@@ -544,7 +549,7 @@ Wallet receives and stores:
 - Settlement completed, failed, or reversed status.
 - Final event hash.
 - Final `proofChainRoot`.
-- Updated signed wallet checkpoint.
+- Updated domain-signed checkpoint.
 
 Stays private:
 
@@ -560,23 +565,44 @@ Verification later:
 - Final `proofChainRoot` must equal the E7 signed event hash.
 - Final checkpoint must include that `proofChainRoot` and pass freshness checks.
 
-## Root Checkpoint After E7
+## Root Checkpoints During Progress
 
-After E7, the wallet updates its local domain tree and stores a signed checkpoint.
+The wallet creates or updates a root checkpoint whenever a branch tip changes, not
+only after E7. For an incomplete flow, `proofChainRoot` is the latest signed event
+hash at the current stage. For example, after E3, `proofChainRoot = hash(E3)`;
+after E7, `proofChainRoot = hash(E7)`.
+
+The actor that changed the branch signs the event receipt. That signature,
+including the event `signedAt`, is the actor's attestation for the new branch tip.
+The wallet then inserts the new `proofChainRoot` into the private service-domain
+tree. The domain checkpoint signer signs the domain `treeRoot` checkpoint after
+checking the latest event, branch inclusion proof, previous checkpoint hash, and
+monotonic sequence. In the simple case this signer is the latest event signer; in
+flows with a coordinator, the coordinator can sign instead.
+
+The holder wallet still signs the presentation for consent and nonce binding, but
+a holder-only `treeRoot` signature is not sufficient to prevent branch deletion or
+swap by the wallet owner. A private global wallet root can exist locally, but
+verifiers should normally see only the service-domain root they are authorized to
+verify.
 
 ```json
 {
-  "type": "WalletRootCheckpoint",
+  "type": "DomainRootCheckpoint",
   "relationshipId": "rel_tax_2vBq9F7L8Qx3mZpT",
   "serviceDomain": "tax_refund",
   "branchId": "branch_taxrefund_01J8TXA",
   "treeRoot": "sha256:domain-tree-root",
-  "proofChainRoot": "sha256:event-e7",
+  "currentEventHash": "sha256:event-e3",
+  "currentEventType": "kiosk_refund_requested",
+  "proofChainRoot": "sha256:event-e3",
   "statusRoot": "sha256:status-list-root",
+  "previousCheckpointHash": "sha256:checkpoint-17",
   "checkpointSequence": 18,
   "createdAt": "2026-05-02T05:50:00Z",
   "validUntil": "2026-05-02T06:20:00Z",
-  "issuerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+  "latestEventSignerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
+  "checkpointSignerDid": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR",
   "proof": {
     "type": "DataIntegrityProof",
     "verificationMethod": "did:xrpl:1:rREFUND_OPERATOR_CONNECTOR#key-1",
@@ -592,8 +618,9 @@ To detect branch deletion or branch swapping, the verifier can require:
 - The disclosed branch.
 - The branch `proofChainRoot`.
 - A Merkle inclusion proof from branch root to `treeRoot`.
-- A signed checkpoint containing that `treeRoot`.
+- A domain-signed checkpoint containing that `treeRoot`.
 - A fresh `checkpointSequence`.
+- The `previousCheckpointHash` expected by the verifier's last-seen state, when available.
 
 The last-seen state lives in each verifier/operator backend, not in the checkpoint.
 For example, a POS or refund operator stores:
@@ -622,9 +649,12 @@ During a phone-to-party transaction, the verifier checks:
 7. Any disclosed private payload hashes to the recorded `eventPayloadHash`.
 8. Credential/status proof is valid against `statusRoot`.
 9. Branch `proofChainRoot` is included in `treeRoot`.
-10. Signed checkpoint contains the expected `treeRoot`, `proofChainRoot`, and `statusRoot`.
+10. Domain-signed checkpoint contains the expected `treeRoot`, `proofChainRoot`, and `statusRoot`.
 11. `validUntil` is not expired.
 12. `checkpointSequence` is newer than verifier last-seen state.
+13. Event `signedAt` and checkpoint `createdAt` are inside the verifier's accepted clock-skew window.
+14. `previousCheckpointHash` links to the verifier's last-seen checkpoint when the relationship has prior state.
+15. Trust registry allows `checkpointSignerDid` to sign checkpoints for the disclosed `serviceDomain`.
 
 If full evidence is needed, the verifier must request a separate Holder Access
 Grant with a narrow scope, a legal/purpose basis, and a short expiry.

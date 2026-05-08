@@ -121,7 +121,17 @@ VC에 들어있는 여러 사실 중 정말로 필요한 것만 골라 공개하
 
 ### proofChainRoot
 
-proof chain의 마지막 event hash. opaque 값으로 XRPL에 anchor → 체인 내용은 숨기고 무결성만 증명.
+proof chain의 현재 마지막 event hash. 완료된 E7만 뜻하지 않고, E3까지 진행된
+branch라면 `proofChainRoot = hash(E3)`. opaque 값으로 XRPL에 anchor → 체인 내용은
+숨기고 무결성만 증명.
+
+<a id="domain-tree-root"></a>
+
+### domain treeRoot
+
+tax, hotel, rental 같은 service domain 안의 여러 branch root를 묶은 Merkle root.
+전체 wallet global root가 아니라, 해당 domain verifier가 볼 권한이 있는 범위의 root만
+공개·서명한다.
 
 <a id="status-list"></a>
 
@@ -496,4 +506,3 @@ JSON에 @context 같은 의미 정보를 더해서 단어를 전 세계적으로
 ### KFIP 2026 · _Korea Financial Innovation Program_
 
 서울핀테크랩 + XRPL Korea가 운영하는 3개월 builder accelerator. 본 프로젝트가 출품한 토스 특별상의 모체.
-

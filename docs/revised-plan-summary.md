@@ -28,8 +28,8 @@ Use different identifier types for different jobs.
 | Organization trust | `did:xrpl` | Yes | Public key discovery for Toss, refund operators, POS, PSP, hotel, rental, customs connectors |
 | User wallet root | local holder key / `did:key` | No | Wallet signing, recovery, and user consent |
 | User-service relationship | `did:peer` + `relationshipId` | No | Pairwise relationship with one verifier or service |
-| Proof integrity | `proofChainRoot` | Private by default | Signed wallet checkpoint for one private proof branch; optional batch anchor only |
-| Status registry | `statusRoot` | Private by default | Signed wallet checkpoint for validity/revocation status; optional batch anchor only |
+| Proof integrity | `proofChainRoot` | Private by default | Domain-signed checkpoint for one private proof branch; optional batch anchor only |
+| Status registry | `statusRoot` | Private by default | Domain-signed checkpoint for validity/revocation status; optional batch anchor only |
 
 The user should not have a single public XRPL DID linking tax, hotel, rental, and escrow activity.
 
@@ -45,11 +45,13 @@ E0 passport_verified
   └── Rental chain
 ```
 
-This is a private DAG, not a public global chain. Each branch has its own `did:peer` relationship and proof events. The wallet stores signed `proofChainRoot` / `statusRoot` checkpoints, while XRPL is reserved for issuer DIDs, trust-policy hashes, and optional batch commitments.
+This is a private DAG, not a public global chain. Each branch has its own `did:peer` relationship and proof events. The wallet stores domain-signed `proofChainRoot` / `statusRoot` checkpoints and holder-signed presentations, while XRPL is reserved for issuer DIDs, trust-policy hashes, and optional batch commitments.
 
 ## Tax-Refund Proof Chain
 
-Each tax-refund case is a private, hash-linked proof chain.
+Each tax-refund case is a private, hash-linked proof chain. The branch can be
+verified while incomplete: `proofChainRoot` means the current latest event hash,
+not only the final E7 hash.
 
 ```text
 passport_verified / tax_refund_readiness
@@ -107,8 +109,9 @@ To verify a private event:
 4. Verify actor signature.
 5. Check trust policy: is this actor allowed to sign this event type?
 6. Check previousEventHash links to prior event.
-7. Check final proofChainRoot matches the signed wallet checkpoint.
-8. Check branch inclusion against the disclosed treeRoot and reject stale checkpointSequence / createdAt values.
+7. Check the disclosed branch tip hash matches the `proofChainRoot` in the domain-signed checkpoint.
+8. Check branch inclusion against the disclosed domain treeRoot and reject stale `previousCheckpointHash`, `checkpointSequence`, `createdAt`, `validUntil`, or event `signedAt` values.
+9. Check trust policy allows the checkpoint signer for that service domain.
 ```
 
 Trust policy is mandatory because signatures only prove possession of a key. The verifier must also check that the signer is allowed to sign that event type. Production POS/merchant signing should use backend or HSM-backed signing rather than storing merchant private keys on POS terminals.
