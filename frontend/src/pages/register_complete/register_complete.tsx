@@ -1,6 +1,9 @@
+import { useNavigate } from 'react-router-dom'
 import './register_complete.css'
 
 export default function RegisterComplete() {
+  const navigate = useNavigate()
+
   return (
     <div className="phone" style={{ background: '#fff' }}>
       <div className="notch" />
@@ -35,7 +38,16 @@ export default function RegisterComplete() {
           </div>
         </div>
 
-        <button className="cta-btn" style={{ position: 'static', width: '100%' }}>면세 쇼핑 시작하기</button>
+      </div>
+
+      <div style={{ padding: '0 20px 48px' }}>
+        <button
+          className="cta-btn"
+          style={{ position: 'static', width: '100%' }}
+          onClick={() => navigate('/balance-home')}
+        >
+          면세 쇼핑 시작하기
+        </button>
       </div>
     </div>
   )

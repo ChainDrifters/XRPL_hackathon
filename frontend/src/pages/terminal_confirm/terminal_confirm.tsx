@@ -1,16 +1,11 @@
+import { useNavigate } from 'react-router-dom'
 import './terminal_confirm.css'
 
 export default function TerminalConfirm() {
+  const navigate = useNavigate()
+
   return (
     <div className="terminal-phone">
-      <div className="terminal-bar-success">
-        <div className="status-left">
-          <div className="status-dot" />
-          <span className="label">단말기 · 완료</span>
-        </div>
-        <span className="time">9:41</span>
-      </div>
-
       <div className="terminal-confirm-content">
         <div className="success-rings">
           <div className="r1" /><div className="r2" />
@@ -36,7 +31,10 @@ export default function TerminalConfirm() {
           </div>
         </div>
 
-        <button className="proceed-btn">결제 진행하기</button>
+      </div>
+
+      <div className="bottom-actions">
+        <button className="proceed-btn" onClick={() => navigate('/terminal-qr-scan')}>결제 진행하기</button>
       </div>
     </div>
   )

@@ -1,3 +1,198 @@
+/* ── 오버레이 ── */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  border-radius: 40px;
+  overflow: hidden;
+}
+.overlay-sheet {
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Face ID — face_id_register와 동일한 디자인 (모달용 축소) */
+.faceid-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 0;
+}
+.faceid-wrap .face-scan-ring {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-bottom: 8px;
+}
+.faceid-wrap .ring-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(49,130,246,0.2);
+}
+.faceid-wrap .ring-middle {
+  position: absolute;
+  inset: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(49,130,246,0.35);
+}
+.faceid-wrap .ring-inner {
+  position: absolute;
+  inset: 20px;
+  border-radius: 50%;
+  border: 2px solid #3182f6;
+  overflow: hidden;
+}
+.faceid-wrap .face-scan-ring.scanning .ring-outer {
+  animation: bPulseFade 1.5s ease-in-out infinite;
+}
+@keyframes bPulseFade {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
+.faceid-wrap .scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #3182f6, #7b61ff, transparent);
+  top: 40%;
+  box-shadow: 0 0 12px #3182f6;
+  animation: bScanMove 1.5s ease-in-out infinite;
+}
+@keyframes bScanMove {
+  0%, 100% { top: 10%; }
+  50% { top: 80%; }
+}
+.faceid-wrap .face-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 44px;
+}
+.faceid-wrap .corner { position: absolute; width: 16px; height: 16px; }
+.faceid-wrap .corner.tl { top: 16px; left: 16px; border-top: 3px solid #3182f6; border-left: 3px solid #3182f6; border-radius: 4px 0 0 0; }
+.faceid-wrap .corner.tr { top: 16px; right: 16px; border-top: 3px solid #3182f6; border-right: 3px solid #3182f6; border-radius: 0 4px 0 0; }
+.faceid-wrap .corner.bl { bottom: 16px; left: 16px; border-bottom: 3px solid #3182f6; border-left: 3px solid #3182f6; border-radius: 0 0 0 4px; }
+.faceid-wrap .corner.br { bottom: 16px; right: 16px; border-bottom: 3px solid #3182f6; border-right: 3px solid #3182f6; border-radius: 0 0 4px 0; }
+.faceid-label {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.faceid-sub {
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: -8px;
+}
+
+/* QR 모달 */
+.qr-modal-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.qr-modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+.qr-modal-sub {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  margin-top: -4px;
+}
+.qr-code-box {
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  margin: 4px 0;
+}
+.qr-timer-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+.qr-timer-val {
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--toss-blue);
+  letter-spacing: 1px;
+}
+.qr-close-btn {
+  margin-top: 8px;
+  width: 100%;
+  background: var(--bg-deep);
+  color: var(--text-secondary);
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+/* ── QR 발급 카드 ── */
+.qr-issue-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--toss-blue);
+  border-radius: 16px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+}
+.qr-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.qr-icon {
+  font-size: 26px;
+  line-height: 1;
+}
+.qr-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 2px;
+}
+.qr-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+}
+.qr-btn {
+  background: rgba(255,255,255,0.2);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
 .balance-hero {
   background: linear-gradient(135deg, #191f28, #2d3748);
   border-radius: 16px;
@@ -30,35 +225,49 @@
   font-weight: 900;
   color: white;
   letter-spacing: -1px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
-.balance-hero .actions {
+.balance-hero .amount-rlusd-sub {
+  position: relative;
+  z-index: 1;
+  font-size: 12px;
+  color: rgba(255,255,255,0.55);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+.balance-hero .hero-withdraw-btn {
+  position: relative;
+  z-index: 1;
+  margin-top: 14px;
+  width: 100%;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.balance-hero .refund-available {
   position: relative;
   z-index: 1;
   display: flex;
-  gap: 8px;
-}
-.balance-hero .btn-primary {
-  flex: 1;
-  background: var(--toss-blue);
-  color: white;
-  border: none;
-  padding: 12px;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.08);
   border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
+  padding: 10px 14px;
+  margin-top: 12px;
 }
-.balance-hero .btn-ghost {
-  flex: 1;
-  background: rgba(255,255,255,0.12);
+.balance-hero .refund-available-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.6);
+  font-weight: 600;
+}
+.balance-hero .refund-available-value {
+  font-size: 16px;
+  font-weight: 800;
   color: white;
-  border: none;
-  padding: 12px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
 }

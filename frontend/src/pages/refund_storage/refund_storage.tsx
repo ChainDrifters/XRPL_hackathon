@@ -1,12 +1,14 @@
+import { useNavigate } from 'react-router-dom'
 import './refund_storage.css'
 
 export default function RefundStorage() {
+  const navigate = useNavigate()
   return (
     <div className="phone">
       <div className="notch" />
       <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
       <div className="nav-bar">
-        <span className="back">‹</span>
+        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}>‹</span>
         <span className="nav-title">환급 보관함</span>
         <div className="right"><span className="icon">⋯</span></div>
       </div>
@@ -20,8 +22,8 @@ export default function RefundStorage() {
           <div className="amount-krw">295,700<span className="currency">원</span></div>
           <div className="amount-rlusd">≈ 215.42 RLUSD · 토스가 안전하게 보관 중</div>
           <div className="actions">
-            <button className="act primary">출금하기</button>
-            <button className="act">받는 방법 변경</button>
+            <button className="act primary" onClick={() => navigate('/wallet-withdraw')}>출금하기</button>
+            <button className="act" onClick={() => navigate('/payout-select')}>받는 방법 변경</button>
           </div>
         </div>
 
@@ -62,7 +64,7 @@ export default function RefundStorage() {
             <span className="chevron">›</span>
           </div>
           <div className="advanced-divider" />
-          <div className="advanced-row">
+          <div className="advanced-row" style={{ cursor: 'pointer' }} onClick={() => navigate('/wallet-withdraw')}>
             <div className="ic">📤</div>
             <div className="body"><div className="ttl">외부 지갑으로 출금</div><div className="sub">Bitstamp, Coinbase 등 거래소 입금</div></div>
             <span className="chevron">›</span>
@@ -77,9 +79,8 @@ export default function RefundStorage() {
       </div>
 
       <div className="bottom-nav">
-        <div className="bn-item"><span className="icon">🏠</span><span className="label">홈</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">홈</span></div>
         <div className="bn-item active"><span className="icon">💸</span><span className="label">환급</span></div>
-        <div className="bn-item"><span className="icon">📋</span><span className="label">활동</span></div>
         <div className="bn-item"><span className="icon">⚙️</span><span className="label">설정</span></div>
       </div>
     </div>

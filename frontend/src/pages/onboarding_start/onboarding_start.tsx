@@ -1,14 +1,15 @@
+import { useNavigate } from 'react-router-dom'
 import './onboarding_start.css'
 
 export default function OnboardingStart() {
+  const navigate = useNavigate()
+
   return (
     <div className="phone" style={{ background: '#fff' }}>
       <div className="notch" />
       <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div className="onboarding-hero">
-          <div className="blob-1" />
-          <div className="blob-2" />
           <div className="hero-icon">🛍️</div>
           <div className="hero-title">한국 쇼핑,<br />세금 돌려받아요</div>
           <div className="hero-sub">외국인 여행자 면세 환급을<br />앱 하나로 간편하게</div>
@@ -27,8 +28,13 @@ export default function OnboardingStart() {
             <span className="ic">🏦</span>
             <div><div className="ttl">원하는 방법으로 수령</div><div className="sub">카드·계좌·현금 모두 가능</div></div>
           </div>
-          <button className="cta-btn" style={{ marginTop: 20, fontSize: 16, position: 'static', width: '100%' }}>시작하기</button>
         </div>
+      </div>
+
+      <div style={{ padding: '0 20px 48px' }}>
+        <button className="cta-btn" onClick={() => navigate('/passport-register')}>
+          시작하기
+        </button>
       </div>
     </div>
   )

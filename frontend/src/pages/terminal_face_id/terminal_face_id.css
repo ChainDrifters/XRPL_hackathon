@@ -1,29 +1,16 @@
 .terminal-phone {
   width: 390px;
   height: 844px;
-  background: #0d1117;
+  background: var(--bg-page);
   border-radius: 32px;
-  box-shadow: 0 0 0 12px #1a1a1c, 0 0 0 14px #2a2a2c, 0 24px 60px rgba(0,0,0,0.4);
+  box-shadow: 0 0 0 12px #e5e8eb, 0 0 0 14px #d1d6db, 0 24px 60px rgba(0,0,0,0.12);
   position: relative;
   overflow: hidden;
   display: flex;
   flex-direction: column;
 }
-.terminal-bar {
-  background: #161b22;
-  padding: 16px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  flex-shrink: 0;
-}
-.terminal-bar .status-dot { width: 8px; height: 8px; border-radius: 50%; }
-.terminal-bar .status-dot.orange { background: #ff9500; }
-.terminal-bar .status-left { display: flex; align-items: center; gap: 8px; }
-.terminal-bar .label { font-size: 12px; font-weight: 700; color: rgba(255,255,255,0.6); letter-spacing: 1px; }
-.terminal-bar .time { font-size: 12px; color: rgba(255,255,255,0.4); }
-.terminal-content {
+
+.faceid-content {
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -33,24 +20,111 @@
   text-align: center;
 }
 
-.face-ring {
+/* ── Face scan ring (same pattern as onboarding) ── */
+.face-scan-ring {
   position: relative;
   width: 200px;
   height: 200px;
   margin-bottom: 28px;
 }
-.face-ring .r1 { position: absolute; inset: 0; border-radius: 50%; border: 2px solid rgba(255,149,0,0.2); }
-.face-ring .r2 { position: absolute; inset: 16px; border-radius: 50%; border: 2px solid rgba(255,149,0,0.4); }
-.face-ring .r3 { position: absolute; inset: 32px; border-radius: 50%; border: 2px solid rgba(255,149,0,0.7); background: rgba(255,149,0,0.05); }
-.face-ring .face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 72px; }
+.face-scan-ring .ring-outer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(49,130,246,0.2);
+  transition: border-color 0.4s;
+}
+.face-scan-ring .ring-middle {
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(49,130,246,0.35);
+  transition: border-color 0.4s;
+}
+.face-scan-ring .ring-inner {
+  position: absolute;
+  inset: 24px;
+  border-radius: 50%;
+  border: 2px solid #3182f6;
+  overflow: hidden;
+  transition: border-color 0.4s;
+}
 
-.scanning-label { font-size: 11px; font-weight: 700; color: #ff9500; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
-.terminal-title { font-size: 20px; font-weight: 800; color: white; margin-bottom: 8px; letter-spacing: -0.3px; }
-.terminal-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 32px; }
+/* Scanning pulse */
+.face-scan-ring.scanning .ring-outer {
+  animation: pulseFade 1.5s ease-in-out infinite;
+}
+@keyframes pulseFade {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.04); }
+}
 
+/* Done: turn green */
+.face-scan-ring.done .ring-outer { border-color: rgba(0,200,150,0.3); }
+.face-scan-ring.done .ring-middle { border-color: rgba(0,200,150,0.5); }
+.face-scan-ring.done .ring-inner { border-color: #00c896; }
+
+/* Scan line */
+.face-scan-ring .scan-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #3182f6, #7b61ff, transparent);
+  top: 40%;
+  box-shadow: 0 0 12px #3182f6;
+  animation: scanMove 1.5s ease-in-out infinite;
+}
+@keyframes scanMove {
+  0%, 100% { top: 10%; }
+  50% { top: 80%; }
+}
+
+.face-scan-ring .face-icon {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60px;
+}
+
+/* Corners */
+.corner { position: absolute; width: 20px; height: 20px; transition: border-color 0.4s; }
+.corner.tl { top: 16px; left: 16px; border-top: 3px solid #3182f6; border-left: 3px solid #3182f6; border-radius: 4px 0 0 0; }
+.corner.tr { top: 16px; right: 16px; border-top: 3px solid #3182f6; border-right: 3px solid #3182f6; border-radius: 0 4px 0 0; }
+.corner.bl { bottom: 16px; left: 16px; border-bottom: 3px solid #3182f6; border-left: 3px solid #3182f6; border-radius: 0 0 0 4px; }
+.corner.br { bottom: 16px; right: 16px; border-bottom: 3px solid #3182f6; border-right: 3px solid #3182f6; border-radius: 0 0 4px 0; }
+
+/* Text */
+.faceid-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.scanning-label { color: #ff9500; }
+.done-label { color: #00c896; }
+
+.faceid-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  letter-spacing: -0.3px;
+}
+.faceid-sub {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* Step rows */
 .step-row {
   width: 100%;
-  background: rgba(255,255,255,0.05);
+  background: var(--bg-deep);
   border-radius: 12px;
   padding: 14px 16px;
   display: flex;
@@ -58,12 +132,31 @@
   align-items: center;
   margin-bottom: 8px;
 }
-.step-row.active {
-  background: rgba(255,149,0,0.1);
-  border: 1px solid rgba(255,149,0,0.2);
+.step-row.step-active {
+  background: #fff8ee;
+  border: 1px solid rgba(255,149,0,0.25);
 }
-.step-row .step-label { font-size: 13px; color: rgba(255,255,255,0.5); }
-.step-row.active .step-label { color: rgba(255,255,255,0.8); font-weight: 600; }
-.step-row .step-status { font-size: 13px; font-weight: 700; }
-.step-row .done { color: #00c896; }
-.step-row .in-progress { color: #ff9500; }
+.step-row.step-done {
+  background: #f0fdf4;
+  border: 1px solid rgba(0,200,150,0.2);
+}
+.step-row .step-label { font-size: 13px; color: var(--text-secondary); font-weight: 500; }
+.step-row.step-active .step-label,
+.step-row.step-done .step-label { color: var(--text-primary); font-weight: 600; }
+.step-status { font-size: 13px; font-weight: 700; }
+.s-done { color: #00c896; }
+.s-inprogress { color: #ff9500; }
+
+.next-btn {
+  width: 100%;
+  background: #3182f6;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 16px;
+}

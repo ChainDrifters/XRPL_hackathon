@@ -1,16 +1,11 @@
+import { useNavigate } from 'react-router-dom'
 import './terminal_qr_scan.css'
 
 export default function TerminalQRScan() {
+  const navigate = useNavigate()
+
   return (
     <div className="terminal-phone">
-      <div className="terminal-bar">
-        <div className="status-left">
-          <div className="status-dot green" />
-          <span className="label">단말기</span>
-        </div>
-        <span className="time">9:41</span>
-      </div>
-
       <div className="terminal-content">
         <div className="qr-viewfinder">
           <div className="bg" />
@@ -24,7 +19,11 @@ export default function TerminalQRScan() {
 
         <div className="terminal-title">QR을 찍어주세요</div>
         <div className="terminal-sub">앱에서 면세 QR을 열고<br />카메라 앞에 가져다 주세요</div>
-        <button className="barcode-btn">바코드로 입력</button>
+      </div>
+
+      <div className="bottom-actions">
+        <button className="qr-confirm-btn" onClick={() => navigate('/terminal-face-id')}>QR 인식 완료</button>
+        <button className="barcode-btn" onClick={() => navigate('/terminal-face-id')}>바코드로 입력</button>
       </div>
     </div>
   )
