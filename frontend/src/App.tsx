@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { LangProvider } from './i18n/LangContext'
 import DevIndex from './pages/dev_index/DevIndex'
 import RefundHome from './pages/refund_home/refund_home'
 import RefundDetail from './pages/refund_detail/refund_detail'
@@ -19,6 +20,7 @@ import TerminalConfirm from './pages/terminal_confirm/terminal_confirm'
 
 function App() {
   return (
+    <LangProvider>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<DevIndex />} />
@@ -40,6 +42,7 @@ function App() {
         <Route path="/terminal-confirm" element={<TerminalConfirm />} />
       </Routes>
     </BrowserRouter>
+    </LangProvider>
   )
 }
 

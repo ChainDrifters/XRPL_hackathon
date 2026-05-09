@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './face_id_register.css'
+import { useLang } from '../../i18n/LangContext'
 
 export default function FaceIdRegister() {
   const navigate = useNavigate()
+  const { t } = useLang()
+  const f = t.faceIdRegister
+  const c = t.common
   const [scanning, setScanning] = useState(false)
 
   useEffect(() => {
@@ -12,8 +16,6 @@ export default function FaceIdRegister() {
     return () => clearTimeout(timer)
   }, [scanning, navigate])
 
-  const handleStart = () => setScanning(true)
-
   return (
     <div className="phone">
       <div className="notch" />
@@ -21,40 +23,24 @@ export default function FaceIdRegister() {
       {!scanning && (
         <div className="nav-bar">
           <span className="back" onClick={() => navigate('/passport-register')} style={{ cursor: 'pointer' }}>‹</span>
-          <span className="nav-title">Face ID 등록</span>
+          <span className="nav-title">{f.navTitle}</span>
         </div>
       )}
 
       <div className="faceid-content">
         <div className={`face-scan-ring${scanning ? ' scanning' : ''}`}>
-          <div className="ring-outer" />
-          <div className="ring-middle" />
-          <div className="ring-inner">
-            {scanning && <div className="scan-line" />}
-          </div>
+          <div className="ring-outer" /><div className="ring-middle" />
+          <div className="ring-inner">{scanning && <div className="scan-line" />}</div>
           <div className="face-icon">{scanning ? '😊' : '😐'}</div>
-          <div className="corner tl" />
-          <div className="corner tr" />
-          <div className="corner bl" />
-          <div className="corner br" />
+          <div className="corner tl" /><div className="corner tr" /><div className="corner bl" /><div className="corner br" />
         </div>
-
-        <div className="faceid-title">
-          {scanning ? '얼굴을 인식하고 있어요' : 'Face ID를 등록해주세요'}
-        </div>
-        <div className="faceid-sub">
-          {scanning
-            ? '잠시만 기다려 주세요...'
-            : '면세 QR 발급 시 본인 확인에 사용돼요.\n등록은 한 번만 해요.'}
-        </div>
-
+        <div className="faceid-title">{scanning ? c.faceId.scanning : f.title}</div>
+        <div className="faceid-sub" style={{ whiteSpace: 'pre-line' }}>{scanning ? c.faceId.wait : f.sub}</div>
       </div>
 
       {!scanning && (
         <div style={{ padding: '0 20px 48px' }}>
-          <button className="cta-btn" style={{ background: '#3182f6' }} onClick={handleStart}>
-            얼굴 인식 시작
-          </button>
+          <button className="cta-btn" style={{ background: '#3182f6' }} onClick={() => setScanning(true)}>{f.start}</button>
         </div>
       )}
     </div>

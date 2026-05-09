@@ -1,8 +1,11 @@
 import { useNavigate } from 'react-router-dom'
 import './terminal_confirm.css'
+import { useLang } from '../../i18n/LangContext'
 
 export default function TerminalConfirm() {
   const navigate = useNavigate()
+  const { t } = useLang()
+  const co = t.terminal.confirm
 
   return (
     <div className="terminal-phone">
@@ -11,30 +14,19 @@ export default function TerminalConfirm() {
           <div className="r1" /><div className="r2" />
           <div className="check">✓</div>
         </div>
-
-        <div className="confirm-label">확인 완료</div>
-        <div className="confirm-title">면세 대상자예요!</div>
-        <div className="confirm-sub">면세 대상자임이 확인됐어요.<br />환급은 앱에서 받으실 수 있어요.</div>
+        <div className="confirm-label">{co.label}</div>
+        <div className="confirm-title">{co.title}</div>
+        <div className="confirm-sub" style={{ whiteSpace: 'pre-line' }}>{co.sub}</div>
 
         <div className="confirm-info">
-          <div className="confirm-row">
-            <span className="k">이름</span>
-            <span className="v">HONG GILDONG</span>
-          </div>
-          <div className="confirm-row">
-            <span className="k">국적</span>
-            <span className="v">🇺🇸 미국</span>
-          </div>
-          <div className="confirm-row">
-            <span className="k">면세 적용</span>
-            <span className="v success">✓ 승인</span>
-          </div>
+          <div className="confirm-row"><span className="k">{co.name}</span><span className="v">HONG GILDONG</span></div>
+          <div className="confirm-row"><span className="k">{co.nationality}</span><span className="v">{co.nationalityValue}</span></div>
+          <div className="confirm-row"><span className="k">{co.taxFree}</span><span className="v success">{co.approved}</span></div>
         </div>
-
       </div>
 
       <div className="bottom-actions">
-        <button className="proceed-btn" onClick={() => navigate('/terminal-qr-scan')}>결제 진행하기</button>
+        <button className="proceed-btn" onClick={() => navigate('/terminal-qr-scan')}>{co.proceed}</button>
       </div>
     </div>
   )
