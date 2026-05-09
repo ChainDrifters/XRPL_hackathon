@@ -1,8 +1,12 @@
-# Tax Refund E0-E7 Request and Data-Access Process
+# Tax Refund Branch Request and Data-Access Process
 
-This document describes the full tax-refund proof-chain flow from `E0` to `E7`.
-It focuses on what each party requests, how the wallet decides what to disclose,
-what data is accessed, what remains private, and what gets signed.
+This document describes tax-refund proof-chain branches that start at `E0`.
+`E0` to `E7` is the maximal airport/downtown settlement example, not a mandatory
+sequence for every refund. Immediate refund, downtown pre-refund, airport refund,
+export failure, cancellation, and chargeback paths can end at different terminal
+events. The document focuses on what each party requests, how the wallet decides
+what to disclose, what data is accessed, what remains private, and what gets
+signed.
 
 The core rule is: no party reads wallet records directly. A connector sends a
 signed request, the wallet verifies the requester and purpose, the holder approves
@@ -15,12 +19,55 @@ that step.
 |---|---|---|
 | Holder wallet | local holder key / `did:key`, service `did:peer` | Stores credentials, private event chain, encrypted records, signed root checkpoints, and holder consent decisions |
 | Toss KYC issuer | `did:xrpl` | Verifies passport/KYC evidence and signs E0 |
-| Merchant POS connector | `did:xrpl` | Registers purchase and signs E1 |
-| Refund operator connector | `did:xrpl` | Checks tax-free status, refund requests, and operator acceptance; signs E2, E3, E5 |
-| Card PSP connector | `did:xrpl` | Checks card authorization and settlement; signs E4 and E7 |
-| Customs connector / kiosk mock | `did:xrpl` | Confirms export or failure; signs E6 |
+| Merchant POS connector | `did:xrpl` | Registers purchase and can sign `item_purchased` / immediate-refund completion receipts |
+| Refund operator connector | `did:xrpl` | Checks tax-free status, pre-refund, acceptance, cancellation, and payout states |
+| Card PSP connector | `did:xrpl` | Checks card authorization, settlement, payout, cancellation, or chargeback states |
+| Customs connector / kiosk mock | `did:xrpl` | Confirms export success, failure, or inspection-required states |
 | Trust registry | signed off-chain registry, hash anchored or distributed | Maps event types and request scopes to authorized connector DIDs |
 | XRPL | public ledger | Stores organization DIDs, public key references, schema/trust hashes, and optional batch commitments, not per-user records |
+
+## Scenario Branches
+
+The wallet should model each refund case as one branch under reusable E0. The
+branch includes only the events that actually happened.
+
+```text
+Immediate refund:
+E0 passport_verified
+  -> item_purchased
+  -> immediate_refund_verified
+  -> immediate_refund_completed
+
+Downtown pre-refund, export success:
+E0 passport_verified
+  -> item_purchased
+  -> purchase_record_registered
+  -> downtown_prerefunded
+  -> card_authorization_verified optional
+  -> customs_export_confirmed
+  -> payout_completed or card_settlement_completed
+
+Downtown pre-refund, export failure/cancellation:
+E0 passport_verified
+  -> item_purchased
+  -> purchase_record_registered
+  -> downtown_prerefunded
+  -> card_authorization_verified optional
+  -> export_failed
+  -> refund_cancelled or chargeback_claimed
+
+Airport or port refund:
+E0 passport_verified
+  -> item_purchased
+  -> purchase_record_registered
+  -> customs_export_confirmed
+  -> refund_operator_accepted
+  -> payout_completed or card_settlement_completed
+```
+
+`proofChainRoot` is always the hash of the current terminal event for that
+branch, regardless of whether the branch ended at immediate refund, cancellation,
+or final settlement.
 
 ## Common Request Envelope
 
@@ -509,13 +556,15 @@ Stays private:
 Verification later:
 
 - Customs DID must resolve to an authorized customs connector.
-- Trust policy must reject any non-customs signer for `customs_export_confirmed`.
-- E6 must link to E5.
+- Trust policy must reject any non-customs signer for customs export result events.
+- The customs event must link to the prior event for that scenario branch.
 - Export status must match the signed customs event.
 
 ## E7: Card Settlement Completed
 
-Purpose: close the case with final refund settlement status.
+Purpose: close a card-settlement branch with final refund settlement status.
+Other branches may close with `immediate_refund_completed`, `payout_completed`,
+`refund_cancelled`, or `chargeback_claimed` instead.
 
 Requester and signer:
 

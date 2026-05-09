@@ -5,8 +5,10 @@
 
 ## 한 줄 요약
 
-E0 → E7 hash-linked chain을 동작시키고 3-pane 데모 화면 (phone | kiosk | XRPL
-inspector)을 완성. 해커톤 영상의 핵심.
+E0에서 시작하는 tax-refund proof branches를 동작시키고 3-pane 데모 화면
+(phone | kiosk | XRPL inspector)을 완성. E0→E7은 full airport/downtown settlement
+path의 최대 예시이고, 즉시환급·취소·실패 branch는 더 짧거나 다른 terminal event로 끝날 수
+있다.
 
 ## 이 phase의 목표
 
@@ -29,13 +31,24 @@ Acceptance Criteria를 모두 만족시킨다. 영상 그대로 reproduce 가능
 ```mermaid
 flowchart TD
     E0["E0 passport_verified"] --> E1["E1 item_purchased<br/>merchant"]
-    E1 --> E2["E2 tax_free_status_verified<br/>operator"]
-    E2 --> E3["E3 kiosk_refund_requested<br/>operator"]
-    E3 --> E4["E4 card_auth<br/>PSP"]
-    E4 --> E5["E5 refund_op_accepted<br/>operator"]
-    E5 --> E6["E6 customs_export_confirmed<br/>customs"]
-    E6 --> E7["E7 card_settlement<br/>PSP"]
-    E7 -->|"current latest eventHash"| CASE_ROOT["proofChainRoot"]
+
+    E1 --> I2["immediate_refund_verified<br/>operator/eTRS"]
+    I2 --> I3["immediate_refund_completed<br/>POS/operator"]
+
+    E1 --> G2["purchase_record_registered<br/>operator/eTRS"]
+    G2 --> D3["downtown_prerefunded or kiosk_refund_requested<br/>operator"]
+    D3 --> D4["card_authorization_verified<br/>PSP optional"]
+    D4 --> D6{"customs export result"}
+    D6 -->|"success"| D7["payout_completed or card_settlement_completed<br/>operator/PSP"]
+    D6 -->|"failure"| C7["refund_cancelled or chargeback_claimed<br/>operator/PSP"]
+
+    G2 --> A6["customs_export_confirmed<br/>customs"]
+    A6 --> A7["payout_completed or card_settlement_completed<br/>operator/PSP"]
+
+    I3 --> CASE_ROOT["proofChainRoot<br/>current latest eventHash"]
+    D7 --> CASE_ROOT
+    C7 --> CASE_ROOT
+    A7 --> CASE_ROOT
     CASE_ROOT --> TREE["taxTreeRoot<br/>domain branch registry"]
     TREE --> CKPT["domain-signed checkpoint<br/>createdAt + validUntil + sequence"]
     CKPT -. "optional batch anchor" .-> XRPL[(XRPL)]
@@ -44,18 +57,26 @@ flowchart TD
     POLICY -. "must allow" .-> E6
 ```
 
-> *7개 event가 hash로 연결되고 root checkpoint는 wallet에 저장된다. XRPL에는 production
+> *각 branch는 필요한 event만 hash로 연결된다. 즉시환급은 짧게 끝나고, 시내 선환급은
+> customs success/failure에 따라 확정 또는 취소 branch로 갈라진다. XRPL에는 production
 > per-user write를 만들지 않고, 필요할 때만 여러 root를 묶은 batch commitment를 anchor.*
 
-## E1 ~ E7 — 누가 무엇을 서명하나
+## Event type — 누가 무엇을 서명하나
 
 - E1 `item_purchased` — merchant POS 가 서명
+- `purchase_record_registered` — merchant POS 또는 refund operator/eTRS 가 서명
 - E2 `tax_free_status_verified` — refund operator 가 서명
 - E3 `kiosk_refund_requested` — refund operator 가 서명
+- `immediate_refund_verified` — refund operator/eTRS 가 서명
+- `immediate_refund_completed` — merchant POS 또는 refund operator/eTRS 가 서명
+- `downtown_prerefunded` — refund operator 가 서명
 - E4 `card_authorization_verified` — card PSP 가 서명
 - E5 `refund_operator_accepted` — refund operator 가 서명
 - E6 `customs_export_confirmed` — customs connector 가 서명
+- `export_failed` — customs connector 가 서명
 - E7 `card_settlement_completed` — card PSP 가 서명
+- `payout_completed` — refund operator 또는 PSP 가 서명
+- `refund_cancelled` / `chargeback_claimed` — refund operator 또는 PSP 가 서명
 
 > 관련 용어: [POS](glossary.md#pos) · [환급창구운영사업자](glossary.md#refund-operator) · [PSP](glossary.md#psp)
 
@@ -95,12 +116,35 @@ reject ("merchant는 customs event를 서명할 수 없음").
 export const trustPolicy: Record<string, string[]> = {
   passport_verified: ['did:xrpl:1:rTOSS_KYC_ISSUER'],
   item_purchased: ['did:xrpl:1:rMERCHANT_POS_CONNECTOR'],
+  purchase_record_registered: [
+    'did:xrpl:1:rMERCHANT_POS_CONNECTOR',
+    'did:xrpl:1:rREFUND_OPERATOR_CONNECTOR',
+  ],
   tax_free_status_verified: ['did:xrpl:1:rREFUND_OPERATOR_CONNECTOR'],
   kiosk_refund_requested: ['did:xrpl:1:rREFUND_OPERATOR_CONNECTOR'],
+  immediate_refund_verified: ['did:xrpl:1:rREFUND_OPERATOR_CONNECTOR'],
+  immediate_refund_completed: [
+    'did:xrpl:1:rMERCHANT_POS_CONNECTOR',
+    'did:xrpl:1:rREFUND_OPERATOR_CONNECTOR',
+  ],
+  downtown_prerefunded: ['did:xrpl:1:rREFUND_OPERATOR_CONNECTOR'],
   card_authorization_verified: ['did:xrpl:1:rCARD_PSP_CONNECTOR'],
   refund_operator_accepted: ['did:xrpl:1:rREFUND_OPERATOR_CONNECTOR'],
   customs_export_confirmed: ['did:xrpl:1:rCUSTOMS_CONNECTOR'],
+  export_failed: ['did:xrpl:1:rCUSTOMS_CONNECTOR'],
   card_settlement_completed: ['did:xrpl:1:rCARD_PSP_CONNECTOR'],
+  payout_completed: [
+    'did:xrpl:1:rREFUND_OPERATOR_CONNECTOR',
+    'did:xrpl:1:rCARD_PSP_CONNECTOR',
+  ],
+  refund_cancelled: [
+    'did:xrpl:1:rREFUND_OPERATOR_CONNECTOR',
+    'did:xrpl:1:rCARD_PSP_CONNECTOR',
+  ],
+  chargeback_claimed: [
+    'did:xrpl:1:rREFUND_OPERATOR_CONNECTOR',
+    'did:xrpl:1:rCARD_PSP_CONNECTOR',
+  ],
 };
 
 export function isAuthorized(eventType: string, signerDid: string): boolean {
@@ -186,7 +230,7 @@ tree입니다.
 
 ## 검증 방법
 
-- [ ] 7개 event 모두 signature/trust/hash chain/checkpoint/treeRoot 검증 통과
+- [ ] 각 scenario branch의 event signature/trust/hash chain/checkpoint/treeRoot 검증 통과
 - [ ] branch 삭제 또는 다른 branch로 swap 시도 → domain-signed treeRoot / previousCheckpointHash / checkpointSequence reject
 - [ ] "잘못된 서명" 버튼 → trust policy reject UI 노출
 - [ ] 3-pane 동시 동기화 (phone 액션 → kiosk 갱신 → inspector 새 hash)

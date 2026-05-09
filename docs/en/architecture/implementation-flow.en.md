@@ -167,18 +167,42 @@ taxRefundStatuses:
 
 #### 3-3. Tax-Refund Proof Chain
 
-This is the best place to use the "chain" part. The public chain should not store the full refund trail, including `eventType`. Instead, each actor signs a private status event receipt, receipts are hash-linked off-chain, and the wallet stores signed proof/status root checkpoints. XRPL anchors issuer/connector DIDs, trust-policy hashes, and only optional batched root commitments.
+This is the best place to use the "chain" part. The public chain should not store the full refund trail, including `eventType`. Instead, each actor signs a private status event receipt, receipts are hash-linked off-chain, and the wallet stores domain-signed proof/status root checkpoints. XRPL anchors issuer/connector DIDs, trust-policy hashes, and only optional batched root commitments.
+
+The branch is scenario-specific rather than always E0-E7:
 
 ```text
+Immediate refund:
 passport_verified / tax_refund_readiness
   -> item_purchased
-  -> tax_free_status_verified
-  -> kiosk_refund_requested
-  -> card_authorization_verified
-  -> refund_operator_accepted
-  -> export_confirmation_required
+  -> immediate_refund_verified
+  -> immediate_refund_completed
+
+Downtown pre-refund, export success:
+passport_verified / tax_refund_readiness
+  -> item_purchased
+  -> purchase_record_registered
+  -> downtown_prerefunded
+  -> card_authorization_verified optional
   -> customs_export_confirmed
-  -> card_settlement_completed
+  -> payout_completed or card_settlement_completed
+
+Downtown pre-refund, export failure:
+passport_verified / tax_refund_readiness
+  -> item_purchased
+  -> purchase_record_registered
+  -> downtown_prerefunded
+  -> card_authorization_verified optional
+  -> export_failed
+  -> refund_cancelled or chargeback_claimed
+
+Airport/port refund:
+passport_verified / tax_refund_readiness
+  -> item_purchased
+  -> purchase_record_registered
+  -> customs_export_confirmed
+  -> refund_operator_accepted
+  -> payout_completed or card_settlement_completed
 ```
 
 Each event receipt has this shape:

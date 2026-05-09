@@ -51,17 +51,40 @@ This is a private DAG, not a public global chain. Each branch has its own `did:p
 
 Each tax-refund case is a private, hash-linked proof chain. The branch can be
 verified while incomplete: `proofChainRoot` means the current latest event hash,
-not only the final E7 hash.
+not only the final E7 hash. E0-E7 is the maximal settlement path; immediate refund,
+downtown pre-refund, airport refund, export failure, and cancellation use
+scenario-specific branches.
 
 ```text
-passport_verified / tax_refund_readiness
+Immediate refund:
+passport_verified
   -> item_purchased
-  -> tax_free_status_verified
-  -> kiosk_refund_requested
-  -> card_authorization_verified
-  -> refund_operator_accepted
+  -> immediate_refund_verified
+  -> immediate_refund_completed
+
+Downtown pre-refund success:
+passport_verified
+  -> item_purchased
+  -> purchase_record_registered
+  -> downtown_prerefunded
   -> customs_export_confirmed
-  -> card_settlement_completed
+  -> payout_completed
+
+Downtown pre-refund failure/cancellation:
+passport_verified
+  -> item_purchased
+  -> purchase_record_registered
+  -> downtown_prerefunded
+  -> export_failed
+  -> refund_cancelled
+
+Airport/port refund:
+passport_verified
+  -> item_purchased
+  -> purchase_record_registered
+  -> customs_export_confirmed
+  -> refund_operator_accepted
+  -> payout_completed
 ```
 
 Each private event contains:
