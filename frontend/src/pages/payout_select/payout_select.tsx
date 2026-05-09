@@ -1,19 +1,23 @@
 import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import './payout_select.css'
+import { useLang } from '../../i18n/LangContext'
 
 type Method = 'card' | 'bank' | 'toss' | 'cash'
 
-const METHODS: { id: Method; icon: string; title: string; badge?: string; badgeType?: string; desc: string }[] = [
-  { id: 'card', icon: '💳', title: '한국에서 결제한 카드로', badge: '추천', desc: 'VISA •••• 4521 · 영업일 3~7일 · 수수료 0원' },
-  { id: 'bank', icon: '🏦', title: '한국 은행 계좌로', desc: '계좌 정보 입력 · 영업일 1~2일 · 수수료 0원' },
-  { id: 'toss', icon: '✈️', title: '출국 후에도 받기', badge: '빠름', badgeType: 'adv', desc: '토스에 보관 · 본국에서 언제든 출금 · 수 분 내' },
-  { id: 'cash', icon: '💵', title: '공항 현금 환급', desc: '출국 게이트 환급창구 · 즉시 · USD/CNY/JPY' },
-]
-
 export default function PayoutSelect() {
   const navigate = useNavigate()
+  const { t } = useLang()
+  const p = t.payoutSelect
+  const c = t.common
   const [selected, setSelected] = useState<Method>('card')
+
+  const METHODS: { id: Method; icon: string; title: string; badge?: string; badgeType?: string; desc: string }[] = [
+    { id: 'card',  icon: '💳', title: p.m1Title, badge: p.m1Badge, desc: p.m1Desc },
+    { id: 'bank',  icon: '🏦', title: p.m2Title, desc: p.m2Desc },
+    { id: 'toss',  icon: '✈️', title: p.m3Title, badge: p.m3Badge, badgeType: 'adv', desc: p.m3Desc },
+    { id: 'cash',  icon: '💵', title: p.m4Title, desc: p.m4Desc },
+  ]
 
   return (
     <div className="phone">
@@ -21,16 +25,14 @@ export default function PayoutSelect() {
       <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
       <div className="nav-bar">
         <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}>‹</span>
-        <span className="nav-title">받는 방법</span>
+        <span className="nav-title">{p.navTitle}</span>
       </div>
 
       <div className="scroll-area" style={{ paddingBottom: 180 }}>
         <div style={{ padding: '8px 4px 16px' }}>
-          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>
-            어떻게 받으시겠어요?
-          </div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>{p.heading}</div>
           <div style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
-            아모레퍼시픽 청담 · <strong style={{ color: 'var(--toss-blue)' }}>9,600원</strong>
+            {p.amoreContext} <strong style={{ color: 'var(--toss-blue)' }}>9,600{c.won}</strong>
           </div>
         </div>
 
@@ -49,19 +51,19 @@ export default function PayoutSelect() {
         ))}
 
         <div className="summary-info" style={{ marginTop: 16 }}>
-          <div className="row"><span className="k">환급 금액</span><span className="v">9,600원</span></div>
-          <div className="row"><span className="k">수수료</span><span className="v" style={{ color: 'var(--success)' }}>무료</span></div>
-          <div className="row total"><span className="k">받는 금액</span><span className="v">9,600원</span></div>
+          <div className="row"><span className="k">{p.refundAmt}</span><span className="v">9,600{c.won}</span></div>
+          <div className="row"><span className="k">{p.fee}</span><span className="v" style={{ color: 'var(--success)' }}>{p.free}</span></div>
+          <div className="row total"><span className="k">{p.receiveAmt}</span><span className="v">9,600{c.won}</span></div>
         </div>
       </div>
 
       <div className="cta-bottom">
-        <button className="cta-btn" onClick={() => navigate('/refund-home')}>이 방법으로 받기</button>
+        <button className="cta-btn" onClick={() => navigate('/refund-home')}>{p.cta}</button>
       </div>
       <div className="bottom-nav">
-        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">홈</span></div>
-        <div className="bn-item active"><span className="icon">💸</span><span className="label">환급</span></div>
-        <div className="bn-item"><span className="icon">⚙️</span><span className="label">설정</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>
+        <div className="bn-item active"><span className="icon">💸</span><span className="label">{c.nav.refund}</span></div>
+        <div className="bn-item"><span className="icon">⚙️</span><span className="label">{c.nav.settings}</span></div>
       </div>
     </div>
   )

@@ -1,3 +1,156 @@
+/* ── 스왑 스타일 금액 입력 ── */
+.swap-box-wrap {
+  border-radius: 16px;
+  overflow: visible;
+  position: relative;
+}
+.swap-box {
+  background: var(--bg-subtle);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+.swap-box-readonly {
+  cursor: default;
+}
+.swap-box-amount {
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--text-primary);
+  letter-spacing: -1px;
+  line-height: 1.1;
+}
+.swap-box-sub {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 4px;
+}
+.swap-token-chip {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-left: 12px;
+  background: var(--bg-deep);
+  border-radius: 20px;
+  padding: 6px 10px 6px 6px;
+}
+.swap-chip-icon {
+  width: 22px !important;
+  height: 22px !important;
+  font-size: 11px !important;
+}
+.swap-chip-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.swap-divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 0;
+  position: relative;
+  z-index: 1;
+  margin: 6px 0;
+}
+.swap-arrow {
+  width: 30px;
+  height: 30px;
+  background: var(--bg-card);
+  border: 2px solid var(--bg-deep);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  color: var(--text-tertiary);
+  font-weight: 700;
+}
+
+/* ── 거래 정보 패널 ── */
+.swap-info-panel {
+  background: var(--bg-subtle);
+  border-radius: 14px;
+  padding: 4px 14px;
+  margin-bottom: 12px;
+}
+.info-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  cursor: pointer;
+  user-select: none;
+}
+.info-panel-divider {
+  height: 1px;
+  background: var(--bg-deep);
+  margin: 0 -2px;
+}
+.slippage-chips {
+  display: flex;
+  gap: 6px;
+  padding-top: 4px;
+}
+.slippage-chip {
+  flex: 1;
+  background: var(--bg-deep);
+  border: none;
+  border-radius: 20px;
+  padding: 7px 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  transition: background 0.1s, color 0.1s;
+}
+.slippage-chip:active { opacity: 0.7; }
+.slippage-chip.active {
+  background: var(--toss-blue);
+  color: white;
+}
+.slippage-custom-input {
+  background: var(--bg-deep);
+  border: 1.5px solid var(--toss-blue);
+  border-radius: 8px;
+  padding: 5px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  width: 80px;
+  outline: none;
+  font-family: inherit;
+}
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-top: 1px solid var(--bg-deep);
+}
+.info-row:first-of-type { border-top: none; }
+.info-row-key {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  font-weight: 500;
+  flex: 1;
+}
+.info-row-val {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+  flex-shrink: 0;
+  max-width: 60%;
+}
+
 /* ── 키패드 ── */
 .keypad-sheet {
   width: 100%;
@@ -196,4 +349,55 @@
   justify-content: center;
   font-weight: 800;
   color: var(--rlusd-purple);
+  flex-shrink: 0;
+}
+
+/* ── 자산 선택 시트 ── */
+.asset-sheet {
+  width: 100%;
+  background: var(--bg-card);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  max-height: 75%;
+  overflow-y: auto;
+}
+.asset-sheet-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--bg-deep);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+.asset-sheet-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  text-align: center;
+}
+.asset-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-quaternary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 8px 0 6px;
+}
+.asset-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 10px;
+  border-radius: 14px;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.asset-option:active,
+.asset-option:hover {
+  background: var(--bg-subtle);
+}
+.asset-option.selected {
+  background: var(--bg-subtle);
 }
