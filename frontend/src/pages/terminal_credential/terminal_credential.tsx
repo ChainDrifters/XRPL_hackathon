@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import './terminal_confirm.css'
+import './terminal_credential.css'
 import { useLang } from '../../i18n/LangContext'
 
 export default function TerminalConfirm() {

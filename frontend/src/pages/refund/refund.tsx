@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import './refund_home.css'
+import './refund.css'
 import { useLang } from '../../i18n/LangContext'
 
 export default function RefundHome() {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import './terminal_card_input.css'
+import './terminal_birth_input.css'
 import { useLang } from '../../i18n/LangContext'
 
 type Field = 'year' | 'month' | 'day' | null
