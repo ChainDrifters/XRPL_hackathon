@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import './qr_issued.css'
+import './notification.css'
 import { useLang } from '../../i18n/LangContext'
 
 export default function QRIssued() {
