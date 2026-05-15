@@ -19,7 +19,15 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "erasableSyntaxOnly": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+
+    /* Path aliases (relative to this tsconfig file in TS >= 5) */
+    "paths": {
+      "@personas/*": ["../docs/plan/personas/*"],
+      "@wallet/*": ["./src/wallet/*"],
+      "@mocks/*": ["./src/mocks/*"]
+    },
+    "resolveJsonModule": true
   },
   "include": ["src"]
 }
