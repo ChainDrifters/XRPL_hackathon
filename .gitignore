@@ -3,3 +3,9 @@
 .opencode/
 .claude/
 
+.DS_Store
+
+# Local XRPL Testnet DID tooling
+DID:testnet/DIDSet.md
+DID:testnet/did-documents/
+DID:testnet/node_modules/
