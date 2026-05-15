@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { LangProvider } from './i18n/LangContext'
+import { useWalletInit } from './wallet/state/useWallet'
 import DevIndex from './pages/dev_index/DevIndex'
 import RefundHome from './pages/refund/refund'
 import RefundDetail from './pages/refund_detail/refund_detail'
@@ -19,6 +20,7 @@ import TerminalCardInput from './pages/terminal_birth_input/terminal_birth_input
 import TerminalConfirm from './pages/terminal_credential/terminal_credential'
 
 function App() {
+  useWalletInit()
   return (
     <LangProvider>
     <BrowserRouter>

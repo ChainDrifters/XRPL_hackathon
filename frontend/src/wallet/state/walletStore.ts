@@ -4,7 +4,6 @@ import { bytesToHex, hexToBytes } from '../crypto/codec'
 import { hashCanonical } from '../crypto/hash'
 import { signCanonical } from '../crypto/sign'
 import {
-  HOLDER_KEY,
   appendEvent,
   ensureRelationship,
   listCredentials,
@@ -14,6 +13,7 @@ import {
   saveCredential,
   saveHolder,
 } from '../identity/graph'
+import { clearAll } from '../storage/db'
 import { eventHash } from '../identity/proof-chain'
 import type {
   Credential,
@@ -239,10 +239,8 @@ export const useWalletStore = create<WalletState>((set, get) => ({
         events: [],
         credentials: [],
       })
-      const { clearAll } = await import('../storage/db')
       await clearAll()
       localStorage.removeItem('tffl-wallet-key-v1')
-      void HOLDER_KEY
     },
   },
 }))
