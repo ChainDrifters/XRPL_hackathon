@@ -4,9 +4,8 @@ import './refund_detail.css'
 import '../balance_home/balance_home.css'
 import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
-
-const REFUND_BRANCH = 'branch_taxrefund_olive_001'
-const REFUND_CASE = 'case_olive_001'
+import { useWalletStore } from '../../wallet/state/walletStore'
+import { REFUND_BRANCH, REFUND_CASE } from '../../wallet/state/caseConstants'
 
 type ModalPhase = 'face-id' | 'qr' | null
 
@@ -19,6 +18,8 @@ export default function RefundDetail() {
   const [seconds, setSeconds] = useState(180)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const anchor = useAnchoredAction()
+  const branchEvents = useWalletStore(s => s.events.filter(e => e.branchId === REFUND_BRANCH))
+  void REFUND_CASE
 
   async function recordPurchaseChain() {
     await anchor.run({
@@ -119,9 +120,19 @@ export default function RefundDetail() {
         <button className="cta-btn" disabled={anchor.pending} onClick={async () => { await recordPurchaseChain(); openQR() }}>
           {anchor.pending ? 'Anchoring chain...' : d.showKiosk}
         </button>
-        {anchor.latestAnchor && (
-          <div style={{ marginTop: 8, fontSize: 11, textAlign: 'center' }}>
-            <a href={anchor.latestAnchor.explorerTxUrl} target="_blank" rel="noreferrer">Latest tx on Testnet →</a>
+        {branchEvents.length > 0 && (
+          <div style={{ marginTop: 8, padding: 8, background: '#f5f7fa', borderRadius: 6, fontSize: 11 }}>
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>Live case progress ({branchEvents.length} events)</div>
+            {branchEvents.slice(-4).map(e => (
+              <div key={e.eventId} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>{e.eventType}</span>
+                {e.anchor ? (
+                  <a href={e.anchor.explorerTxUrl} target="_blank" rel="noreferrer" style={{ color: '#3182f6' }}>
+                    {e.anchor.txHash.slice(0, 8)}…
+                  </a>
+                ) : <span style={{ color: '#aaa' }}>local</span>}
+              </div>
+            ))}
           </div>
         )}
       </div>

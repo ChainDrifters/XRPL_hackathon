@@ -2,21 +2,32 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './terminal_face_id.css'
 import { useLang } from '../../i18n/LangContext'
+import { useAnchoredAction } from '../../wallet/state/useAnchor'
+import { REFUND_BRANCH, REFUND_CASE } from '../../wallet/state/caseConstants'
 
 export default function TerminalFaceId() {
   const navigate = useNavigate()
   const { t } = useLang()
   const f = t.terminal.faceId
   const [phase, setPhase] = useState<'scanning' | 'done'>('scanning')
+  const anchor = useAnchoredAction()
 
   useEffect(() => {
-    const doneTimer = setTimeout(() => setPhase('done'), 2800)
+    const doneTimer = setTimeout(async () => {
+      setPhase('done')
+      await anchor.run({
+        kind: 'event', connector: 'refundOperator', eventType: 'tax_free_status_verified',
+        serviceDomain: 'tax_refund', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
+        payload: { status: 'eligible', reasonCode: 'IMM_NRA_OK' },
+      })
+    }, 2800)
     return () => clearTimeout(doneTimer)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
     if (phase !== 'done') return
-    const navTimer = setTimeout(() => navigate('/terminal-card-input'), 900)
+    const navTimer = setTimeout(() => navigate('/terminal-card-input'), 1400)
     return () => clearTimeout(navTimer)
   }, [phase, navigate])
 
@@ -60,6 +71,14 @@ export default function TerminalFaceId() {
           <span className="step-label">{f.faceStep}</span>
           <span className={`step-status ${done ? 's-done' : 's-inprogress'}`}>{done ? f.done : f.inProgress}</span>
         </div>
+        {anchor.latestAnchor && (
+          <div style={{ marginTop: 14, fontSize: 11, textAlign: 'center' }}>
+            <div>E2 anchored on XRPL Testnet</div>
+            <a href={anchor.latestAnchor.explorerTxUrl} target="_blank" rel="noreferrer" style={{ color: '#3182f6' }}>
+              tx {anchor.latestAnchor.txHash.slice(0, 12)}… →
+            </a>
+          </div>
+        )}
       </div>
     </div>
   )

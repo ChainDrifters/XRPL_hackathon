@@ -4,8 +4,7 @@ import './payout_select.css'
 import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
 
-const REFUND_BRANCH = 'branch_taxrefund_olive_001'
-const REFUND_CASE = 'case_olive_001'
+import { REFUND_BRANCH, REFUND_CASE } from '../../wallet/state/caseConstants'
 
 type Method = 'card' | 'bank' | 'toss' | 'cash'
 
