@@ -3,6 +3,10 @@ import { useState, useEffect, useRef } from 'react'
 import './refund_detail.css'
 import '../balance_home/balance_home.css'
 import { useLang } from '../../i18n/LangContext'
+import { useAnchoredAction } from '../../wallet/state/useAnchor'
+
+const REFUND_BRANCH = 'branch_taxrefund_olive_001'
+const REFUND_CASE = 'case_olive_001'
 
 type ModalPhase = 'face-id' | 'qr' | null
 
@@ -14,6 +18,25 @@ export default function RefundDetail() {
   const [modal, setModal] = useState<ModalPhase>(null)
   const [seconds, setSeconds] = useState(180)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const anchor = useAnchoredAction()
+
+  async function recordPurchaseChain() {
+    await anchor.run({
+      kind: 'event', connector: 'merchantPos', eventType: 'item_purchased',
+      serviceDomain: 'merchant_pos', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
+      payload: { storeId: 'OLIVE_YOUNG_MYEONGDONG', amountKRW: 156000, vatKRW: 14182 },
+    })
+    await anchor.run({
+      kind: 'event', connector: 'refundOperator', eventType: 'purchase_record_registered',
+      serviceDomain: 'tax_refund', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
+      payload: { receiptHashKnown: true },
+    })
+    await anchor.run({
+      kind: 'event', connector: 'refundOperator', eventType: 'downtown_prerefunded',
+      serviceDomain: 'tax_refund', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
+      payload: { prerefundedKRW: 12400 },
+    })
+  }
 
   function openQR() {
     setModal('face-id')
@@ -93,7 +116,14 @@ export default function RefundDetail() {
       </div>
 
       <div className="cta-bottom">
-        <button className="cta-btn" onClick={openQR}>{d.showKiosk}</button>
+        <button className="cta-btn" disabled={anchor.pending} onClick={async () => { await recordPurchaseChain(); openQR() }}>
+          {anchor.pending ? 'Anchoring chain...' : d.showKiosk}
+        </button>
+        {anchor.latestAnchor && (
+          <div style={{ marginTop: 8, fontSize: 11, textAlign: 'center' }}>
+            <a href={anchor.latestAnchor.explorerTxUrl} target="_blank" rel="noreferrer">Latest tx on Testnet →</a>
+          </div>
+        )}
       </div>
       <div className="bottom-nav">
         <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>

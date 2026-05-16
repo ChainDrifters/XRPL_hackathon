@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react'
 import './balance_home.css'
 import '../refund_storage/refund_storage.css'
 import { useLang } from '../../i18n/LangContext'
+import { useWalletStore } from '../../wallet/state/walletStore'
 
 type ModalPhase = 'face-id' | 'qr' | 'tx-list' | 'refund-detail' | 'withdraw-detail' | null
 
@@ -100,6 +101,7 @@ export default function BalanceHome() {
       </div>
 
       <div className="scroll-area">
+        <WalletAnchorList />
         <div className="qr-issue-card" onClick={openQR}>
           <div className="qr-left">
             <div className="qr-icon">📱</div>
@@ -283,6 +285,25 @@ export default function BalanceHome() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function WalletAnchorList() {
+  const events = useWalletStore(s => s.events)
+  const anchored = events.filter(e => e.anchor)
+  if (anchored.length === 0) return null
+  return (
+    <div style={{ background: '#fff', padding: 12, borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
+      <div style={{ fontWeight: 700, marginBottom: 6 }}>XRPL Testnet anchors ({anchored.length})</div>
+      {anchored.slice(-6).reverse().map(e => (
+        <div key={e.eventId} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderTop: '1px solid #eee' }}>
+          <span style={{ color: '#888' }}>{e.eventType}</span>
+          <a href={e.anchor!.explorerTxUrl} target="_blank" rel="noreferrer" style={{ color: '#3182f6' }}>
+            {e.anchor!.txHash.slice(0, 10)}… →
+          </a>
+        </div>
+      ))}
     </div>
   )
 }

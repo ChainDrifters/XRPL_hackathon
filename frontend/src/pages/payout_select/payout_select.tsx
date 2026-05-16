@@ -2,6 +2,10 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react'
 import './payout_select.css'
 import { useLang } from '../../i18n/LangContext'
+import { useAnchoredAction } from '../../wallet/state/useAnchor'
+
+const REFUND_BRANCH = 'branch_taxrefund_olive_001'
+const REFUND_CASE = 'case_olive_001'
 
 type Method = 'card' | 'bank' | 'toss' | 'cash'
 
@@ -11,6 +15,25 @@ export default function PayoutSelect() {
   const p = t.payoutSelect
   const c = t.common
   const [selected, setSelected] = useState<Method>('card')
+  const anchor = useAnchoredAction()
+
+  async function recordSettlementChain() {
+    await anchor.run({
+      kind: 'event', connector: 'cardPsp', eventType: 'card_authorization_verified',
+      serviceDomain: 'payment', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
+      payload: { method: selected, network: 'visa_mock' },
+    })
+    await anchor.run({
+      kind: 'event', connector: 'customs', eventType: 'customs_export_confirmed',
+      serviceDomain: 'customs', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
+      payload: { kioskId: 'ICN_T1_K07', confirmedAt: new Date().toISOString() },
+    })
+    await anchor.run({
+      kind: 'event', connector: 'cardPsp', eventType: 'card_settlement_completed',
+      serviceDomain: 'payment', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
+      payload: { settledKRW: 9600 },
+    })
+  }
 
   const METHODS: { id: Method; icon: string; title: string; badge?: string; badgeType?: string; desc: string }[] = [
     { id: 'card',  icon: '💳', title: p.m1Title, badge: p.m1Badge, desc: p.m1Desc },
@@ -58,7 +81,14 @@ export default function PayoutSelect() {
       </div>
 
       <div className="cta-bottom">
-        <button className="cta-btn" onClick={() => navigate('/refund-home')}>{p.cta}</button>
+        <button className="cta-btn" disabled={anchor.pending} onClick={async () => { await recordSettlementChain(); navigate('/refund-home') }}>
+          {anchor.pending ? 'Settling on XRPL...' : p.cta}
+        </button>
+        {anchor.latestAnchor && (
+          <div style={{ marginTop: 8, fontSize: 11, textAlign: 'center' }}>
+            <a href={anchor.latestAnchor.explorerTxUrl} target="_blank" rel="noreferrer">Settlement tx on Testnet →</a>
+          </div>
+        )}
       </div>
       <div className="bottom-nav">
         <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>
