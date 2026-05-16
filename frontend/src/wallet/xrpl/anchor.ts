@@ -3,7 +3,13 @@ import { getClient } from './client'
 import { getXrplSeed } from '../../mocks/connectors/xrplSeeds'
 import { CONNECTORS, type ConnectorName } from '../../mocks/connectors/keys'
 
-const MEMO_SCHEMA = 'tffl/v1'
+const MEMO_SCHEMA_BY_CONNECTOR: Record<ConnectorName, string> = {
+  kycIssuer: 'tffl/v1/kyc-anchor',
+  refundOperator: 'tffl/v1/refund-anchor',
+  merchantPos: 'tffl/v1/purchase-anchor',
+  cardPsp: 'tffl/v1/payment-anchor',
+  customs: 'tffl/v1/customs-anchor',
+}
 
 export type AnchorResult = {
   txHash: string
@@ -45,7 +51,7 @@ export async function anchorEventHash(args: {
     Memos: [
       {
         Memo: {
-          MemoType: strToHex(MEMO_SCHEMA),
+          MemoType: strToHex(MEMO_SCHEMA_BY_CONNECTOR[args.connector]),
           MemoData: memoData,
         },
       },
