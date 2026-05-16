@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './passport_register.css'
 import { useLang } from '../../i18n/LangContext'
+import { useAnchoredAction } from '../../wallet/state/useAnchor'
 
 type TextField = 'passport' | 'name' | 'nationality'
 type DobField = 'dob_y' | 'dob_m' | 'dob_d'
@@ -35,6 +36,8 @@ export default function PassportRegister() {
 
   const [activeField, setActiveField] = useState<ActiveField>(null)
   const [values, setValues] = useState<Record<string, string>>({ passport: '', name: '', nationality: '', dob_y: '', dob_m: '', dob_d: '' })
+  const anchor = useAnchoredAction()
+  void values
 
   const isDobActive = activeField === 'dob_y' || activeField === 'dob_m' || activeField === 'dob_d'
   const isTextActive = activeField === 'passport' || activeField === 'name' || activeField === 'nationality'
@@ -119,7 +122,17 @@ export default function PassportRegister() {
 
       {!activeField && (
         <div style={{ padding: '0 20px 48px', flexShrink: 0 }}>
-          <button className="cta-btn" style={{ position: 'static', width: '100%' }} onClick={() => navigate('/face-id-register')}>{p.next}</button>
+          <button className="cta-btn" style={{ position: 'static', width: '100%' }} disabled={anchor.pending} onClick={async () => {
+            const ev = await anchor.run({ kind: 'e0' })
+            if (ev) navigate('/face-id-register')
+          }}>{anchor.pending ? 'Anchoring to XRPL Testnet...' : p.next}</button>
+          {anchor.error && <div style={{ color: '#e74c3c', fontSize: 12, marginTop: 8 }}>{anchor.error}</div>}
+          {anchor.latestAnchor && (
+            <div style={{ marginTop: 12, fontSize: 12 }}>
+              <div>E0 anchored. tx: <code>{anchor.latestAnchor.txHash.slice(0, 12)}…</code></div>
+              <a href={anchor.latestAnchor.explorerTxUrl} target="_blank" rel="noreferrer">Testnet에서 보기 →</a>
+            </div>
+          )}
         </div>
       )}
 
