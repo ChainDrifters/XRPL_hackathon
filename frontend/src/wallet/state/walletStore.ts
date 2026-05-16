@@ -123,9 +123,22 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       const persona = get().persona
       if (!persona) throw new Error('persona not selected')
       const existingE0 = get().events.find((e) => e.eventType === 'passport_verified')
-      if (existingE0) {
-        const existingVc = get().credentials.find((c) => c.type.includes('ForeignerKycCredential'))
-        if (existingVc) return { event: existingE0, credential: existingVc }
+      const existingVc = get().credentials.find((c) => c.type.includes('ForeignerKycCredential'))
+      if (existingE0 && existingVc) {
+        if (existingE0.anchor) return { event: existingE0, credential: existingVc }
+        try {
+          const anchor = await anchorEventHash({
+            connector: 'kycIssuer',
+            eventHash: computeEventHash(existingE0),
+          })
+          const anchored: ProofEvent = { ...existingE0, anchor }
+          await appendEvent(anchored)
+          set({ events: get().events.map((e) => (e.eventId === anchored.eventId ? anchored : e)) })
+          return { event: anchored, credential: existingVc }
+        } catch (err) {
+          console.warn('E0 re-anchor failed:', err)
+          return { event: existingE0, credential: existingVc }
+        }
       }
 
       const holder = await get().actions.ensureHolder()

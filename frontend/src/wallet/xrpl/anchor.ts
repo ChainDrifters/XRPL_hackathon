@@ -1,4 +1,4 @@
-import { Wallet, type Payment } from 'xrpl'
+import { Wallet, type AccountSet } from 'xrpl'
 import { getClient } from './client'
 import { getXrplSeed } from '../../mocks/connectors/xrplSeeds'
 import { CONNECTORS, type ConnectorName } from '../../mocks/connectors/keys'
@@ -39,11 +39,9 @@ export async function anchorEventHash(args: {
   if (!/^[0-9A-F]+$/.test(memoData)) throw new Error('eventHash must be hex')
 
   const client = await getClient()
-  const tx: Payment = {
-    TransactionType: 'Payment',
+  const tx: AccountSet = {
+    TransactionType: 'AccountSet',
     Account: wallet.classicAddress,
-    Destination: wallet.classicAddress,
-    Amount: '1',
     Memos: [
       {
         Memo: {
