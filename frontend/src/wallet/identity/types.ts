@@ -63,6 +63,13 @@ export type ProofEvent = {
   branchId: string
   caseId: string
   relationshipId: string
+  anchor?: {
+    txHash: string
+    ledgerIndex: number | undefined
+    account: string
+    explorerTxUrl: string
+    explorerAccountUrl: string
+  }
 }
 
 export type Credential = {

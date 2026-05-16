@@ -14,7 +14,6 @@ import {
   saveHolder,
 } from '../identity/graph'
 import { clearAll } from '../storage/db'
-import { eventHash } from '../identity/proof-chain'
 import type {
   Credential,
   Holder,
@@ -31,6 +30,8 @@ import {
   signAsConnector,
   type ConnectorName,
 } from '../../mocks/connectors'
+import { anchorEventHash } from '../xrpl/anchor'
+import { eventHash as computeEventHash } from '../identity/proof-chain'
 
 type Status = 'idle' | 'loading' | 'ready'
 
@@ -45,8 +46,9 @@ type Actions = {
     payload: unknown
     branchId: string
     caseId: string
-    serviceDomain: ProofEvent['eventType'] extends string ? string : never extends never ? string : string
+    serviceDomain: string
     bypassTrustPolicy?: boolean
+    anchorOnChain?: boolean
   }) => Promise<ProofEvent>
   reset: () => Promise<void>
 }
@@ -143,7 +145,7 @@ export const useWalletStore = create<WalletState>((set, get) => ({
         capturedAt: new Date().toISOString(),
       }
 
-      const e0 = await signAsConnector({
+      const e0Unanchored = await signAsConnector({
         connector: 'kycIssuer',
         eventType: 'passport_verified',
         payload: evidencePayload,
@@ -152,6 +154,16 @@ export const useWalletStore = create<WalletState>((set, get) => ({
         caseId: `case_kyc_${persona.id}`,
         relationshipId: relationship.relationshipId,
       })
+      let e0: ProofEvent = e0Unanchored
+      try {
+        const anchor = await anchorEventHash({
+          connector: 'kycIssuer',
+          eventHash: computeEventHash(e0Unanchored),
+        })
+        e0 = { ...e0Unanchored, anchor }
+      } catch (err) {
+        console.warn('E0 anchor failed (continuing with off-chain only):', err)
+      }
       await appendEvent(e0)
 
       const vcSubject = {
@@ -212,16 +224,28 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       })
       const branchEvents = get().events.filter((e) => e.branchId === args.branchId)
       const previous = branchEvents[branchEvents.length - 1]
-      const event = await signAsConnector({
+      const unanchored = await signAsConnector({
         connector: args.connector,
         eventType: args.eventType,
         payload: args.payload,
-        previousEventHash: previous ? eventHash(previous) : null,
+        previousEventHash: previous ? computeEventHash(previous) : null,
         branchId: args.branchId,
         caseId: args.caseId,
         relationshipId: relationship.relationshipId,
         bypassTrustPolicy: args.bypassTrustPolicy,
       })
+      let event: ProofEvent = unanchored
+      if (args.anchorOnChain) {
+        try {
+          const anchor = await anchorEventHash({
+            connector: args.connector,
+            eventHash: computeEventHash(unanchored),
+          })
+          event = { ...unanchored, anchor }
+        } catch (err) {
+          console.warn(`anchor failed for ${args.eventType}:`, err)
+        }
+      }
       await appendEvent(event)
       set({
         events: [...get().events, event],
