@@ -32,11 +32,13 @@ import {
 } from '../../mocks/connectors'
 import { anchorEventHash } from '../xrpl/anchor'
 import { eventHash as computeEventHash } from '../identity/proof-chain'
+import { broadcastRefresh } from './sync'
 
 type Status = 'idle' | 'loading' | 'ready'
 
 type Actions = {
   init: () => Promise<void>
+  refresh: () => Promise<void>
   selectPersona: (id: string) => Promise<void>
   ensureHolder: () => Promise<Holder>
   issueE0: () => Promise<{ event: ProofEvent; credential: Credential }>
@@ -98,6 +100,21 @@ export const useWalletStore = create<WalletState>((set, get) => ({
       set({
         status: 'ready',
         persona,
+        holder: holder ?? null,
+        relationships,
+        events,
+        credentials,
+      })
+    },
+
+    async refresh() {
+      const [holder, relationships, events, credentials] = await Promise.all([
+        loadHolder(),
+        listRelationships(),
+        listEvents(),
+        listCredentials(),
+      ])
+      set({
         holder: holder ?? null,
         relationships,
         events,
@@ -224,6 +241,7 @@ export const useWalletStore = create<WalletState>((set, get) => ({
         credentials: [...get().credentials, credential],
         relationships: await listRelationships(),
       })
+      broadcastRefresh()
       return { event: e0, credential }
     },
 
@@ -264,6 +282,7 @@ export const useWalletStore = create<WalletState>((set, get) => ({
         events: [...get().events, event],
         relationships: await listRelationships(),
       })
+      broadcastRefresh()
       return event
     },
 
