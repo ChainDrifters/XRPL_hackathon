@@ -295,14 +295,15 @@ function WalletAnchorList() {
   const [expanded, setExpanded] = useState(false)
   if (anchored.length === 0) return null
   const DEFAULT_COUNT = 2
-  const visible = expanded ? anchored : anchored.slice(0, DEFAULT_COUNT)
+  const VISIBLE_WHEN_EXPANDED = 5
+  const ROW_HEIGHT = 26
   const hasMore = anchored.length > DEFAULT_COUNT
   return (
-    <div
-      onClick={() => hasMore && setExpanded(v => !v)}
-      style={{ background: '#fff', padding: 12, borderRadius: 8, marginBottom: 12, fontSize: 12, cursor: hasMore ? 'pointer' : 'default' }}
-    >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+    <div style={{ background: '#fff', padding: 12, borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
+      <div
+        onClick={() => hasMore && setExpanded(v => !v)}
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6, cursor: hasMore ? 'pointer' : 'default' }}
+      >
         <span style={{ fontWeight: 700 }}>XRPL Testnet anchors ({anchored.length})</span>
         {hasMore && (
           <span style={{ fontSize: 11, color: '#3182f6' }}>
@@ -310,18 +311,24 @@ function WalletAnchorList() {
           </span>
         )}
       </div>
-      {visible.map(e => (
-        <div
-          key={e.eventId}
-          style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderTop: '1px solid #eee' }}
-          onClick={ev => ev.stopPropagation()}
-        >
-          <span style={{ color: '#888' }}>{e.eventType}</span>
-          <a href={e.anchor!.explorerTxUrl} target="_blank" rel="noreferrer" style={{ color: '#3182f6' }}>
-            {e.anchor!.txHash.slice(0, 10)}… →
-          </a>
-        </div>
-      ))}
+      <div
+        style={{
+          maxHeight: expanded ? VISIBLE_WHEN_EXPANDED * ROW_HEIGHT : DEFAULT_COUNT * ROW_HEIGHT,
+          overflowY: expanded && anchored.length > VISIBLE_WHEN_EXPANDED ? 'auto' : 'hidden',
+        }}
+      >
+        {(expanded ? anchored : anchored.slice(0, DEFAULT_COUNT)).map(e => (
+          <div
+            key={e.eventId}
+            style={{ display: 'flex', justifyContent: 'space-between', height: ROW_HEIGHT, alignItems: 'center', borderTop: '1px solid #eee' }}
+          >
+            <span style={{ color: '#888' }}>{e.eventType}</span>
+            <a href={e.anchor!.explorerTxUrl} target="_blank" rel="noreferrer" style={{ color: '#3182f6' }}>
+              {e.anchor!.txHash.slice(0, 10)}… →
+            </a>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
