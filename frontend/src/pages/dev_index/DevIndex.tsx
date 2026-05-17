@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useWalletStore } from '../../wallet/state/walletStore'
 
 const groups = [
   {
@@ -28,15 +29,38 @@ const groups = [
       { path: '/terminal-face-id', label: 'Face ID 인증' },
       { path: '/terminal-card-input', label: '생년월일 입력' },
       { path: '/terminal-confirm', label: '자격 증명' },
+      { path: '/terminal-complete', label: '키오스크 완료' },
     ],
   },
 ]
 
 export default function DevIndex() {
+  const reset = useWalletStore(s => s.actions.reset)
+
   return (
     <div style={{ padding: '32px 24px', fontFamily: 'sans-serif', maxWidth: 480, margin: '0 auto' }}>
       <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Foreigner Flow Layer</h1>
       <p style={{ fontSize: 13, color: '#888', marginBottom: 32 }}>개발용 페이지 목록 · Dev Index</p>
+
+      <div style={{ marginBottom: 32, padding: 14, background: '#fff', border: '1px solid #e5e8eb', borderRadius: 12 }}>
+        <div style={{ fontSize: 12, fontWeight: 600, color: '#aaa', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 10 }}>
+          Demo controls
+        </div>
+        <button
+          onClick={async () => {
+            if (!confirm('Reset wallet? Clears holder, events, credentials. Anchored XRPL tx history stays on testnet.')) return
+            await reset()
+            location.reload()
+          }}
+          style={{
+            width: '100%', padding: 12, fontSize: 13,
+            color: '#666', background: '#f7f7f8',
+            border: '1px solid #ddd', borderRadius: 8, cursor: 'pointer',
+          }}
+        >
+          Reset wallet (clear IndexedDB + AES key)
+        </button>
+      </div>
 
       {groups.map((group) => (
         <div key={group.title} style={{ marginBottom: 32 }}>

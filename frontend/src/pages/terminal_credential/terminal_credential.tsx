@@ -48,7 +48,7 @@ export default function TerminalConfirm() {
       </div>
 
       <div className="bottom-actions">
-        <button className="proceed-btn" onClick={() => navigate('/terminal-qr-scan')}>{co.proceed}</button>
+        <button className="proceed-btn" onClick={() => navigate('/terminal-complete')}>{co.proceed}</button>
       </div>
     </div>
   )

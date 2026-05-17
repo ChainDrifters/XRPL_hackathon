@@ -49,7 +49,6 @@ export default function PassportRegister() {
   const anchor = useAnchoredAction()
   const persona = useWalletStore(s => s.persona)
   const selectPersona = useWalletStore(s => s.actions.selectPersona)
-  const reset = useWalletStore(s => s.actions.reset)
   const personas = listPersonas()
 
   useEffect(() => {
@@ -100,7 +99,6 @@ export default function PassportRegister() {
   const dobKeypadLabel = activeField === 'dob_y' ? p.dobYearFull : activeField === 'dob_m' ? p.month : p.day
 
   return (
-    <>
     <div className="phone" onClick={() => setActiveField(null)}>
       <div className="notch" />
       <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
@@ -220,23 +218,5 @@ export default function PassportRegister() {
         </div>
       )}
     </div>
-
-    <div style={{ maxWidth: 420, margin: '16px auto 32px', padding: '0 16px' }}>
-      <button
-        onClick={async () => {
-          if (!confirm('Reset wallet? Clears holder, events, credentials. Anchored XRPL tx history stays on testnet.')) return
-          await reset()
-          location.reload()
-        }}
-        style={{
-          width: '100%', padding: 12, fontSize: 13,
-          color: '#888', background: '#fff',
-          border: '1px solid #ddd', borderRadius: 8, cursor: 'pointer',
-        }}
-      >
-        Reset wallet (clear IndexedDB + AES key)
-      </button>
-    </div>
-    </>
   )
 }

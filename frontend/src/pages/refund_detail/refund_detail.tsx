@@ -33,11 +33,6 @@ export default function RefundDetail() {
       serviceDomain: 'tax_refund', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
       payload: { receiptHashKnown: true },
     })
-    await anchor.run({
-      kind: 'event', connector: 'refundOperator', eventType: 'downtown_prerefunded',
-      serviceDomain: 'tax_refund', branchId: REFUND_BRANCH, caseId: REFUND_CASE,
-      payload: { prerefundedKRW: 12400 },
-    })
   }
 
   function openQR() {
