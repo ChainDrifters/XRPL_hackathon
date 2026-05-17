@@ -178,6 +178,13 @@ export default function RefundDetail() {
                   <span className="qr-timer-val">{mm}:{ss}</span>
                   <span className="qr-timer-note">{c.qr.expireNote}</span>
                 </div>
+                <button
+                  className="qr-close-btn"
+                  style={{ background: '#3182f6', color: '#fff', marginBottom: 8 }}
+                  onClick={() => window.open('/terminal-qr-scan', '_blank', 'width=420,height=820')}
+                >
+                  Open kiosk simulator (new tab)
+                </button>
                 <button className="qr-close-btn" onClick={closeModal}>{c.qr.close}</button>
               </div>
             )}

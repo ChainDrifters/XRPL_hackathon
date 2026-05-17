@@ -1,8 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './passport_register.css'
 import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
+import { listPersonas } from '../../wallet/personas/loader'
+import { useWalletStore } from '../../wallet/state/walletStore'
+
+const PERSONA_FLAGS: Record<string, string> = {
+  jane_doe: '🇺🇸',
+  wang_xiaolei: '🇨🇳',
+  sato_haruki: '🇯🇵',
+  priya_iyer: '🇮🇳',
+  mia_kovac: '🇭🇷',
+}
 
 type TextField = 'passport' | 'name' | 'nationality'
 type DobField = 'dob_y' | 'dob_m' | 'dob_d'
@@ -37,7 +47,20 @@ export default function PassportRegister() {
   const [activeField, setActiveField] = useState<ActiveField>(null)
   const [values, setValues] = useState<Record<string, string>>({ passport: '', name: '', nationality: '', dob_y: '', dob_m: '', dob_d: '' })
   const anchor = useAnchoredAction()
-  void values
+  const persona = useWalletStore(s => s.persona)
+  const selectPersona = useWalletStore(s => s.actions.selectPersona)
+  const personas = listPersonas()
+
+  useEffect(() => {
+    if (!persona) return
+    const [y, m, d] = persona.passport.dateOfBirth.split('-')
+    setValues({
+      passport: persona.passport.passportNumber,
+      name: `${persona.passport.givenNames} ${persona.passport.surname}`,
+      nationality: persona.passport.nationality,
+      dob_y: y, dob_m: m, dob_d: d,
+    })
+  }, [persona])
 
   const isDobActive = activeField === 'dob_y' || activeField === 'dob_m' || activeField === 'dob_d'
   const isTextActive = activeField === 'passport' || activeField === 'name' || activeField === 'nationality'
@@ -88,6 +111,26 @@ export default function PassportRegister() {
         <div style={{ padding: '8px 4px 24px' }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 6, letterSpacing: -0.3 }}>{p.heading}</div>
           <div style={{ fontSize: 13, color: 'var(--text-tertiary)', lineHeight: 1.6, whiteSpace: 'pre-line' }}>{p.sub}</div>
+        </div>
+
+        <div style={{ marginBottom: 16, padding: 12, background: '#f5f7fa', borderRadius: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#888', marginBottom: 8 }}>DEMO — Pick a persona</div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {personas.map(pp => (
+              <button
+                key={pp.id}
+                onClick={() => { void selectPersona(pp.id) }}
+                style={{
+                  padding: '6px 10px', fontSize: 11, borderRadius: 14,
+                  border: persona?.id === pp.id ? '2px solid #3182f6' : '1px solid #ddd',
+                  background: persona?.id === pp.id ? '#e8f3ff' : '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                {PERSONA_FLAGS[pp.id] ?? '🪪'} {pp.passport.givenNames.split(' ')[0]} {pp.passport.surname}
+              </button>
+            ))}
+          </div>
         </div>
 
         <div className="passport-scan-area">
