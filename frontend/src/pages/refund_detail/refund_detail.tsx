@@ -20,7 +20,15 @@ export default function RefundDetail() {
   const anchor = useAnchoredAction()
   const allEvents = useWalletStore(s => s.events)
   const branchEvents = useMemo(() => allEvents.filter(e => e.branchId === REFUND_BRANCH), [allEvents])
+  const refundCompleted = useMemo(
+    () => branchEvents.some(e => e.eventType === 'immediate_refund_completed'),
+    [branchEvents],
+  )
   void REFUND_CASE
+
+  useEffect(() => {
+    if (refundCompleted) navigate('/refund-complete')
+  }, [refundCompleted, navigate])
 
   async function recordPurchaseChain() {
     await anchor.run({

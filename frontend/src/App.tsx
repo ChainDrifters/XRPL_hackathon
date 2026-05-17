@@ -19,6 +19,7 @@ import TerminalFaceId from './pages/terminal_face_id/terminal_face_id'
 import TerminalCardInput from './pages/terminal_birth_input/terminal_birth_input'
 import TerminalConfirm from './pages/terminal_credential/terminal_credential'
 import TerminalComplete from './pages/terminal_complete/terminal_complete'
+import RefundComplete from './pages/refund_complete/refund_complete'
 
 function App() {
   useWalletInit()
@@ -44,6 +45,7 @@ function App() {
         <Route path="/terminal-card-input" element={<TerminalCardInput />} />
         <Route path="/terminal-confirm" element={<TerminalConfirm />} />
         <Route path="/terminal-complete" element={<TerminalComplete />} />
+        <Route path="/refund-complete" element={<RefundComplete />} />
       </Routes>
     </BrowserRouter>
     </LangProvider>

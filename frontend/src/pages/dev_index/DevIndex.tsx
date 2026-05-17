@@ -8,6 +8,7 @@ const groups = [
       { path: '/balance-home', label: '홈' },
       { path: '/refund-home', label: '환급' },
       { path: '/refund-detail', label: '환급 상세' },
+      { path: '/refund-complete', label: '환급 완료' },
       { path: '/payout-select', label: '수령 방법 선택' },
       { path: '/wallet-withdraw', label: '외부 지갑 출금' },
       { path: '/qr-issued', label: '알림' },
