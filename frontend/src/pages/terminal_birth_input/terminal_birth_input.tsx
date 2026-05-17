@@ -52,7 +52,7 @@ export default function TerminalCardInput() {
     if (!year || !month || !day) return 'Enter the full date of birth.'
     if (year.length !== 4) return 'Year must be 4 digits (YYYY).'
     const enteredYmd = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
-    if (enteredYmd !== expectedDob) return `DOB mismatch with verified KYC (${expectedDob}).`
+    if (enteredYmd !== expectedDob) return 'DOB does not match the verified KYC.'
     return null
   }
 
