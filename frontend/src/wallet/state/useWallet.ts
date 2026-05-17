@@ -1,16 +1,19 @@
 import { useEffect } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { useWalletStore } from './walletStore'
 import { onRemoteChange } from './sync'
 
 export function useWallet() {
-  return useWalletStore((s) => ({
-    status: s.status,
-    persona: s.persona,
-    holder: s.holder,
-    relationships: s.relationships,
-    events: s.events,
-    credentials: s.credentials,
-  }))
+  return useWalletStore(
+    useShallow((s) => ({
+      status: s.status,
+      persona: s.persona,
+      holder: s.holder,
+      relationships: s.relationships,
+      events: s.events,
+      credentials: s.credentials,
+    })),
+  )
 }
 
 export function useWalletActions() {

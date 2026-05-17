@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import './refund_detail.css'
 import '../balance_home/balance_home.css'
 import { useLang } from '../../i18n/LangContext'
@@ -18,7 +18,8 @@ export default function RefundDetail() {
   const [seconds, setSeconds] = useState(180)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const anchor = useAnchoredAction()
-  const branchEvents = useWalletStore(s => s.events.filter(e => e.branchId === REFUND_BRANCH))
+  const allEvents = useWalletStore(s => s.events)
+  const branchEvents = useMemo(() => allEvents.filter(e => e.branchId === REFUND_BRANCH), [allEvents])
   void REFUND_CASE
 
   async function recordPurchaseChain() {

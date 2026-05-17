@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './terminal_qr_scan.css'
 import { useLang } from '../../i18n/LangContext'
@@ -8,7 +9,8 @@ export default function TerminalQRScan() {
   const navigate = useNavigate()
   const { t } = useLang()
   const q = t.terminal.qrScan
-  const branchEvents = useWalletStore(s => s.events.filter(e => e.branchId === REFUND_BRANCH))
+  const allEvents = useWalletStore(s => s.events)
+  const branchEvents = useMemo(() => allEvents.filter(e => e.branchId === REFUND_BRANCH), [allEvents])
   const phoneReady = branchEvents.length > 0
 
   return (
