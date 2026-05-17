@@ -14,6 +14,7 @@ import {
   saveHolder,
 } from '../identity/graph'
 import { clearAll } from '../storage/db'
+import { resetKeyCache } from '../storage/encrypted'
 import type {
   Credential,
   Holder,
@@ -65,6 +66,18 @@ type WalletState = {
   actions: Actions
 }
 
+const SELECTED_PERSONA_KEY = 'tffl-selected-persona-id-v1'
+
+function loadSelectedPersona(): Persona {
+  const id = localStorage.getItem(SELECTED_PERSONA_KEY) ?? HERO_PERSONA_ID
+  try {
+    return loadPersona(id)
+  } catch {
+    localStorage.removeItem(SELECTED_PERSONA_KEY)
+    return loadPersona(HERO_PERSONA_ID)
+  }
+}
+
 async function newHolder(): Promise<Holder> {
   const kp = await generateKeypair()
   const { privateKeyHex, publicKeyHex } = keypairToHex(kp)
@@ -87,26 +100,6 @@ export const useWalletStore = create<WalletState>((set, get) => ({
   events: [],
   credentials: [],
   actions: {
-    async init() {
-      if (get().status !== 'idle') return
-      set({ status: 'loading' })
-      const [holder, relationships, events, credentials] = await Promise.all([
-        loadHolder(),
-        listRelationships(),
-        listEvents(),
-        listCredentials(),
-      ])
-      const persona = loadPersona(HERO_PERSONA_ID)
-      set({
-        status: 'ready',
-        persona,
-        holder: holder ?? null,
-        relationships,
-        events,
-        credentials,
-      })
-    },
-
     async refresh() {
       const [holder, relationships, events, credentials] = await Promise.all([
         loadHolder(),
@@ -124,6 +117,7 @@ export const useWalletStore = create<WalletState>((set, get) => ({
 
     async selectPersona(id: string) {
       const persona = loadPersona(id)
+      localStorage.setItem(SELECTED_PERSONA_KEY, id)
       set({ persona })
     },
 
@@ -287,16 +281,38 @@ export const useWalletStore = create<WalletState>((set, get) => ({
     },
 
     async reset() {
+      await clearAll()
+      localStorage.removeItem('tffl-wallet-key-v1')
+      localStorage.removeItem(SELECTED_PERSONA_KEY)
+      resetKeyCache()
       set({
-        status: 'idle',
+        status: 'ready',
         persona: null,
         holder: null,
         relationships: [],
         events: [],
         credentials: [],
       })
-      await clearAll()
-      localStorage.removeItem('tffl-wallet-key-v1')
+    },
+
+    async init() {
+      if (get().status !== 'idle') return
+      set({ status: 'loading' })
+      const [holder, relationships, events, credentials] = await Promise.all([
+        loadHolder(),
+        listRelationships(),
+        listEvents(),
+        listCredentials(),
+      ])
+      const persona = loadSelectedPersona()
+      set({
+        status: 'ready',
+        persona,
+        holder: holder ?? null,
+        relationships,
+        events,
+        credentials,
+      })
     },
   },
 }))

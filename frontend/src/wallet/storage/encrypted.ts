@@ -27,6 +27,10 @@ function key(): Promise<CryptoKey> {
   return cached
 }
 
+export function resetKeyCache(): void {
+  cached = null
+}
+
 export type EncryptedEnvelope = {
   v: 1
   ivB64: string

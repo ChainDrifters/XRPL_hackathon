@@ -1,11 +1,16 @@
 import { useNavigate } from 'react-router-dom'
 import './register_complete.css'
 import { useLang } from '../../i18n/LangContext'
+import { useWalletStore } from '../../wallet/state/walletStore'
 
 export default function RegisterComplete() {
   const navigate = useNavigate()
   const { t } = useLang()
   const r = t.registerComplete
+  const persona = useWalletStore(s => s.persona)
+  const passportSub = persona
+    ? `${persona.passport.givenNames} ${persona.passport.surname} · ${persona.passport.passportNumber}`
+    : r.passportSub
 
   return (
     <div className="phone" style={{ background: '#fff' }}>
@@ -24,7 +29,7 @@ export default function RegisterComplete() {
         <div className="chip-list">
           <div className="chip">
             <span className="ic">🛂</span>
-            <div className="body"><div className="ttl">{r.passportLabel}</div><div className="sub">{r.passportSub}</div></div>
+            <div className="body"><div className="ttl">{r.passportLabel}</div><div className="sub">{passportSub}</div></div>
             <span className="badge">{r.confirmed}</span>
           </div>
           <div className="chip">
