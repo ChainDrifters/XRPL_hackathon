@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import './balance_home.css'
 import '../refund_storage/refund_storage.css'
 import { useLang } from '../../i18n/LangContext'
@@ -291,13 +291,31 @@ export default function BalanceHome() {
 
 function WalletAnchorList() {
   const events = useWalletStore(s => s.events)
-  const anchored = events.filter(e => e.anchor)
+  const anchored = useMemo(() => events.filter(e => e.anchor).slice().reverse(), [events])
+  const [expanded, setExpanded] = useState(false)
   if (anchored.length === 0) return null
+  const DEFAULT_COUNT = 2
+  const visible = expanded ? anchored : anchored.slice(0, DEFAULT_COUNT)
+  const hasMore = anchored.length > DEFAULT_COUNT
   return (
-    <div style={{ background: '#fff', padding: 12, borderRadius: 8, marginBottom: 12, fontSize: 12 }}>
-      <div style={{ fontWeight: 700, marginBottom: 6 }}>XRPL Testnet anchors ({anchored.length})</div>
-      {anchored.slice(-6).reverse().map(e => (
-        <div key={e.eventId} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderTop: '1px solid #eee' }}>
+    <div
+      onClick={() => hasMore && setExpanded(v => !v)}
+      style={{ background: '#fff', padding: 12, borderRadius: 8, marginBottom: 12, fontSize: 12, cursor: hasMore ? 'pointer' : 'default' }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+        <span style={{ fontWeight: 700 }}>XRPL Testnet anchors ({anchored.length})</span>
+        {hasMore && (
+          <span style={{ fontSize: 11, color: '#3182f6' }}>
+            {expanded ? '▲ 접기' : `▼ 더보기 (+${anchored.length - DEFAULT_COUNT})`}
+          </span>
+        )}
+      </div>
+      {visible.map(e => (
+        <div
+          key={e.eventId}
+          style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', borderTop: '1px solid #eee' }}
+          onClick={ev => ev.stopPropagation()}
+        >
           <span style={{ color: '#888' }}>{e.eventType}</span>
           <a href={e.anchor!.explorerTxUrl} target="_blank" rel="noreferrer" style={{ color: '#3182f6' }}>
             {e.anchor!.txHash.slice(0, 10)}… →
