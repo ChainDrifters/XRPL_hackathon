@@ -49,6 +49,7 @@ export default function PassportRegister() {
   const anchor = useAnchoredAction()
   const persona = useWalletStore(s => s.persona)
   const selectPersona = useWalletStore(s => s.actions.selectPersona)
+  const reset = useWalletStore(s => s.actions.reset)
   const personas = listPersonas()
 
   useEffect(() => {
@@ -176,6 +177,16 @@ export default function PassportRegister() {
               <a href={anchor.latestAnchor.explorerTxUrl} target="_blank" rel="noreferrer">Testnet에서 보기 →</a>
             </div>
           )}
+          <button
+            onClick={async () => {
+              if (!confirm('Reset wallet? Clears holder, events, credentials. Anchored XRPL tx history stays on testnet.')) return
+              await reset()
+              location.reload()
+            }}
+            style={{ marginTop: 14, width: '100%', padding: 10, fontSize: 12, color: '#888', background: 'transparent', border: '1px solid #ddd', borderRadius: 6, cursor: 'pointer' }}
+          >
+            Reset wallet (clear IndexedDB + AES key)
+          </button>
         </div>
       )}
 
