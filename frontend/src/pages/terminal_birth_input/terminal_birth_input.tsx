@@ -2,18 +2,26 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import './terminal_birth_input.css'
 import { useLang } from '../../i18n/LangContext'
+import { useWalletStore } from '../../wallet/state/walletStore'
 
 type Field = 'year' | 'month' | 'day' | null
+
+const MAX_LEN: Record<Exclude<Field, null>, number> = { year: 4, month: 2, day: 2 }
 
 export default function TerminalCardInput() {
   const navigate = useNavigate()
   const { t } = useLang()
   const ci = t.terminal.cardInput
+  const persona = useWalletStore(s => s.persona)
+  const credentials = useWalletStore(s => s.credentials)
+  const kycIssued = credentials.some(c => c.type.includes('ForeignerKycCredential'))
+  const expectedDob = persona?.passport.dateOfBirth ?? ''
   const [year, setYear] = useState('')
   const [month, setMonth] = useState('')
   const [day, setDay] = useState('')
   const [activeField, setActiveField] = useState<Field>(null)
   const [verifying, setVerifying] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!verifying) return
@@ -27,13 +35,32 @@ export default function TerminalCardInput() {
 
   const handleKey = (key: string) => {
     if (!activeField) return
+    setError(null)
     const cur = getValue(activeField)
+    const max = MAX_LEN[activeField]
     if (key === '⌫') { setValue(activeField, cur.slice(0, -1)) }
-    else if (cur.length < 2) {
+    else if (cur.length < max) {
       const next = cur + key
       setValue(activeField, next)
-      if (next.length === 2) setActiveField(nextField[activeField])
+      if (next.length === max) setActiveField(nextField[activeField])
     }
+  }
+
+  function validate(): string | null {
+    if (!persona) return 'No persona session. Register on the phone app first.'
+    if (!kycIssued) return 'Phone has not completed KYC (E0 not anchored).'
+    if (!year || !month || !day) return 'Enter the full date of birth.'
+    if (year.length !== 4) return 'Year must be 4 digits (YYYY).'
+    const enteredYmd = `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`
+    if (enteredYmd !== expectedDob) return `DOB mismatch with verified KYC (${expectedDob}).`
+    return null
+  }
+
+  function onConfirm() {
+    const err = validate()
+    if (err) { setError(err); return }
+    setError(null)
+    setVerifying(true)
   }
 
   const unitLabel = (f: Field) => f === 'year' ? ci.year : f === 'month' ? ci.month : ci.day
@@ -81,7 +108,15 @@ export default function TerminalCardInput() {
 
       {!activeField && (
         <div className="bottom-actions">
-          <button className="confirm-btn" onClick={() => setVerifying(true)}>{ci.confirm}</button>
+          {error && (
+            <div style={{ color: '#e74c3c', fontSize: 12, marginBottom: 8, textAlign: 'center' }}>{error}</div>
+          )}
+          {!kycIssued && (
+            <div style={{ color: '#856404', fontSize: 11, marginBottom: 8, textAlign: 'center' }}>
+              Waiting for phone KYC (E0)…
+            </div>
+          )}
+          <button className="confirm-btn" disabled={!kycIssued} onClick={onConfirm}>{ci.confirm}</button>
         </div>
       )}
 
