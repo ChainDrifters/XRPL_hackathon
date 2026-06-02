@@ -21,7 +21,7 @@
   background: var(--divider);
 }
 .tl-item:last-child::before { display: none; }
-.tl-item.done::before { background: var(--toss-blue); }
+.tl-item.done::before { background: var(--main-blue); }
 .tl-dot {
   width: 24px;
   height: 24px;
@@ -38,15 +38,15 @@
   z-index: 1;
 }
 .tl-item.done .tl-dot {
-  background: var(--toss-blue);
-  border-color: var(--toss-blue);
+  background: var(--main-blue);
+  border-color: var(--main-blue);
   color: white;
 }
 .tl-item.current .tl-dot {
   background: white;
-  border-color: var(--toss-blue);
-  color: var(--toss-blue);
-  box-shadow: 0 0 0 4px var(--toss-blue-light);
+  border-color: var(--main-blue);
+  color: var(--main-blue);
+  box-shadow: 0 0 0 4px var(--main-blue-light);
 }
 .tl-content { flex: 1; padding-top: 1px; }
 .tl-title {
@@ -56,7 +56,7 @@
   margin-bottom: 2px;
 }
 .tl-item.done .tl-title { color: var(--text-primary); }
-.tl-item.current .tl-title { color: var(--toss-blue); font-weight: 700; }
+.tl-item.current .tl-title { color: var(--main-blue); font-weight: 700; }
 .tl-time {
   font-size: 11px;
   color: var(--text-quaternary);

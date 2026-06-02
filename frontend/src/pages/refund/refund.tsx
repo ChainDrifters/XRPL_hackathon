@@ -67,7 +67,7 @@ export default function RefundHome() {
         <div className="case-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/payout-select')}>
           <div className="top">
             <div><div className="merchant">{r.merchantAmore}</div><div className="meta">{r.amoreMeta}</div></div>
-            <div className="pill" style={{ background: 'var(--toss-blue)', color: 'white' }}>{r.receive}</div>
+            <div className="pill" style={{ background: 'var(--main-blue)', color: 'white' }}>{r.receive}</div>
           </div>
           <div className="step-text" style={{ color: 'var(--success)' }}>{r.amoreStep}</div>
         </div>
@@ -75,7 +75,7 @@ export default function RefundHome() {
         <div className="case-card" style={{ cursor: 'pointer' }} onClick={() => navigate('/payout-select-lotte')}>
           <div className="top">
             <div><div className="merchant">{r.merchantLotte}</div><div className="meta">{r.lotteMeta}</div></div>
-            <div className="pill" style={{ background: 'var(--toss-blue)', color: 'white' }}>{r.receive}</div>
+            <div className="pill" style={{ background: 'var(--main-blue)', color: 'white' }}>{r.receive}</div>
           </div>
           <div className="step-text" style={{ color: 'var(--success)' }}>{r.lotteStep}</div>
         </div>

@@ -11,8 +11,8 @@
   transition: border-color 0.15s;
 }
 .method-card.selected {
-  border-color: var(--toss-blue);
-  background: var(--toss-blue-light);
+  border-color: var(--main-blue);
+  background: var(--main-blue-light);
 }
 .method-card .icon-wrap {
   width: 44px;
@@ -64,8 +64,8 @@
   flex-shrink: 0;
 }
 .method-card.selected .check {
-  background: var(--toss-blue);
-  border-color: var(--toss-blue);
+  background: var(--main-blue);
+  border-color: var(--main-blue);
   color: white;
   font-size: 12px;
 }

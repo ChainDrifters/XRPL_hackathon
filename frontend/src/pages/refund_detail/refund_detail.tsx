@@ -115,7 +115,7 @@ export default function RefundDetail() {
           <div className="info-row"><span className="key">VAT</span><span className="val">14,182{c.won}</span></div>
           <div className="info-row">
             <span className="key">{d.expectedRefund}</span>
-            <span className="val" style={{ color: 'var(--toss-blue)' }}>+12,400{c.won}</span>
+            <span className="val" style={{ color: 'var(--main-blue)' }}>+12,400{c.won}</span>
           </div>
         </div>
       </div>

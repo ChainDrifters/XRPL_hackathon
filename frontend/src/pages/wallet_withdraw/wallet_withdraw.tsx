@@ -163,7 +163,7 @@ export default function WalletWithdraw() {
                 <div className="swap-box-amount" style={{ color: topAmount ? 'var(--text-primary)' : 'var(--text-quaternary)' }}>{topAmount || '0'}</div>
                 <div className="swap-box-sub">
                   {c.balance} {selectedAsset.balance} {topUnit} ·{' '}
-                  <span style={{ color: 'var(--toss-blue)', fontWeight: 700 }}
+                  <span style={{ color: 'var(--main-blue)', fontWeight: 700 }}
                     onClick={e => { e.stopPropagation(); setTopAmount(selectedAsset.balance); setBottomAmount(formatForAsset(Number(selectedAsset.balance.replace(/,/g,'')) * selectedAsset.krwRate / bottomAsset.krwRate, bottomAsset)) }}>
                     {c.allIn}
                   </span>
@@ -180,7 +180,7 @@ export default function WalletWithdraw() {
                 <div className="swap-box-amount" style={{ color: bottomAmount ? 'var(--text-primary)' : 'var(--text-quaternary)' }}>{bottomAmount || '0'}</div>
                 <div className="swap-box-sub">
                   {c.balance} {bottomAsset.balance} {bottomAsset.code} ·{' '}
-                  <span style={{ color: 'var(--toss-blue)', fontWeight: 700 }}
+                  <span style={{ color: 'var(--main-blue)', fontWeight: 700 }}
                     onClick={e => { e.stopPropagation(); setBottomAmount(bottomAsset.balance); setTopAmount(formatForAsset(Number(bottomAsset.balance) * bottomAsset.krwRate / selectedAsset.krwRate, selectedAsset)) }}>
                     {c.allIn}
                   </span>
@@ -198,7 +198,7 @@ export default function WalletWithdraw() {
           <div style={{ paddingBottom: 10 }}>
             <div className="info-row" style={{ borderTop: 'none' }}>
               <span className="info-row-key">Max Slippage</span>
-              <span className="info-row-val" style={{ color: slippage > 1 ? '#f59e0b' : 'var(--toss-blue)' }}>{slippage}%</span>
+              <span className="info-row-val" style={{ color: slippage > 1 ? '#f59e0b' : 'var(--main-blue)' }}>{slippage}%</span>
             </div>
             <div className="slippage-chips">
               {SLIPPAGE_PRESETS.map(p => (
@@ -249,7 +249,7 @@ export default function WalletWithdraw() {
                       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{asset.label}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{balanceLabel(asset)}</div>
                     </div>
-                    {selectedAsset.code === asset.code && <span style={{ color: 'var(--toss-blue)', fontWeight: 900, fontSize: 18 }}>✓</span>}
+                    {selectedAsset.code === asset.code && <span style={{ color: 'var(--main-blue)', fontWeight: 900, fontSize: 18 }}>✓</span>}
                   </div>
                 ))}
               </div>

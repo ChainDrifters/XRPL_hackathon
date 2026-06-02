@@ -27,7 +27,7 @@
 .passport-scan-area .scan-sub { font-size: 12px; color: var(--text-quaternary); }
 .passport-scan-area .open-btn {
   margin-top: 16px;
-  background: var(--toss-blue);
+  background: var(--main-blue);
   color: white;
   padding: 12px;
   border-radius: 10px;

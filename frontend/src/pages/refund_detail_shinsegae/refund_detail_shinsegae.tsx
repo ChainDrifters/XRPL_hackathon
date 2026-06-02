@@ -62,7 +62,7 @@ export default function RefundDetailShinsegae() {
           <div className="info-row"><span className="key">VAT</span><span className="val">7,727{c.won}</span></div>
           <div className="info-row">
             <span className="key">{d.expectedRefund}</span>
-            <span className="val" style={{ color: 'var(--toss-blue)' }}>+6,800{c.won}</span>
+            <span className="val" style={{ color: 'var(--main-blue)' }}>+6,800{c.won}</span>
           </div>
         </div>
       </div>

@@ -130,7 +130,7 @@
   font-family: inherit;
 }
 .barcode-btn {
-  background: var(--toss-blue-light);
+  background: var(--main-blue-light);
   border: 1px solid rgba(49,130,246,0.3);
   color: #3182f6;
   padding: 16px;

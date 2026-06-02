@@ -113,12 +113,12 @@
 }
 .slippage-chip:active { opacity: 0.7; }
 .slippage-chip.active {
-  background: var(--toss-blue);
+  background: var(--main-blue);
   color: white;
 }
 .slippage-custom-input {
   background: var(--bg-deep);
-  border: 1.5px solid var(--toss-blue);
+  border: 1.5px solid var(--main-blue);
   border-radius: 8px;
   padding: 5px 10px;
   font-size: 13px;
@@ -203,7 +203,7 @@
 }
 .keypad-btn-text {
   font-size: 13px;
-  color: var(--toss-blue);
+  color: var(--main-blue);
 }
 .keypad-btn:active { opacity: 0.7; }
 
@@ -219,7 +219,7 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: var(--toss-blue);
+  background: var(--main-blue);
   color: white;
   font-size: 28px;
   font-weight: 900;

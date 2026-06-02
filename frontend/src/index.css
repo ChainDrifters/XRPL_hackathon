@@ -22,9 +22,9 @@ body {
 }
 
 :root {
-  --toss-blue: #3182f6;
-  --toss-blue-light: #e8f3ff;
-  --toss-blue-dark: #1b64da;
+  --main-blue: #3182f6;
+  --main-blue-light: #e8f3ff;
+  --main-blue-dark: #1b64da;
   --text-primary: #191f28;
   --text-secondary: #4e5968;
   --text-tertiary: #6b7684;
@@ -153,7 +153,7 @@ body {
   cursor: pointer;
   color: var(--text-quaternary);
 }
-.bn-item.active { color: var(--toss-blue); }
+.bn-item.active { color: var(--main-blue); }
 .bn-item .icon { font-size: 20px; }
 .bn-item .label { font-size: 10px; font-weight: 700; }
 
@@ -168,7 +168,7 @@ body {
 }
 .cta-btn {
   width: 100%;
-  background: var(--toss-blue);
+  background: var(--main-blue);
   color: white;
   border: none;
   padding: 16px;
@@ -312,7 +312,7 @@ body {
   margin-top: 6px;
 }
 .summary-info .row.total .k { font-weight: 700; color: var(--text-primary); }
-.summary-info .row.total .v { font-size: 16px; font-weight: 800; color: var(--toss-blue); }
+.summary-info .row.total .v { font-size: 16px; font-weight: 800; color: var(--main-blue); }
 
 /* ── Form group ── */
 .form-group {
@@ -408,8 +408,8 @@ body {
   margin-top: 2px;
 }
 .case-card .pill {
-  background: var(--toss-blue-light);
-  color: var(--toss-blue);
+  background: var(--main-blue-light);
+  color: var(--main-blue);
   padding: 4px 10px;
   border-radius: var(--radius-pill);
   font-size: 12px;
@@ -421,7 +421,7 @@ body {
 }
 .case-card .progress { display: flex; gap: 4px; }
 .case-card .seg { flex: 1; height: 4px; background: var(--divider); border-radius: 2px; }
-.case-card .seg.done { background: var(--toss-blue); }
+.case-card .seg.done { background: var(--main-blue); }
 .case-card .step-text {
   margin-top: 8px;
   font-size: 12px;

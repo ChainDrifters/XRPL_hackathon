@@ -40,7 +40,7 @@ export default function OnboardingStart() {
             onClick={() => setLang('ko')}
             style={{
               padding: '6px 16px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit',
-              background: lang === 'ko' ? 'var(--toss-blue)' : 'var(--bg-deep)',
+              background: lang === 'ko' ? 'var(--main-blue)' : 'var(--bg-deep)',
               color: lang === 'ko' ? 'white' : 'var(--text-tertiary)',
             }}
           >
@@ -50,7 +50,7 @@ export default function OnboardingStart() {
             onClick={() => setLang('en')}
             style={{
               padding: '6px 16px', borderRadius: 999, border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 700, fontFamily: 'inherit',
-              background: lang === 'en' ? 'var(--toss-blue)' : 'var(--bg-deep)',
+              background: lang === 'en' ? 'var(--main-blue)' : 'var(--bg-deep)',
               color: lang === 'en' ? 'white' : 'var(--text-tertiary)',
             }}
           >

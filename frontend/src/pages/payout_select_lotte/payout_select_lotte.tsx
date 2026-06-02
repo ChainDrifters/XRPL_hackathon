@@ -32,7 +32,7 @@ export default function PayoutSelectLotte() {
         <div style={{ padding: '8px 4px 16px' }}>
           <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text-primary)', marginBottom: 4 }}>{p.heading}</div>
           <div style={{ fontSize: 13, color: 'var(--text-tertiary)' }}>
-            {p.lotteContext} <strong style={{ color: 'var(--toss-blue)' }}>286,100{c.won}</strong>
+            {p.lotteContext} <strong style={{ color: 'var(--main-blue)' }}>286,100{c.won}</strong>
           </div>
         </div>
 
