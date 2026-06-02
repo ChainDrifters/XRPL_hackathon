@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Color Guide — Toss Foreigner Flow Layer</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Toss Product Sans', -apple-system, BlinkMacSystemFont,
+        'SF Pro Text', 'Apple SD Gothic Neo', 'Pretendard', Roboto, sans-serif;
+      background: #f2f4f6;
+      color: #191f28;
+      padding: 48px 32px;
+    }
+
+    header {
+      margin-bottom: 48px;
+    }
+    header h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    header p {
+      font-size: 14px;
+      color: #6b7684;
+    }
+
+    section {
+      margin-bottom: 40px;
+    }
+    section h2 {
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #8b95a1;
+      margin-bottom: 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      align-items: stretch;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+
+    .swatch {
+      width: 72px;
+      flex-shrink: 0;
+    }
+
+    .card-body {
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      justify-content: center;
+    }
+
+    .var-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #191f28;
+      font-family: 'SF Mono', Menlo, 'Courier New', monospace;
+    }
+
+    .hex {
+      font-size: 11px;
+      color: #8b95a1;
+      font-family: 'SF Mono', Menlo, 'Courier New', monospace;
+      font-weight: 500;
+    }
+
+    .usage {
+      font-size: 11px;
+      color: #4e5968;
+      margin-top: 2px;
+      line-height: 1.4;
+    }
+
+    /* border on bg colors so white doesn't disappear */
+    .card.has-border .swatch {
+      border-right: 1px solid #e5e8eb;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Color Guide</h1>
+  <p>Toss Foreigner Flow Layer — UI Color System</p>
+</header>
+
+<!-- Primary -->
+<section>
+  <h2>Primary</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="swatch" style="background:#3182f6;"></div>
+      <div class="card-body">
+        <span class="var-name">--toss-blue</span>
+        <span class="hex">#3182f6</span>
+        <span class="usage">Primary CTA 버튼, 활성 탭, 진행바 완료</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#e8f3ff;"></div>
+      <div class="card-body">
+        <span class="var-name">--toss-blue-light</span>
+        <span class="hex">#e8f3ff</span>
+        <span class="usage">진행중 배지 배경, 아이콘 배경</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="swatch" style="background:#1b64da;"></div>
+      <div class="card-body">
+        <span class="var-name">--toss-blue-dark</span>
+        <span class="hex">#1b64da</span>
+        <span class="usage">서머리 카드 그라디언트 끝색</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Text -->
+<section>
+  <h2>Text</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="swatch" style="background:#191f28;"></div>
+      <div class="card-body">
+        <span class="var-name">--text-primary</span>
+        <span class="hex">#191f28</span>
+        <span class="usage">제목, 금액, 중요 라벨</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="swatch" style="background:#4e5968;"></div>
+      <div class="card-body">
+        <span class="var-name">--text-secondary</span>
+        <span class="hex">#4e5968</span>
+        <span class="usage">서브 텍스트, 비활성 아이콘</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="swatch" style="background:#6b7684;"></div>
+      <div class="card-body">
+        <span class="var-name">--text-tertiary</span>
+        <span class="hex">#6b7684</span>
+        <span class="usage">필드 라벨, 보조 정보</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="swatch" style="background:#8b95a1;"></div>
+      <div class="card-body">
+        <span class="var-name">--text-quaternary</span>
+        <span class="hex">#8b95a1</span>
+        <span class="usage">플레이스홀더, 날짜/시간 메타</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Background -->
+<section>
+  <h2>Background</h2>
+  <div class="grid">
+    <div class="card has-border">
+      <div class="swatch" style="background:#f2f4f6;"></div>
+      <div class="card-body">
+        <span class="var-name">--bg-page</span>
+        <span class="hex">#f2f4f6</span>
+        <span class="usage">폰 프레임 배경, 네비게이션 바</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#ffffff;"></div>
+      <div class="card-body">
+        <span class="var-name">--bg-card</span>
+        <span class="hex">#ffffff</span>
+        <span class="usage">카드 컨테이너, 모달, 거래 목록</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#f9fafb;"></div>
+      <div class="card-body">
+        <span class="var-name">--bg-subtle</span>
+        <span class="hex">#f9fafb</span>
+        <span class="usage">입력 박스, 아이콘 배경</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#edeff2;"></div>
+      <div class="card-body">
+        <span class="var-name">--bg-deep</span>
+        <span class="hex">#edeff2</span>
+        <span class="usage">비활성 버튼, 필드 배경</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Border / Divider -->
+<section>
+  <h2>Border / Divider</h2>
+  <div class="grid">
+    <div class="card has-border">
+      <div class="swatch" style="background:#e5e8eb;"></div>
+      <div class="card-body">
+        <span class="var-name">--border</span>
+        <span class="hex">#e5e8eb</span>
+        <span class="usage">폼 필드·카드 테두리</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#f2f4f6;"></div>
+      <div class="card-body">
+        <span class="var-name">--divider</span>
+        <span class="hex">#f2f4f6</span>
+        <span class="usage">항목 구분선, 진행바 미완료</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Semantic — Success -->
+<section>
+  <h2>Semantic · Success</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="swatch" style="background:#00c896;"></div>
+      <div class="card-body">
+        <span class="var-name">--success</span>
+        <span class="hex">#00c896</span>
+        <span class="usage">완료 배지, 입금 거래 표시</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#e6f9f4;"></div>
+      <div class="card-body">
+        <span class="var-name">--success-light</span>
+        <span class="hex">#e6f9f4</span>
+        <span class="usage">완료 배지 배경, 입금 아이콘 배경</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Semantic — Warning -->
+<section>
+  <h2>Semantic · Warning</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="swatch" style="background:#ff9500;"></div>
+      <div class="card-body">
+        <span class="var-name">--warning</span>
+        <span class="hex">#ff9500</span>
+        <span class="usage">경고 텍스트, 헬퍼 메시지</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#fff8e1;"></div>
+      <div class="card-body">
+        <span class="var-name">--warning-light</span>
+        <span class="hex">#fff8e1</span>
+        <span class="usage">경고 알림 배경</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#ffe08a;"></div>
+      <div class="card-body">
+        <span class="var-name">--warning-border</span>
+        <span class="hex">#ffe08a</span>
+        <span class="usage">경고 알림 테두리</span>
+      </div>
+    </div>
+    <div class="card">
+      <div class="swatch" style="background:#6b5300;"></div>
+      <div class="card-body">
+        <span class="var-name">--warning-text</span>
+        <span class="hex">#6b5300</span>
+        <span class="usage">경고 알림 제목·본문</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Semantic — Danger -->
+<section>
+  <h2>Semantic · Danger</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="swatch" style="background:#f04452;"></div>
+      <div class="card-body">
+        <span class="var-name">--danger</span>
+        <span class="hex">#f04452</span>
+        <span class="usage">에러 배지, 거부 알림</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RLUSD Brand -->
+<section>
+  <h2>RLUSD Brand</h2>
+  <div class="grid">
+    <div class="card">
+      <div class="swatch" style="background:#7b61ff;"></div>
+      <div class="card-body">
+        <span class="var-name">--rlusd-purple</span>
+        <span class="hex">#7b61ff</span>
+        <span class="usage">송금 거래 금액, 아이콘</span>
+      </div>
+    </div>
+    <div class="card has-border">
+      <div class="swatch" style="background:#f0edff;"></div>
+      <div class="card-body">
+        <span class="var-name">--rlusd-purple-light</span>
+        <span class="hex">#f0edff</span>
+        <span class="usage">송금 아이콘 배경</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
