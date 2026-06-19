@@ -130,6 +130,11 @@
   font-size: 14px;
   color: var(--text-secondary);
 }
+.qr-timer-icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-tertiary);
+}
 .qr-timer-val {
   font-size: 20px;
   font-weight: 900;

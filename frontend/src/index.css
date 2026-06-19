@@ -93,7 +93,6 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--bg-page);
   flex-shrink: 0;
 }
 .nav-bar .back {
@@ -118,6 +117,8 @@ body {
   padding-right: 8px;
 }
 .nav-bar .right .icon {
+  display: inline-flex;
+  align-items: center;
   font-size: 18px;
   color: var(--text-secondary);
   cursor: pointer;
@@ -154,7 +155,7 @@ body {
   color: var(--text-quaternary);
 }
 .bn-item.active { color: var(--main-blue); }
-.bn-item .icon { font-size: 20px; }
+.bn-item .icon { font-size: 20px; display: flex; align-items: center; justify-content: center; }
 .bn-item .label { font-size: 10px; font-weight: 700; }
 
 /* ── CTA bottom bar ── */

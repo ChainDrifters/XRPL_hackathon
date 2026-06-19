@@ -1,17 +1,18 @@
 import { useNavigate } from 'react-router-dom'
 import './qr_home.css'
+import { Signal, BatteryMedium, Bell, Settings, Home, Banknote } from 'lucide-react'
 
 export default function QRHome() {
   const navigate = useNavigate()
   return (
     <div className="phone">
       <div className="notch" />
-      <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div className="status-bar"><span>9:41</span><span style={{display:'flex',gap:4,alignItems:'center'}}><Signal size={16}/><BatteryMedium size={16}/></span></div>
       <div className="nav-bar">
         <span className="nav-title" style={{ paddingLeft: 12 }}>알림아이콘</span>
         <div className="right">
-          <span className="icon" style={{ cursor: 'pointer' }} onClick={() => navigate('/qr-issued')}>🔔</span>
-          <span className="icon">⚙️</span>
+          <span className="icon" style={{ cursor: 'pointer' }} onClick={() => navigate('/qr-issued')}><Bell size={18}/></span>
+          <span className="icon"><Settings size={18}/></span>
         </div>
       </div>
 
@@ -60,9 +61,9 @@ export default function QRHome() {
       </div>
 
       <div className="bottom-nav">
-        <div className="bn-item active"><span className="icon">🏠</span><span className="label">홈</span></div>
-        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}><span className="icon">💸</span><span className="label">환급</span></div>
-        <div className="bn-item"><span className="icon">⚙️</span><span className="label">설정</span></div>
+        <div className="bn-item active"><span className="icon"><Home size={20}/></span><span className="label">홈</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}><span className="icon"><Banknote size={20}/></span><span className="label">환급</span></div>
+        <div className="bn-item"><span className="icon"><Settings size={20}/></span><span className="label">설정</span></div>
       </div>
     </div>
   )

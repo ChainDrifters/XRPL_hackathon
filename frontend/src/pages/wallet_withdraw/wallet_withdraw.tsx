@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react'
 import './wallet_withdraw.css'
 import '../balance_home/balance_home.css'
 import { useLang } from '../../i18n/LangContext'
+import { Signal, BatteryMedium, ChevronLeft, Settings, Home, Banknote, ArrowUpDown, RotateCcw, Delete, Check, ScanFace } from 'lucide-react'
 
 type ModalPhase = 'face-id' | 'complete' | null
 
@@ -120,9 +121,9 @@ export default function WalletWithdraw() {
   return (
     <div className="phone">
       <div className="notch" />
-      <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div className="status-bar"><span>9:41</span><span style={{display:'flex',gap:4,alignItems:'center'}}><Signal size={16}/><BatteryMedium size={16}/></span></div>
       <div className="nav-bar">
-        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}>‹</span>
+        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><ChevronLeft size={24}/></span>
         <span className="nav-title">{w.navTitle}</span>
       </div>
 
@@ -174,7 +175,7 @@ export default function WalletWithdraw() {
                 <span className="swap-chip-label">{topUnit}</span>
               </div>
             </div>
-            <div className="swap-divider"><div className="swap-arrow">↕</div></div>
+            <div className="swap-divider"><div className="swap-arrow"><ArrowUpDown size={18}/></div></div>
             <div className="swap-box" onClick={() => openKeypad('bottom')}>
               <div style={{ flex: 1 }}>
                 <div className="swap-box-amount" style={{ color: bottomAmount ? 'var(--text-primary)' : 'var(--text-quaternary)' }}>{bottomAmount || '0'}</div>
@@ -218,7 +219,7 @@ export default function WalletWithdraw() {
           <div className="info-panel-divider" />
           <div className="info-row">
             <span className="info-row-key">Rate</span>
-            <span className="info-row-val"><span style={{ marginRight: 4, cursor: 'pointer', color: 'var(--text-tertiary)' }}>↺</span>{rateLabel}</span>
+            <span className="info-row-val"><span style={{ marginRight: 4, cursor: 'pointer', color: 'var(--text-tertiary)', display:'inline-flex',verticalAlign:'middle' }}><RotateCcw size={14}/></span>{rateLabel}</span>
           </div>
           <div className="info-row"><span className="info-row-key">Minimum Received</span><span className="info-row-val">{minReceived}</span></div>
           <div className="info-row"><span className="info-row-key">Price Impact</span><span className="info-row-val" style={{ color: 'var(--success)' }}>{priceImpact}</span></div>
@@ -229,9 +230,9 @@ export default function WalletWithdraw() {
         <button className="cta-btn" onClick={() => setModal('face-id')}>{w.cta}</button>
       </div>
       <div className="bottom-nav">
-        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>
-        <div className="bn-item active"><span className="icon">💸</span><span className="label">{c.nav.refund}</span></div>
-        <div className="bn-item"><span className="icon">⚙️</span><span className="label">{c.nav.settings}</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon"><Home size={20}/></span><span className="label">{c.nav.home}</span></div>
+        <div className="bn-item active"><span className="icon"><Banknote size={20}/></span><span className="label">{c.nav.refund}</span></div>
+        <div className="bn-item"><span className="icon"><Settings size={20}/></span><span className="label">{c.nav.settings}</span></div>
       </div>
 
       {assetOpen && (
@@ -249,7 +250,7 @@ export default function WalletWithdraw() {
                       <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)' }}>{asset.label}</div>
                       <div style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{balanceLabel(asset)}</div>
                     </div>
-                    {selectedAsset.code === asset.code && <span style={{ color: 'var(--main-blue)', fontWeight: 900, fontSize: 18 }}>✓</span>}
+                    {selectedAsset.code === asset.code && <span style={{ color: 'var(--main-blue)', display:'flex' }}><Check size={18}/></span>}
                   </div>
                 ))}
               </div>
@@ -268,7 +269,7 @@ export default function WalletWithdraw() {
             <div className="keypad-helper">{c.balance} {activeAsset.balance} {activeUnit}</div>
             <div className="keypad-grid">
               {['1','2','3','4','5','6','7','8','9',c.allIn,'0','⌫'].map(k => (
-                <button key={k} className={`keypad-btn${k === c.allIn ? ' keypad-btn-text' : ''}`} onClick={() => handleKeypad(k)}>{k}</button>
+                <button key={k} className={`keypad-btn${k === c.allIn ? ' keypad-btn-text' : ''}`} onClick={() => handleKeypad(k)}>{k === '⌫' ? <Delete size={18}/> : k}</button>
               ))}
             </div>
             <button className="cta-btn" style={{ margin: '12px 0 0' }} onClick={() => setKeypadOpen(false)}>{c.confirm}</button>
@@ -283,7 +284,7 @@ export default function WalletWithdraw() {
               <div className="faceid-wrap">
                 <div className="face-scan-ring scanning">
                   <div className="ring-outer" /><div className="ring-middle" /><div className="ring-inner"><div className="scan-line" /></div>
-                  <div className="face-icon">😊</div>
+                  <div className="face-icon"><ScanFace size={44}/></div>
                   <div className="corner tl" /><div className="corner tr" /><div className="corner bl" /><div className="corner br" />
                 </div>
                 <div className="faceid-label">{c.faceId.scanning}</div>
@@ -292,7 +293,7 @@ export default function WalletWithdraw() {
             )}
             {modal === 'complete' && (
               <div className="complete-wrap">
-                <div className="complete-icon">✓</div>
+                <div className="complete-icon"><Check size={24}/></div>
                 <div className="complete-title">{w.completionTitle}</div>
                 <div className="complete-amount">{bottomAmount || '0'} RLUSD</div>
                 <div className="complete-sub">{w.completionSub}</div>

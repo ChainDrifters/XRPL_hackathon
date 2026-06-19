@@ -4,6 +4,7 @@ import './terminal_credential.css'
 import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
 import { REFUND_BRANCH, REFUND_CASE } from '../../wallet/state/caseConstants'
+import { Check } from 'lucide-react'
 
 export default function TerminalConfirm() {
   const navigate = useNavigate()
@@ -25,7 +26,7 @@ export default function TerminalConfirm() {
       <div className="terminal-confirm-content">
         <div className="success-rings">
           <div className="r1" /><div className="r2" />
-          <div className="check">✓</div>
+          <div className="check"><Check size={24}/></div>
         </div>
         <div className="confirm-label">{co.label}</div>
         <div className="confirm-title">{co.title}</div>

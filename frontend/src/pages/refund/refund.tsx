@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import './refund.css'
 import { useLang } from '../../i18n/LangContext'
+import { Signal, BatteryMedium, Bell, Settings, Home, Banknote } from 'lucide-react'
 
 export default function RefundHome() {
   const navigate = useNavigate()
@@ -11,12 +12,12 @@ export default function RefundHome() {
   return (
     <div className="phone">
       <div className="notch" />
-      <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div className="status-bar"><span>9:41</span><span style={{display:'flex',gap:4,alignItems:'center'}}><Signal size={16}/><BatteryMedium size={16}/></span></div>
       <div className="nav-bar">
         <span className="nav-title" style={{ paddingLeft: 12 }}>{r.navTitle}</span>
         <div className="right">
-          <span className="icon" style={{ cursor: 'pointer' }} onClick={() => navigate('/qr-issued')}>🔔</span>
-          <span className="icon">⚙️</span>
+          <span className="icon" style={{ cursor: 'pointer' }} onClick={() => navigate('/qr-issued')}><Bell size={18}/></span>
+          <span className="icon"><Settings size={18}/></span>
         </div>
       </div>
 
@@ -90,9 +91,9 @@ export default function RefundHome() {
       </div>
 
       <div className="bottom-nav">
-        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>
-        <div className="bn-item active"><span className="icon">💸</span><span className="label">{c.nav.refund}</span></div>
-        <div className="bn-item"><span className="icon">⚙️</span><span className="label">{c.nav.settings}</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon"><Home size={20}/></span><span className="label">{c.nav.home}</span></div>
+        <div className="bn-item active"><span className="icon"><Banknote size={20}/></span><span className="label">{c.nav.refund}</span></div>
+        <div className="bn-item"><span className="icon"><Settings size={20}/></span><span className="label">{c.nav.settings}</span></div>
       </div>
     </div>
   )
