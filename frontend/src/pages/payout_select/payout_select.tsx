@@ -5,6 +5,8 @@ import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
 
 import { REFUND_BRANCH, REFUND_CASE } from '../../wallet/state/caseConstants'
+import { type ReactNode } from 'react'
+import { Signal, BatteryMedium, ChevronLeft, Settings, Home, Banknote, CreditCard, Landmark, PlaneTakeoff, Check } from 'lucide-react'
 
 type Method = 'card' | 'bank' | 'toss' | 'cash'
 
@@ -34,19 +36,19 @@ export default function PayoutSelect() {
     })
   }
 
-  const METHODS: { id: Method; icon: string; title: string; badge?: string; badgeType?: string; desc: string }[] = [
-    { id: 'card',  icon: '💳', title: p.m1Title, badge: p.m1Badge, desc: p.m1Desc },
-    { id: 'bank',  icon: '🏦', title: p.m2Title, desc: p.m2Desc },
-    { id: 'toss',  icon: '✈️', title: p.m3Title, badge: p.m3Badge, badgeType: 'adv', desc: p.m3Desc },
-    { id: 'cash',  icon: '💵', title: p.m4Title, desc: p.m4Desc },
+  const METHODS: { id: Method; icon: ReactNode; title: string; badge?: string; badgeType?: string; desc: string }[] = [
+    { id: 'card',  icon: <CreditCard size={22}/>, title: p.m1Title, badge: p.m1Badge, desc: p.m1Desc },
+    { id: 'bank',  icon: <Landmark size={22}/>, title: p.m2Title, desc: p.m2Desc },
+    { id: 'toss',  icon: <PlaneTakeoff size={22}/>, title: p.m3Title, badge: p.m3Badge, badgeType: 'adv', desc: p.m3Desc },
+    { id: 'cash',  icon: <Banknote size={22}/>, title: p.m4Title, desc: p.m4Desc },
   ]
 
   return (
     <div className="phone">
       <div className="notch" />
-      <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div className="status-bar"><span>9:41</span><span style={{display:'flex',gap:4,alignItems:'center'}}><Signal size={16}/><BatteryMedium size={16}/></span></div>
       <div className="nav-bar">
-        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}>‹</span>
+        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}><ChevronLeft size={24}/></span>
         <span className="nav-title">{p.navTitle}</span>
       </div>
 
@@ -68,7 +70,7 @@ export default function PayoutSelect() {
               </div>
               <div className="desc">{m.desc}</div>
             </div>
-            <div className="check">{selected === m.id ? '✓' : ''}</div>
+            <div className="check">{selected === m.id ? <Check size={18}/> : null}</div>
           </div>
         ))}
 
@@ -90,9 +92,9 @@ export default function PayoutSelect() {
         )}
       </div>
       <div className="bottom-nav">
-        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>
-        <div className="bn-item active"><span className="icon">💸</span><span className="label">{c.nav.refund}</span></div>
-        <div className="bn-item"><span className="icon">⚙️</span><span className="label">{c.nav.settings}</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon"><Home size={20}/></span><span className="label">{c.nav.home}</span></div>
+        <div className="bn-item active"><span className="icon"><Banknote size={20}/></span><span className="label">{c.nav.refund}</span></div>
+        <div className="bn-item"><span className="icon"><Settings size={20}/></span><span className="label">{c.nav.settings}</span></div>
       </div>
     </div>
   )

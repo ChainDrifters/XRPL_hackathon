@@ -4,6 +4,7 @@ import './terminal_face_id.css'
 import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
 import { REFUND_BRANCH, REFUND_CASE } from '../../wallet/state/caseConstants'
+import { ScanFace, UserRoundCheck } from 'lucide-react'
 
 export default function TerminalFaceId() {
   const navigate = useNavigate()
@@ -40,7 +41,7 @@ export default function TerminalFaceId() {
         <div className={`face-scan-ring${scanning ? ' scanning' : ''}${done ? ' done' : ''}`}>
           <div className="ring-outer" /><div className="ring-middle" />
           <div className="ring-inner">{scanning && <div className="scan-line" />}</div>
-          <div className="face-icon">{done ? '😊' : '😐'}</div>
+          <div className="face-icon">{done ? <UserRoundCheck size={44}/> : <ScanFace size={44}/>}</div>
           <div className="corner tl" /><div className="corner tr" /><div className="corner bl" /><div className="corner br" />
         </div>
 

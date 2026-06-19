@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import '../refund_detail/refund_detail.css'
 import '../balance_home/balance_home.css'
 import { useLang } from '../../i18n/LangContext'
+import { Signal, BatteryMedium, ChevronLeft, Link, Settings, Home, Banknote, Check } from 'lucide-react'
 
 export default function RefundDetailShinsegae() {
   const navigate = useNavigate()
@@ -12,11 +13,11 @@ export default function RefundDetailShinsegae() {
   return (
     <div className="phone">
       <div className="notch" />
-      <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div className="status-bar"><span>9:41</span><span style={{display:'flex',gap:4,alignItems:'center'}}><Signal size={16}/><BatteryMedium size={16}/></span></div>
       <div className="nav-bar">
-        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}>‹</span>
+        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}><ChevronLeft size={24}/></span>
         <span className="nav-title">{d.navTitle}</span>
-        <div className="right"><span className="icon">🔗</span></div>
+        <div className="right"><span className="icon"><Link size={18}/></span></div>
       </div>
 
       <div className="scroll-area" style={{ paddingBottom: 180 }}>
@@ -32,15 +33,15 @@ export default function RefundDetailShinsegae() {
         <div className="section-h"><h3>{d.sectionProgress}</h3></div>
         <div className="timeline">
           <div className="tl-item done">
-            <div className="tl-dot">✓</div>
+            <div className="tl-dot"><Check size={14}/></div>
             <div className="tl-content"><div className="tl-title">{d.s1}</div><div className="tl-time">{d.s1tS}</div></div>
           </div>
           <div className="tl-item done">
-            <div className="tl-dot">✓</div>
+            <div className="tl-dot"><Check size={14}/></div>
             <div className="tl-content"><div className="tl-title">{d.s2}</div><div className="tl-time">{d.s2tS}</div></div>
           </div>
           <div className="tl-item done">
-            <div className="tl-dot">✓</div>
+            <div className="tl-dot"><Check size={14}/></div>
             <div className="tl-content"><div className="tl-title">{d.s3}</div><div className="tl-time">{d.s3tS}</div></div>
           </div>
           <div className="tl-item current">
@@ -73,9 +74,9 @@ export default function RefundDetailShinsegae() {
         </button>
       </div>
       <div className="bottom-nav">
-        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>
-        <div className="bn-item active"><span className="icon">💸</span><span className="label">{c.nav.refund}</span></div>
-        <div className="bn-item"><span className="icon">⚙️</span><span className="label">{c.nav.settings}</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon"><Home size={20}/></span><span className="label">{c.nav.home}</span></div>
+        <div className="bn-item active"><span className="icon"><Banknote size={20}/></span><span className="label">{c.nav.refund}</span></div>
+        <div className="bn-item"><span className="icon"><Settings size={20}/></span><span className="label">{c.nav.settings}</span></div>
       </div>
     </div>
   )

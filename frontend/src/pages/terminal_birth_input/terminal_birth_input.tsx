@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import './terminal_birth_input.css'
 import { useLang } from '../../i18n/LangContext'
 import { useWalletStore } from '../../wallet/state/walletStore'
+import { Check, Delete } from 'lucide-react'
 
 type Field = 'year' | 'month' | 'day' | null
 
@@ -100,8 +101,8 @@ export default function TerminalCardInput() {
         </div>
 
         <div className="step-list">
-          <div className="step-item"><div className="step-num done">✓</div><span className="step-text">{ci.qrStep}</span></div>
-          <div className="step-item"><div className="step-num done">✓</div><span className="step-text">{ci.faceStep}</span></div>
+          <div className="step-item"><div className="step-num done"><Check size={12}/></div><span className="step-text">{ci.qrStep}</span></div>
+          <div className="step-item"><div className="step-num done"><Check size={12}/></div><span className="step-text">{ci.faceStep}</span></div>
           <div className="step-item current"><div className="step-num current">3</div><span className="step-text">{ci.dobStep}</span></div>
         </div>
       </div>
@@ -128,7 +129,7 @@ export default function TerminalCardInput() {
           </div>
           <div className="keypad-grid">
             {keys.map((k, i) => (
-              <button key={i} className={`key-btn${k === '' ? ' key-empty' : ''}${k === '⌫' ? ' key-del' : ''}`} onClick={() => k && handleKey(k)} disabled={k === ''}>{k}</button>
+              <button key={i} className={`key-btn${k === '' ? ' key-empty' : ''}${k === '⌫' ? ' key-del' : ''}`} onClick={() => k && handleKey(k)} disabled={k === ''}>{k === '⌫' ? <Delete size={18}/> : k}</button>
             ))}
           </div>
         </div>

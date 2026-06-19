@@ -4,6 +4,7 @@ import './terminal_qr_scan.css'
 import { useLang } from '../../i18n/LangContext'
 import { useWalletStore } from '../../wallet/state/walletStore'
 import { REFUND_BRANCH } from '../../wallet/state/caseConstants'
+import { QrCode } from 'lucide-react'
 
 export default function TerminalQRScan() {
   const navigate = useNavigate()
@@ -20,7 +21,7 @@ export default function TerminalQRScan() {
           <div className="bg" />
           <div className="qr-corner tl" /><div className="qr-corner tr" />
           <div className="qr-corner bl" /><div className="qr-corner br" />
-          <div className="qr-center">📱</div>
+          <div className="qr-center"><QrCode size={72}/></div>
           <div className="qr-scan-line" />
         </div>
         <div className="terminal-title">{q.title}</div>

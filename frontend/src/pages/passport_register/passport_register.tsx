@@ -5,6 +5,7 @@ import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
 import { listPersonas } from '../../wallet/personas/loader'
 import { useWalletStore } from '../../wallet/state/walletStore'
+import { Signal, BatteryMedium, ChevronLeft, Delete, BookUser } from 'lucide-react'
 
 const PERSONA_FLAGS: Record<string, string> = {
   jane_doe: '🇺🇸',
@@ -101,9 +102,9 @@ export default function PassportRegister() {
   return (
     <div className="phone" onClick={() => setActiveField(null)}>
       <div className="notch" />
-      <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div className="status-bar"><span>9:41</span><span style={{display:'flex',gap:4,alignItems:'center'}}><Signal size={16}/><BatteryMedium size={16}/></span></div>
       <div className="nav-bar">
-        <span className="back" onClick={e => { e.stopPropagation(); navigate('/onboarding-start') }} style={{ cursor: 'pointer' }}>‹</span>
+        <span className="back" onClick={e => { e.stopPropagation(); navigate('/onboarding-start') }} style={{ cursor: 'pointer' }}><ChevronLeft size={24}/></span>
         <span className="nav-title">{p.navTitle}</span>
       </div>
 
@@ -135,7 +136,7 @@ export default function PassportRegister() {
 
         <div className="passport-scan-area">
           <div className="top-stripe" />
-          <div className="scan-icon">🛂</div>
+          <div className="scan-icon"><BookUser size={32}/></div>
           <div className="scan-title">{p.scanTitle}</div>
           <div className="scan-sub">{p.scanSub}</div>
           <div className="open-btn">{p.openCamera}</div>
@@ -193,7 +194,7 @@ export default function PassportRegister() {
             {ALPHA_ROWS.map((row, ri) => (
               <div key={ri} className="alpha-row">
                 {row.map((k, ki) => (
-                  <button key={ki} className={`alpha-key${k === '⌫' ? ' key-del' : ''}`} onClick={() => handleAlphaKey(k)}>{k}</button>
+                  <button key={ki} className={`alpha-key${k === '⌫' ? ' key-del' : ''}`} onClick={() => handleAlphaKey(k)}>{k === '⌫' ? <Delete size={18}/> : k}</button>
                 ))}
               </div>
             ))}
@@ -212,7 +213,7 @@ export default function PassportRegister() {
           </div>
           <div className="keypad-grid">
             {NUM_KEYS.map((k, i) => (
-              <button key={i} className={`key-btn${k === '' ? ' key-empty' : ''}${k === '⌫' ? ' key-del' : ''}`} onClick={() => k && handleNumKey(k)} disabled={k === ''}>{k}</button>
+              <button key={i} className={`key-btn${k === '' ? ' key-empty' : ''}${k === '⌫' ? ' key-del' : ''}`} onClick={() => k && handleNumKey(k)} disabled={k === ''}>{k === '⌫' ? <Delete size={18}/> : k}</button>
             ))}
           </div>
         </div>

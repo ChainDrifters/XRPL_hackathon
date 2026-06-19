@@ -4,6 +4,7 @@ import './balance_home.css'
 import '../refund_storage/refund_storage.css'
 import { useLang } from '../../i18n/LangContext'
 import { useWalletStore } from '../../wallet/state/walletStore'
+import { Signal, BatteryMedium, Bell, Settings, Home, Banknote, QrCode, Timer, ArrowUp, ArrowDown, Check, X, ScanFace } from 'lucide-react'
 
 type ModalPhase = 'face-id' | 'qr' | 'tx-list' | 'refund-detail' | 'withdraw-detail' | null
 
@@ -85,7 +86,7 @@ export default function BalanceHome() {
   return (
     <div className="phone">
       <div className="notch" />
-      <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div className="status-bar"><span>9:41</span><span style={{display:'flex',gap:4,alignItems:'center'}}><Signal size={16}/><BatteryMedium size={16}/></span></div>
       <div className="nav-bar">
         <span className="nav-title" style={{ paddingLeft: 12 }}>Trixa</span>
         <div className="right">
@@ -95,8 +96,8 @@ export default function BalanceHome() {
           >
             {lang === 'ko' ? '🇺🇸 EN' : '🇰🇷 KO'}
           </button>
-          <span className="icon" style={{ cursor: 'pointer' }} onClick={() => navigate('/qr-issued')}>🔔</span>
-          <span className="icon">⚙️</span>
+          <span className="icon" style={{ cursor: 'pointer' }} onClick={() => navigate('/qr-issued')}><Bell size={18}/></span>
+          <span className="icon"><Settings size={18}/></span>
         </div>
       </div>
 
@@ -104,7 +105,7 @@ export default function BalanceHome() {
         <WalletAnchorList />
         <div className="qr-issue-card" onClick={openQR}>
           <div className="qr-left">
-            <div className="qr-icon">📱</div>
+            <div className="qr-icon"><QrCode size={26}/></div>
             <div>
               <div className="qr-title">{b.qrIssueTitle}</div>
               <div className="qr-sub">{b.qrIssueSub}</div>
@@ -130,7 +131,7 @@ export default function BalanceHome() {
         <div className="info-card" style={{ padding: '4px 18px', marginBottom: 12 }}>
           {TX_DATA.slice(0, 3).map(tx => (
             <div key={tx.id} className={`tx-item${tx.type === 'withdraw' ? ' out' : ''}`} style={{ cursor: 'pointer' }} onClick={() => openTxDetail(tx)}>
-              <div className="ic">{tx.type === 'withdraw' ? '↑' : '↓'}</div>
+              <div className="ic">{tx.type === 'withdraw' ? <ArrowUp size={16}/> : <ArrowDown size={16}/>}</div>
               <div className="body"><div className="ttl">{tx.title}</div><div className="sub">{tx.sub}</div></div>
               <div className="right"><div className="amt">{tx.amt}</div><div className="when">{tx.rlusd}</div></div>
             </div>
@@ -159,9 +160,9 @@ export default function BalanceHome() {
       </div>
 
       <div className="bottom-nav">
-        <div className="bn-item active"><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>
-        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}><span className="icon">💸</span><span className="label">{c.nav.refund}</span></div>
-        <div className="bn-item"><span className="icon">⚙️</span><span className="label">{c.nav.settings}</span></div>
+        <div className="bn-item active"><span className="icon"><Home size={20}/></span><span className="label">{c.nav.home}</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}><span className="icon"><Banknote size={20}/></span><span className="label">{c.nav.refund}</span></div>
+        <div className="bn-item"><span className="icon"><Settings size={20}/></span><span className="label">{c.nav.settings}</span></div>
       </div>
 
       {modal && (
@@ -172,7 +173,7 @@ export default function BalanceHome() {
               <div className="faceid-wrap">
                 <div className="face-scan-ring scanning">
                   <div className="ring-outer" /><div className="ring-middle" /><div className="ring-inner"><div className="scan-line" /></div>
-                  <div className="face-icon">😊</div>
+                  <div className="face-icon"><ScanFace size={44}/></div>
                   <div className="corner tl" /><div className="corner tr" /><div className="corner bl" /><div className="corner br" />
                 </div>
                 <div className="faceid-label">{c.faceId.scanning}</div>
@@ -186,7 +187,7 @@ export default function BalanceHome() {
                 <div className="qr-modal-sub">{c.qr.showToTerminal}</div>
                 <div className="qr-code-box">{QR_SVG}</div>
                 <div className="qr-timer-row">
-                  <span className="qr-timer-icon">⏱</span>
+                  <span className="qr-timer-icon"><Timer size={16}/></span>
                   <span className="qr-timer-val">{mm}:{ss}</span>
                   <span className="qr-timer-note">{c.qr.expireNote}</span>
                 </div>
@@ -198,12 +199,12 @@ export default function BalanceHome() {
               <div className="tx-list-wrap">
                 <div className="tx-list-header">
                   <span className="tx-list-title">{b.txListTitle}</span>
-                  <button className="tx-list-close" onClick={closeModal}>✕</button>
+                  <button className="tx-list-close" onClick={closeModal}><X size={16}/></button>
                 </div>
                 <div className="tx-list-scroll">
                   {TX_DATA.map(tx => (
                     <div key={tx.id} className={`tx-item${tx.type === 'withdraw' ? ' out' : ''}`} style={{ cursor: 'pointer' }} onClick={() => openTxDetail(tx)}>
-                      <div className="ic">{tx.type === 'withdraw' ? '↑' : '↓'}</div>
+                      <div className="ic">{tx.type === 'withdraw' ? <ArrowUp size={16}/> : <ArrowDown size={16}/>}</div>
                       <div className="body"><div className="ttl">{tx.title}</div><div className="sub">{tx.sub}</div></div>
                       <div className="right"><div className="amt">{tx.amt}</div><div className="when">{tx.rlusd}</div></div>
                     </div>
@@ -214,7 +215,7 @@ export default function BalanceHome() {
 
             {modal === 'refund-detail' && selectedTx && (
               <div className="refund-detail-wrap">
-                <div className="rd-icon-circle">✓</div>
+                <div className="rd-icon-circle"><Check size={26}/></div>
                 <div className="rd-title">{b.refundDetailTitle}</div>
                 <div className="rd-amount">{selectedTx.amt.replace('+', '')}</div>
                 <div className="rd-from">{selectedTx.merchant}{b.refundFrom}</div>
@@ -231,7 +232,7 @@ export default function BalanceHome() {
               <div className="wd-sheet">
                 <div className="wd-header">
                   <span className="wd-title">{b.wdTitle}</span>
-                  <button className="wd-close" onClick={closeDetail}>✕</button>
+                  <button className="wd-close" onClick={closeDetail}><X size={16}/></button>
                 </div>
                 <div className="wd-scroll">
                   <div className="wd-timeline">

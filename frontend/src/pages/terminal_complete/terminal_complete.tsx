@@ -4,6 +4,7 @@ import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
 import { useWalletStore } from '../../wallet/state/walletStore'
 import { REFUND_BRANCH, REFUND_CASE } from '../../wallet/state/caseConstants'
+import { Check } from 'lucide-react'
 
 function formatKRW(n: number): string {
   return n.toLocaleString('en-US')
@@ -69,7 +70,7 @@ export default function TerminalComplete() {
         <div className="success-rings">
           <div className="r1" />
           <div className="r2" />
-          <div className="check">✓</div>
+          <div className="check"><Check size={24}/></div>
         </div>
         <div className="confirm-label">{c.label}</div>
         <div className="confirm-title" style={{ whiteSpace: 'pre-line' }}>{c.title}</div>

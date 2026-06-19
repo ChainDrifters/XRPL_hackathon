@@ -6,6 +6,7 @@ import { useLang } from '../../i18n/LangContext'
 import { useAnchoredAction } from '../../wallet/state/useAnchor'
 import { useWalletStore } from '../../wallet/state/walletStore'
 import { REFUND_BRANCH, REFUND_CASE } from '../../wallet/state/caseConstants'
+import { Signal, BatteryMedium, ChevronLeft, Link, Settings, Home, Banknote, Check, ScanFace, Timer } from 'lucide-react'
 
 type ModalPhase = 'face-id' | 'qr' | null
 
@@ -26,8 +27,10 @@ export default function RefundDetail() {
   )
   void REFUND_CASE
 
+  // 페이지 진입 시점에 이미 완료 이벤트가 있으면 무시 — 새로 발생한 경우만 리다이렉트
+  const wasAlreadyCompleted = useRef(refundCompleted)
   useEffect(() => {
-    if (refundCompleted) navigate('/refund-complete')
+    if (refundCompleted && !wasAlreadyCompleted.current) navigate('/refund-complete')
   }, [refundCompleted, navigate])
 
   async function recordPurchaseChain() {
@@ -65,11 +68,11 @@ export default function RefundDetail() {
   return (
     <div className="phone">
       <div className="notch" />
-      <div className="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+      <div className="status-bar"><span>9:41</span><span style={{display:'flex',gap:4,alignItems:'center'}}><Signal size={16}/><BatteryMedium size={16}/></span></div>
       <div className="nav-bar">
-        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}>‹</span>
+        <span className="back" style={{ cursor: 'pointer' }} onClick={() => navigate('/refund-home')}><ChevronLeft size={24}/></span>
         <span className="nav-title">{d.navTitle}</span>
-        <div className="right"><span className="icon">🔗</span></div>
+        <div className="right"><span className="icon"><Link size={18}/></span></div>
       </div>
 
       <div className="scroll-area" style={{ paddingBottom: 180 }}>
@@ -85,11 +88,11 @@ export default function RefundDetail() {
         <div className="section-h"><h3>{d.sectionProgress}</h3></div>
         <div className="timeline">
           <div className="tl-item done">
-            <div className="tl-dot">✓</div>
+            <div className="tl-dot"><Check size={14}/></div>
             <div className="tl-content"><div className="tl-title">{d.s1}</div><div className="tl-time">{d.s1tO}</div></div>
           </div>
           <div className="tl-item done">
-            <div className="tl-dot">✓</div>
+            <div className="tl-dot"><Check size={14}/></div>
             <div className="tl-content"><div className="tl-title">{d.s2}</div><div className="tl-time">{d.s2tO}</div></div>
           </div>
           <div className="tl-item current">
@@ -106,6 +109,21 @@ export default function RefundDetail() {
           </div>
         </div>
 
+        {branchEvents.length > 0 && (
+          <div style={{ marginBottom: 12, padding: 8, background: '#f5f7fa', borderRadius: 6, fontSize: 11 }}>
+            <div style={{ fontWeight: 700, marginBottom: 4 }}>Live case progress ({branchEvents.length} events)</div>
+            {branchEvents.slice(-4).map(e => (
+              <div key={e.eventId} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <span>{e.eventType}</span>
+                {e.anchor ? (
+                  <a href={e.anchor.explorerTxUrl} target="_blank" rel="noreferrer" style={{ color: '#3182f6' }}>
+                    {e.anchor.txHash.slice(0, 8)}…
+                  </a>
+                ) : <span style={{ color: '#aaa' }}>local</span>}
+              </div>
+            ))}
+          </div>
+        )}
         <div className="section-h"><h3>{d.sectionPurchase}</h3></div>
         <div className="info-card">
           <div className="info-row"><span className="key">{d.store}</span><span className="val">올리브영 명동본점</span></div>
@@ -124,26 +142,11 @@ export default function RefundDetail() {
         <button className="cta-btn" disabled={anchor.pending} onClick={async () => { await recordPurchaseChain(); openQR() }}>
           {anchor.pending ? 'Anchoring chain...' : d.showKiosk}
         </button>
-        {branchEvents.length > 0 && (
-          <div style={{ marginTop: 8, padding: 8, background: '#f5f7fa', borderRadius: 6, fontSize: 11 }}>
-            <div style={{ fontWeight: 700, marginBottom: 4 }}>Live case progress ({branchEvents.length} events)</div>
-            {branchEvents.slice(-4).map(e => (
-              <div key={e.eventId} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>{e.eventType}</span>
-                {e.anchor ? (
-                  <a href={e.anchor.explorerTxUrl} target="_blank" rel="noreferrer" style={{ color: '#3182f6' }}>
-                    {e.anchor.txHash.slice(0, 8)}…
-                  </a>
-                ) : <span style={{ color: '#aaa' }}>local</span>}
-              </div>
-            ))}
-          </div>
-        )}
       </div>
       <div className="bottom-nav">
-        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon">🏠</span><span className="label">{c.nav.home}</span></div>
-        <div className="bn-item active"><span className="icon">💸</span><span className="label">{c.nav.refund}</span></div>
-        <div className="bn-item"><span className="icon">⚙️</span><span className="label">{c.nav.settings}</span></div>
+        <div className="bn-item" style={{ cursor: 'pointer' }} onClick={() => navigate('/balance-home')}><span className="icon"><Home size={20}/></span><span className="label">{c.nav.home}</span></div>
+        <div className="bn-item active"><span className="icon"><Banknote size={20}/></span><span className="label">{c.nav.refund}</span></div>
+        <div className="bn-item"><span className="icon"><Settings size={20}/></span><span className="label">{c.nav.settings}</span></div>
       </div>
 
       {modal && (
@@ -153,7 +156,7 @@ export default function RefundDetail() {
               <div className="faceid-wrap">
                 <div className="face-scan-ring scanning">
                   <div className="ring-outer" /><div className="ring-middle" /><div className="ring-inner"><div className="scan-line" /></div>
-                  <div className="face-icon">😊</div>
+                  <div className="face-icon"><ScanFace size={44}/></div>
                   <div className="corner tl" /><div className="corner tr" /><div className="corner bl" /><div className="corner br" />
                 </div>
                 <div className="faceid-label">{c.faceId.scanning}</div>
@@ -178,7 +181,7 @@ export default function RefundDetail() {
                   </svg>
                 </div>
                 <div className="qr-timer-row">
-                  <span className="qr-timer-icon">⏱</span>
+                  <span className="qr-timer-icon"><Timer size={16}/></span>
                   <span className="qr-timer-val">{mm}:{ss}</span>
                   <span className="qr-timer-note">{c.qr.expireNote}</span>
                 </div>

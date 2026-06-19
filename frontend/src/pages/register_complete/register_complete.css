@@ -9,31 +9,41 @@
   padding-bottom: 0;
 }
 
-.success-ring {
+.success-rings {
   position: relative;
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   margin-bottom: 28px;
 }
-.success-ring .bg { position: absolute; inset: 0; border-radius: 50%; background: var(--success-light); }
-.success-ring .check {
+.success-rings .r1 {
   position: absolute;
-  inset: 12px;
+  inset: 0;
   border-radius: 50%;
-  background: var(--success);
+  background: rgba(0,200,150,0.08);
+  border: 2px solid rgba(0,200,150,0.2);
+  animation: ringPulse 2s ease-in-out infinite;
+}
+.success-rings .r2 {
+  position: absolute;
+  inset: 16px;
+  border-radius: 50%;
+  background: rgba(0,200,150,0.12);
+  border: 2px solid rgba(0,200,150,0.35);
+}
+.success-rings .check {
+  position: absolute;
+  inset: 32px;
+  border-radius: 50%;
+  background: #00c896;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40px;
   color: white;
-  font-weight: 900;
 }
-.success-ring .outer-ring {
-  position: absolute;
-  inset: -6px;
-  border-radius: 50%;
-  border: 3px solid var(--success);
-  opacity: 0.3;
+
+@keyframes ringPulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.06); opacity: 1; }
 }
 
 .complete-title {
@@ -63,4 +73,4 @@
 .chip .body { text-align: left; flex: 1; }
 .chip .body .ttl { font-size: 12px; font-weight: 700; color: var(--text-primary); }
 .chip .body .sub { font-size: 11px; color: var(--text-quaternary); }
-.chip .badge { font-size: 11px; font-weight: 700; color: var(--success); }
+.chip .badge { font-size: 11px; font-weight: 700; color: var(--text-primary); }
